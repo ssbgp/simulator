@@ -15,50 +15,37 @@ import core.routing.emptyPath
  *
  * BGP routes are always immutable instances!
  */
-interface BGPRoute : Route {
+sealed class BGPRoute : Route {
 
-    val localPref: Int
-    val asPath: Path<BGPNode>
+    abstract val localPref: Int
+    abstract val asPath: Path<BGPNode>
+
+    companion object Factories {
+
+        fun with(localPref: Int, asPath: Path<BGPNode>): BGPRoute {
+            return ValidBGPRoute(localPref, asPath)
+        }
+
+        fun invalid(): BGPRoute {
+            return InvalidBGPRoute
+        }
+
+    }
+
+    /**
+     * An implementation for a valid BGP route.
+     */
+    private data class ValidBGPRoute(override val localPref: Int, override val asPath: Path<BGPNode>) : BGPRoute() {
+        override fun isValid(): Boolean = true
+    }
+
+    /**
+     * An implementation for a invalid BGP route.
+     */
+    private object InvalidBGPRoute : BGPRoute() {
+        override val localPref: Int = Int.MIN_VALUE
+        override val asPath: Path<BGPNode> = emptyPath()
+        override fun isValid(): Boolean = false
+    }
 
 }
-
-/**
- * An implementation for a valid BGP route.
- */
-internal data class ValidBGPRoute(override val localPref: Int, override val asPath: Path<BGPNode>) : BGPRoute {
-
-    // A valid bgp route is always valid
-    override fun isValid(): Boolean = true
-
-}
-
-/**
- * An implementation for a invalid BGP route.
- */
-object InvalidBGPRoute : BGPRoute {
-
-    override val localPref: Int = Int.MIN_VALUE
-    override val asPath: Path<BGPNode> = emptyPath()
-
-    // A invalid bgp route is always invalid
-    override fun isValid(): Boolean = false
-
-}
-
-//region Factory functions
-
-/**
- * Returns a valid BGP route with the given LOCAL-PREF and AS-PATH.
- */
-fun BGPRouteWith(localPref: Int, asPath: Path<BGPNode>): BGPRoute {
-    return ValidBGPRoute(localPref, asPath)
-}
-
-/**
- * Returns an invalid BGP route
- */
-fun invalidBGPRoute(): BGPRoute {
-    return InvalidBGPRoute
-}
-
-//endregion
