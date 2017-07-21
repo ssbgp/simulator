@@ -1,8 +1,8 @@
 package bgp
 
-import core.Relationship
 import core.routing.Node
 import core.routing.NodeID
+import core.routing.Relationship
 
 /**
  * Created on 20-07-2017

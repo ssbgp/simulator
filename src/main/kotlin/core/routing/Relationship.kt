@@ -1,8 +1,4 @@
-package core
-
-import core.routing.Extender
-import core.routing.Node
-import core.routing.Route
+package core.routing
 
 /**
  * Created on 20-07-2017
