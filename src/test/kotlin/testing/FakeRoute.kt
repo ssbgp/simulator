@@ -27,6 +27,19 @@ sealed class FakeRoute : Route {
     }
 }
 
+/**
+ * A compare method for fake routes.
+ *
+ * Not surprisingly, it considers routes with higher preference value to be preferred to routes with lower
+ * preference values.
+ */
+fun fakeCompare(route1: Route, route2: Route): Int {
+    route1 as FakeRoute
+    route2 as FakeRoute
+
+    return route1.preference.compareTo(route2.preference)
+}
+
 //region Factory methods
 
 /**

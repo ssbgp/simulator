@@ -7,16 +7,57 @@ package core.routing
  *
  * A route selector is responsible for selecting the best route in a routing table.
  * It also works as a cache for the routing table
+ *
  */
-interface RouteSelector<N, R> {
+class RouteSelector<N: Node, R: Route>
+(private val table: RoutingTable<N, R>, forceReselect: Boolean = false, private val compare: (R, R) -> Int) {
 
-    val selectedRoute: R
-    val selectedNeighbor: N?
+    private var selectedRoute: R = table.invalidRoute
+    private var selectedNeighbor: N? = null
+    init {
+        if (forceReselect) {
+            val (route, neighbor) = reselect()
+            updateSelectedTo(route, neighbor)
+        }
+    }
 
-    fun update(neighbor: N, route: R)
+    fun getSelectedRoute(): R = selectedRoute
 
-    fun hasSelectedNewRoute(): Boolean
+    fun getSelectedNeighbor(): N? = selectedNeighbor
 
-    fun disable(neighbor: N)
+    fun update(neighbor: N, route: R) {
+
+        val neighborExists = table.update(neighbor, route)
+
+        if (!neighborExists) return
+
+        if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
+            val (newlySelectedRoute, newlySelectedNeighbor) = reselect()
+            updateSelectedTo(newlySelectedRoute, newlySelectedNeighbor)
+
+        } else if (compare(route, selectedRoute) > 0) {
+            updateSelectedTo(route, neighbor)
+        }
+    }
+
+    fun reselect(): Pair<R, N?> {
+
+        var selectedRoute = table.invalidRoute
+        var selectedNeighbor: N? = null
+
+        table.forEach { neighbor, route -> if (compare(route, selectedRoute) > 0) {
+                selectedRoute = route
+                selectedNeighbor = neighbor
+            }
+        }
+
+        return Pair(selectedRoute, selectedNeighbor)
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    inline private fun updateSelectedTo(route: R, neighbor: N?) {
+        selectedRoute = route
+        selectedNeighbor = neighbor
+    }
 
 }
