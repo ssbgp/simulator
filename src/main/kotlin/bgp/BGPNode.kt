@@ -30,7 +30,7 @@ internal constructor(id: NodeID, val relationships: MutableList<Relationship<BGP
 @Throws(java.lang.IllegalArgumentException::class)
 fun BGPNodeWith(id: NodeID, relationships: MutableList<Relationship<BGPNode, BGPRoute>> = ArrayList()): BGPNode {
 
-    if (setOf(relationships).size != relationships.size) {
+    if (HashSet(relationships).size != relationships.size) {
         throw IllegalArgumentException("Can not create a BGP node with duplicate relationships")
     }
 
