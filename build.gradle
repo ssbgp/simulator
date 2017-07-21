@@ -46,6 +46,7 @@ dependencies {
     testRuntime "org.junit.platform:junit-platform-launcher:$junit_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
 compileKotlin {
