@@ -43,6 +43,7 @@ dependencies {
 
     testRuntime "org.junit.jupiter:junit-jupiter-engine:$junit5_version"
     testRuntime "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
+    testRuntime "org.junit.platform:junit-platform-launcher:$junit_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
