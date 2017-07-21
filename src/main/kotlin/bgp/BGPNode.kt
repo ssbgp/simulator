@@ -13,6 +13,13 @@ class BGPNode
 internal constructor(id: NodeID, val relationships: MutableList<Relationship<BGPNode, BGPRoute>>) : Node(id) {
 
     /**
+     * This method should be called when a message is received by the node.
+     */
+    fun onReceivingMessage(message: BGPMessage) {
+        TODO("not implemented yet")
+    }
+
+    /**
      * Adds a relationship to this node.
      */
     fun addRelationship(neighbor: BGPNode, extender: BGPExtender) {
