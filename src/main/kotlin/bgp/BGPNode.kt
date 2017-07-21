@@ -4,13 +4,15 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Relationship
 
+typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
+
 /**
  * Created on 20-07-2017
  *
  * @author David Fialho
  */
 class BGPNode
-internal constructor(id: NodeID, val relationships: MutableList<Relationship<BGPNode, BGPRoute>>) : Node(id) {
+internal constructor(id: NodeID, private val relationships: MutableList<BGPRelationship>) : Node(id) {
 
     /**
      * This method should be called when a message is received by the node.
@@ -20,10 +22,17 @@ internal constructor(id: NodeID, val relationships: MutableList<Relationship<BGP
     }
 
     /**
+     * Exports a route to the neighbor defined in the given relationship.
+     */
+    fun export(route: BGPRoute, relationship: BGPRelationship) {
+        TODO("not implemented yet")
+    }
+
+    /**
      * Adds a relationship to this node.
      */
     fun addRelationship(neighbor: BGPNode, extender: BGPExtender) {
-        relationships.add(Relationship(neighbor, extender))
+        relationships.add(BGPRelationship(neighbor, extender))
     }
 
     override fun toString(): String {
