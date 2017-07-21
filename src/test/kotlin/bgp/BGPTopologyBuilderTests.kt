@@ -72,6 +72,36 @@ object BGPTopologyBuilderTests : Spek({
 
     }
 
+    given("a builder with two nodes with IDs 1 and 2") {
+
+        val builder = BGPTopologyBuilder()
+        builder.addNode(1)
+        builder.addNode(2)
+
+        on("adding a relationship from 1 to 2") {
+
+            val added = builder.addLink(from = 1, to = 2, extender = someExtender())
+
+            it("returns true") {
+                assertThat(added, `is`(true))
+            }
+
+        }
+
+        on("calling build") {
+            val topology = builder.build()
+            val links = topology.getLinks()
+
+            it("returns a topology with 1 link") {
+                assertThat(topology.linkCount(), equalTo(1))
+            }
+
+            it("returns a topology with a link from 1 to 2") {
+                assertThat(links, contains(BGPLink(from = 1, to = 2)))
+            }
+        }
+
+    }
 
 })
 

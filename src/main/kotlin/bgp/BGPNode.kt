@@ -12,6 +12,10 @@ import core.routing.NodeID
 class BGPNode
 internal constructor(id: NodeID, val relationships: MutableList<Relationship<BGPNode, BGPRoute>>) : Node(id) {
 
+    fun addRelationship(neighbor: BGPNode, extender: BGPExtender) {
+        relationships.add(Relationship(neighbor, extender))
+    }
+
     override fun toString(): String {
         return "BGPNode(id=$id)"
     }

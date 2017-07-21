@@ -21,13 +21,27 @@ class BGPTopology(private val nodes: List<BGPNode>) : Topology<BGPNode, BGPRoute
     override fun getNodes(): Collection<BGPNode> = nodes
 
     override fun getLinks(): Collection<Link<BGPNode, BGPRoute>> {
-        return emptyList()
+
+        val links = ArrayList<BGPLink>()
+
+        for (node in nodes) {
+            for ((neighbor, extender) in node.relationships) {
+                links.add(BGPLink(neighbor, node, extender))
+            }
+        }
+
+        return links
     }
 
     override fun nodeCount(): Int = size
 
     override fun linkCount(): Int {
-        TODO("not implemented")
+
+        val counter: Int = nodes
+                .flatMap { it.relationships }
+                .count()
+
+        return counter
     }
 
 }
