@@ -1,6 +1,5 @@
 package bgp
 
-import core.routing.Extender
 import core.routing.NodeID
 
 /**
@@ -13,7 +12,7 @@ class BGPTopologyBuilder {
     data class Link(val tailID: NodeID, val headID: NodeID, val extender: BGPExtender)
 
     private val ids = mutableSetOf<NodeID>()
-    private val links = mutableListOf<Link>()
+    private val links = mutableSetOf<Link>()
 
     /**
      * Indicates to the builder that the topology to be built must include a node with the given ID.
@@ -25,9 +24,7 @@ class BGPTopologyBuilder {
     }
 
     fun addLink(from: NodeID, to: NodeID, extender: BGPExtender): Boolean {
-
-        links.add(Link(from, to, extender))
-        return true
+        return links.add(Link(from, to, extender))
     }
 
     /**

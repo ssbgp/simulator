@@ -1,6 +1,5 @@
 package bgp
 
-import core.routing.Extender
 import core.routing.NodeID
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -8,7 +7,6 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
-import org.jetbrains.spek.api.dsl.context
 
 /**
  * Created on 21-07-2017
@@ -98,6 +96,40 @@ object BGPTopologyBuilderTests : Spek({
 
             it("returns a topology with a link from 1 to 2") {
                 assertThat(links, contains(BGPLink(from = 1, to = 2)))
+            }
+        }
+
+        on("trying to add a relationship from 1 to 2 again") {
+
+            val added = builder.addLink(from = 1, to = 2, extender = someExtender())
+
+            it("returns false") {
+                assertThat(added, `is`(false))
+            }
+
+        }
+
+        on("adding a relationship from 2 to 1") {
+
+            val added = builder.addLink(from = 2, to = 1, extender = someExtender())
+
+            it("returns true") {
+                assertThat(added, `is`(true))
+            }
+
+        }
+
+        on("calling build") {
+
+            val topology = builder.build()
+            val links = topology.getLinks()
+
+            it("returns a topology with 2 links") {
+                assertThat(topology.linkCount(), equalTo(1))
+            }
+
+            it("returns a topology with a link from 1 to 2 and another from 2 to 1") {
+                assertThat(links, containsInAnyOrder(BGPLink(from = 1, to = 2), BGPLink(from = 2, to = 1)))
             }
         }
 
