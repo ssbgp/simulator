@@ -49,3 +49,32 @@ sealed class BGPRoute : Route {
     }
 
 }
+
+/**
+ * Compare function for BGP routes. It compares the preference of two BGP routes.
+ *
+ * The preference of a BGP route is determined based on the following attributes:
+ *
+ *  1. the LOCAL-PREF
+ *  2. the length of the AS-PATH
+ *  3. the ID of the next-hop node
+ *
+ * @return positive value if route1 is preferred to route 2; zero if they have the same preference; and negative
+ * value if route2 is preferred to route1
+ */
+fun bgpRouteCompare(route1: BGPRoute, route2: BGPRoute): Int {
+
+    var difference = route1.localPref.compareTo(route2.localPref)
+    if (difference == 0) {
+        difference = route2.asPath.size.compareTo(route1.asPath.size)
+        if (difference == 0) {
+
+            val nextHop1 = route1.asPath.nextHop() ?: return 0
+            val nextHop2 = route2.asPath.nextHop() ?: return 0
+
+            difference = nextHop2.id.compareTo(nextHop1.id)
+        }
+    }
+
+    return difference
+}
