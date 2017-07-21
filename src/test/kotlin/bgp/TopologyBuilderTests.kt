@@ -13,7 +13,7 @@ import org.hamcrest.Matchers.*
 
  * @author David Fialho
  */
-object BGPTopologyBuilderTests : Spek({
+object TopologyBuilderTests : Spek({
 
     given("a clean builder") {
 
