@@ -16,6 +16,17 @@ class Path<N: Node>(private val nodes: List<N>) {
 
     val size: Int = nodes.size
 
+    /**
+     * Returns a new path instance containing the nodes in the same order as this path and with the given node
+     * appended to it.
+     */
+    fun append(node: N): Path<N> {
+        val nodesCopy = ArrayList(nodes)
+        nodesCopy.add(node)
+
+        return Path(nodesCopy)
+    }
+
 }
 
 //region Factory methods

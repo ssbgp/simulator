@@ -23,13 +23,42 @@ object PathTests : Spek({
             assertThat(emptyPath.size, equalTo(0))
         }
 
+        on("appending a new node") {
+
+            val appendedPath = emptyPath.append(node(1))
+
+            it("returns a path of size 1") {
+                assertThat(appendedPath.size, equalTo(1))
+            }
+
+            it("keeps the original path empty") {
+                assertThat(emptyPath.size, equalTo(0))
+            }
+
+        }
+
     }
 
     given("a path with 1 node") {
+
         val path = pathOf(node(1))
 
         it("has size 1") {
             assertThat(path.size, equalTo(1))
+        }
+
+        on("appending a new node") {
+
+            val appendedPath = path.append(node(2))
+
+            it("returns a path of size 2") {
+                assertThat(appendedPath.size, equalTo(2))
+            }
+
+            it("keeps the original path with size 1") {
+                assertThat(path.size, equalTo(1))
+            }
+
         }
 
     }
