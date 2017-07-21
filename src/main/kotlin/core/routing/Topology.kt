@@ -19,7 +19,7 @@ package core.routing
  *
  * @property size the number of nodes in the topology
  */
-interface Topology<out N: Node> {
+interface Topology<out N: Node, R: Route> {
 
     val size: Int
 
@@ -39,6 +39,13 @@ interface Topology<out N: Node> {
     fun getNodes(): Collection<N>
 
     /**
+     * Returns a collection with all links contained in the topology in no particular order.
+     *
+     * @return a collection with all links contained in the topology in no particular order.
+     */
+    fun getLinks(): Collection<Link<N, R>>
+
+    /**
      * Returns the number of nodes currently in the topology.
      *
      * @return the number of nodes currently in the topology
@@ -53,3 +60,8 @@ interface Topology<out N: Node> {
     fun linkCount(): Int
 
 }
+
+/**
+ * Represents a link in the topology.
+ */
+data class Link<out N: Node, R: Route>(val tail: N, val head: N, val extender: Extender<R>)
