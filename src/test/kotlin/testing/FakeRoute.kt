@@ -13,17 +13,18 @@ import core.routing.Route
  * Fake route implementation used to test the routing table. A fake route has a single integer attribute called
  * preference.
  */
-interface FakeRoute : Route {
-    val preference: Int
-}
+sealed class FakeRoute : Route {
 
-data class ValidFakeRoute(override val preference: Int) : FakeRoute {
-    override fun isValid() = true
-}
+    abstract val preference: Int
 
-object InvalidFakeRoute : FakeRoute {
-    override val preference = Int.MIN_VALUE
-    override fun isValid() = false
+    internal data class ValidFakeRoute(override val preference: Int) : FakeRoute() {
+        override fun isValid() = true
+    }
+
+    internal object InvalidFakeRoute : FakeRoute() {
+        override val preference = Int.MIN_VALUE
+        override fun isValid() = false
+    }
 }
 
 //region Factory methods
@@ -31,11 +32,11 @@ object InvalidFakeRoute : FakeRoute {
 /**
  * Returns a valid route with the given preference value.
  */
-fun route(preference: Int): Route = ValidFakeRoute(preference)
+fun route(preference: Int): Route = FakeRoute.ValidFakeRoute(preference)
 
 /**
  * Returns an invalid route.
  */
-fun invalidRoute(): Route = InvalidFakeRoute
+fun invalidRoute(): Route = FakeRoute.InvalidFakeRoute
 
 //endregion
