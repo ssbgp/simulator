@@ -52,19 +52,25 @@ class RouteSelector<N: Node, R: Route>
      *
      * Updates the routing table, setting the given route as the candidate route via the given neighbor.
      * The selected route/neighbor may also be updated if the given route/neighbor forces a reselection.
+     *
+     * @return true if the selected route/neighbor was updated or false if otherwise
      */
-    fun update(neighbor: N, route: R) {
+    fun update(neighbor: N, route: R): Boolean {
 
         val neighborExists = table.update(neighbor, route)
 
-        if (!neighborExists) return
+        if (!neighborExists) return false
 
         if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
             reselect()
+            return true
 
         } else if (compare(route, selectedRoute) > 0) {
             updateSelectedTo(route, neighbor)
+            return true
         }
+
+        return false
     }
 
     /**

@@ -62,7 +62,7 @@ object RouteSelectorTests : Spek({
 
         on("updating the route of some neighbor with ID 1 to route with preference 10") {
 
-            selector.update(node(1), route(preference = 10))
+            val updated = selector.update(node(1), route(preference = 10))
 
             it("still selects an invalid route") {
                 assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
@@ -70,6 +70,10 @@ object RouteSelectorTests : Spek({
 
             it("still selects a null neighbor") {
                 assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            }
+
+            it("indicates the selected route/neighbor was NOT updated") {
+                assertThat(updated, `is`(false))
             }
         }
     }
@@ -90,7 +94,7 @@ object RouteSelectorTests : Spek({
 
         on("updating the route neighbor with ID 1 to route with preference 15") {
 
-            selector.update(node(1), route(preference = 15))
+            val updated = selector.update(node(1), route(preference = 15))
 
             it("selects route with preference 15") {
                 assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
@@ -99,11 +103,15 @@ object RouteSelectorTests : Spek({
             it("selects neighbor with ID 1") {
                 assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
             }
+
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
         }
 
         on("updating the route of neighbor with ID 1 to invalid route") {
 
-            selector.update(node(1), invalidRoute())
+            val updated = selector.update(node(1), invalidRoute())
 
             it("selects route invalid route") {
                 assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
@@ -111,6 +119,27 @@ object RouteSelectorTests : Spek({
 
             it("selects null neighbor") {
                 assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            }
+
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+        }
+
+        on("updating the route of neighbor with ID 1 to invalid route again") {
+
+            val updated = selector.update(node(1), invalidRoute())
+
+            it("selects route invalid route") {
+                assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
+            }
+
+            it("selects null neighbor") {
+                assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            }
+
+            it("indicates the selected route/neighbor was NOT updated") {
+                assertThat(updated, `is`(false))
             }
         }
 
@@ -133,7 +162,7 @@ object RouteSelectorTests : Spek({
 
         on("updating the route of neighbor 1 to route with preference 10") {
 
-            selector.update(node(1), route(preference = 10))
+            val updated = selector.update(node(1), route(preference = 10))
 
             it("selects route with preference 10") {
                 assertThat(selector.getSelectedRoute(), `is`(route(preference = 10)))
@@ -143,11 +172,15 @@ object RouteSelectorTests : Spek({
                 assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
             }
 
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+
         }
 
         on("updating the route of neighbor 1 to route with preference 5") {
 
-            selector.update(node(1), route(preference = 5))
+            val updated = selector.update(node(1), route(preference = 5))
 
             it("selects route with preference 5") {
                 assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
@@ -157,11 +190,15 @@ object RouteSelectorTests : Spek({
                 assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
             }
 
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+
         }
 
         on("updating the route of neighbor 2 to route with preference 15") {
 
-            selector.update(node(2), route(preference = 15))
+            val updated = selector.update(node(2), route(preference = 15))
 
             it("selects route with preference 15") {
                 assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
@@ -171,11 +208,15 @@ object RouteSelectorTests : Spek({
                 assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
             }
 
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+
         }
 
         on("updating the route of neighbor 2 to route with preference 1") {
 
-            selector.update(node(2), route(preference = 1))
+            val updated = selector.update(node(2), route(preference = 1))
 
             it("selects route with preference 5") {
                 assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
@@ -183,6 +224,28 @@ object RouteSelectorTests : Spek({
 
             it("selects neighbor 1") {
                 assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
+            }
+
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+
+        }
+
+        on("updating the route of neighbor 2 to route with preference 3") {
+
+            val updated = selector.update(node(2), route(preference = 3))
+
+            it("selects route with preference 5") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
+            }
+
+            it("selects neighbor 1") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
+            }
+
+            it("indicates the selected route/neighbor was NOT updated") {
+                assertThat(updated, `is`(false))
             }
 
         }
