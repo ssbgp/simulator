@@ -12,7 +12,7 @@ package core.routing
  *
  * @property size expresses the number of nodes in the path
  */
-class Path<N: Node>(private val nodes: List<N>) {
+class Path<N: Node>internal constructor(private val nodes: List<N>) {
 
     val size: Int = nodes.size
 
@@ -80,6 +80,7 @@ fun <N: Node> pathOf(vararg nodes: N): Path<N> {
 /**
  * Returns an empty path.
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun <N: Node> pathOf(): Path<N> {
     return emptyPath()
 }
