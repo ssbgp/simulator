@@ -28,6 +28,13 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) {
     }
 
     /**
+     * Returns the next-hop node of the path.
+     */
+    fun nextHop(): N? {
+        return nodes.lastOrNull()
+    }
+
+    /**
      * Checks if this path contains the given node.
      */
     operator fun contains(node: N) = node in nodes
