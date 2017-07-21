@@ -5,8 +5,7 @@ package core.routing
  *
  * @author David Fialho
  */
-class RoutingTable<in N: Node, R: Route>
-(private val invalidRoute: R, neighbors: Collection<N> = emptyList()) {
+class RoutingTable<N: Node, R: Route>(val invalidRoute: R, neighbors: Collection<N> = emptyList()) {
 
     private val routes = HashMap<N, R>(neighbors.size)
     init {
@@ -24,6 +23,12 @@ class RoutingTable<in N: Node, R: Route>
     fun clear() {
         // Sets invalid route for all neighbors
         routes.replaceAll { _,_ -> invalidRoute }
+    }
+
+    internal fun forEach(operation: (N, R) -> Unit) {
+        for (route in routes) {
+            operation(route.key, route.value)
+        }
     }
 
 }
