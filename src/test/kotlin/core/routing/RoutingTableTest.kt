@@ -6,7 +6,9 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import testing.invalidRoute
 import testing.node
+import testing.route
 
 /**
  * Created on 21-07-2017
@@ -14,20 +16,6 @@ import testing.node
  * @author David Fialho
  */
 object RoutingTableTest : Spek({
-
-    //region Helper methods
-
-    /**
-     * Returns a valid route with the given preference value.
-     */
-    fun route(preference: Int): Route = ValidFakeRoute(preference)
-
-    /**
-     * Returns an invalid route.
-     */
-    fun invalidRoute(): Route = InvalidFakeRoute
-
-    //endregion
 
     given("an empty routing table") {
 
@@ -121,23 +109,3 @@ object RoutingTableTest : Spek({
 
 })
 
-//region Route implementation used for the tests
-
-/**
- * Fake route implementation used to test the routing table. A fake route has a single integer attribute called
- * preference.
- */
-interface FakeRoute : Route {
-    val preference: Int
-}
-
-data class ValidFakeRoute(override val preference: Int) : FakeRoute {
-    override fun isValid() = true
-}
-
-object InvalidFakeRoute : FakeRoute {
-    override val preference = Int.MIN_VALUE
-    override fun isValid() = false
-}
-
-//endregion

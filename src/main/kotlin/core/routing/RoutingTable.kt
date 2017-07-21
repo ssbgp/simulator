@@ -5,7 +5,8 @@ package core.routing
  *
  * @author David Fialho
  */
-class RoutingTable<in N: Node, R: Route>(private val invalidRoute: R, neighbors: Collection<N> = emptyList()) {
+class RoutingTable<in N: Node, R: Route>
+(private val invalidRoute: R, neighbors: Collection<N> = emptyList()) {
 
     private val routes = HashMap<N, R>(neighbors.size)
     init {
