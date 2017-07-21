@@ -11,6 +11,8 @@ package core.routing
  * Routes may be invalid. An invalid route indicates that there is no electable route to the destination via some
  * neighbor, which means that an invalid route should NEVER be elected by a node. Routes can be checked for validity
  * through the isInvalid() method included in the Route interface.
+ *
+ * Implementations of the Route interface should be always immutable!
  */
 interface Route {
 
