@@ -33,13 +33,16 @@ class BGPTopologyBuilder {
      */
     fun build(): BGPTopology {
 
-        val nodes = ids.map { it to BGPNodeWith(id = it) }.toMap()
+        // TODO use hash map - toMap() uses a linked hash map
+        val nodes = ids.map {
+            it to BGPNodeWith(id = it)
+        }.toMap()
 
         for ((tail, head, extender) in links) {
             nodes[head]!!.addRelationship(nodes[tail]!!, extender)
         }
 
-        return BGPTopology(nodes.values.toList())
+        return BGPTopology(nodes)
     }
 
 }

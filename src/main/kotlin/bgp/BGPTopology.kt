@@ -10,21 +10,19 @@ import core.routing.Topology
  *
  * @author David Fialho
  */
-class BGPTopology(private val nodes: List<BGPNode>) : Topology<BGPNode, BGPRoute> {
+class BGPTopology(private val nodes: Map<NodeID, BGPNode>) : Topology<BGPNode, BGPRoute> {
 
     override val size: Int = nodes.size
 
-    override fun getNode(id: Int): BGPNode {
-        TODO("not implemented")
-    }
+    override fun getNode(id: NodeID): BGPNode? = nodes[id]
 
-    override fun getNodes(): Collection<BGPNode> = nodes
+    override fun getNodes(): Collection<BGPNode> = nodes.values
 
     override fun getLinks(): Collection<Link<BGPNode, BGPRoute>> {
 
         val links = ArrayList<BGPLink>()
 
-        for (node in nodes) {
+        for (node in nodes.values) {
             for ((neighbor, extender) in node.relationships) {
                 links.add(BGPLink(neighbor, node, extender))
             }
@@ -38,7 +36,7 @@ class BGPTopology(private val nodes: List<BGPNode>) : Topology<BGPNode, BGPRoute
     override fun linkCount(): Int {
 
         val counter: Int = nodes
-                .flatMap { it.relationships }
+                .flatMap { it.value.relationships }
                 .count()
 
         return counter
