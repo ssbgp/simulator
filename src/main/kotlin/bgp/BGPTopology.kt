@@ -31,16 +31,9 @@ class BGPTopology(private val nodes: Map<NodeID, BGPNode>) : Topology<BGPNode, B
         return links
     }
 
-    override fun nodeCount(): Int = size
+    override fun nodeCount() = size
 
-    override fun linkCount(): Int {
-
-        val counter: Int = nodes
-                .flatMap { it.value.relationships }
-                .count()
-
-        return counter
-    }
+    override fun linkCount(): Int = nodes.flatMap { it.value.relationships }.count()
 
 }
 

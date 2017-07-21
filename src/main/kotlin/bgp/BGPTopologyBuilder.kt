@@ -33,11 +33,13 @@ class BGPTopologyBuilder {
      */
     fun build(): BGPTopology {
 
-        // TODO use hash map - toMap() uses a linked hash map
-        val nodes = ids.map {
-            it to BGPNodeWith(id = it)
-        }.toMap()
+        // Data structure that will hold the nodes
+        val nodes = HashMap<NodeID, BGPNode>(ids.size)
 
+        // Create a node for each ID
+        ids.forEach { nodes.put(it, BGPNodeWith(it)) }
+
+        // Establish relationships based on the links stored in the builder
         for ((tail, head, extender) in links) {
             nodes[head]!!.addRelationship(nodes[tail]!!, extender)
         }
