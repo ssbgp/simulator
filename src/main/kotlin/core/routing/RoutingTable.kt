@@ -20,6 +20,10 @@ class RoutingTable<N: Node, R: Route>(val invalidRoute: R, neighbors: Collection
         routes.replace(neighbor, route)
     }
 
+    fun update(neighbor: N, route: R): Boolean {
+        return routes.replace(neighbor, route) != null
+    }
+
     fun clear() {
         // Sets invalid route for all neighbors
         routes.replaceAll { _,_ -> invalidRoute }
