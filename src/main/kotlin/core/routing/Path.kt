@@ -27,6 +27,28 @@ class Path<N: Node>(private val nodes: List<N>) {
         return Path(nodesCopy)
     }
 
+    /**
+     * Two paths are considered equal if they have the exact same nodes in the exact same order.
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as Path<*>
+
+        if (nodes != other.nodes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return nodes.hashCode()
+    }
+
+    override fun toString(): String {
+        return "$nodes"
+    }
+
 }
 
 //region Factory methods

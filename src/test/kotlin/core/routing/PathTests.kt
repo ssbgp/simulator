@@ -63,4 +63,49 @@ object PathTests : Spek({
 
     }
 
+    given("two paths with the same size and the same nodes in the exact same order") {
+
+        val path1 = pathOf(node(1), node(2))
+        val path2 = pathOf(node(1), node(2))
+
+        it("is true that the two are equal") {
+            assertThat(path1, equalTo(path2))
+        }
+
+    }
+
+    given("two paths with different sizes and matching nodes") {
+
+        val path1 = pathOf(node(1), node(2), node(3))
+        val path2 = pathOf(node(1), node(2))
+
+        it("is true that the two are different") {
+            assertThat(path1, not(equalTo(path2)))
+        }
+
+    }
+
+    given("two paths with the same size but different nodes") {
+
+        val path1 = pathOf(node(1), node(2))
+        val path2 = pathOf(node(2), node(3))
+
+        it("is true that the two are different") {
+            assertThat(path1, not(equalTo(path2)))
+        }
+
+    }
+
+    given("two paths with the same size and the same nodes in different order") {
+
+        val path1 = pathOf(node(1), node(2))
+        val path2 = pathOf(node(2), node(1))
+
+        it("is true that the two are different") {
+            assertThat(path1, not(equalTo(path2)))
+        }
+
+    }
+
+
 })
