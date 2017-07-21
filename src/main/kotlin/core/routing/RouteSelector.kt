@@ -12,19 +12,20 @@ package core.routing
  * DO NOT update the routing table outside of the selector. Doing so will prevent the selector from working correctly
  * since it is not informed of the changes performed to the table.
  *
- * The constructor takes the routing table holding the routes, a forceSelect flag, and a compare method. The force
- * reselect flag if true will force the selector to reselect the route/neighbor based on the current routes of the
- * given table. This flag should be set to true if and only if the table provided in the constructor already includes
- * valid routes. The compare method should take to routes and compare their preferences. It should as a common
- * compare method which returns a positive value if the left route has higher preference than the right route, 0 if
- * they have the same preference and a negative value if the left route has a lower preference than the right route.
+ * The constructor takes the routing table holding the routes, a forceSelect flag, and a compare method. If the force
+ * reselect flag is set to true it will force the selector to reselect the route/neighbor based on the initial routes of
+ * the given table. By default, the flag is set to true. This flag should be set to false if and only if you are
+ * sure the table contains only invalid routes. The compare method should take to routes and compare their
+ * preferences. It should as a common compare method which returns a positive value if the left route has higher
+ * preference than the right route, 0 if they have the same preference and a negative value if the left route has a
+ * lower preference than the right route.
  *
  * @param table         the table to select routes from
  * @param forceReselect if set to true the selector will perform a reselect operation in the initializer
  * @param compare       the method used by the selector to compare the routes
  */
 class RouteSelector<N: Node, R: Route>
-(private val table: RoutingTable<N, R>, forceReselect: Boolean = false, private val compare: (R, R) -> Int) {
+(private val table: RoutingTable<N, R>, forceReselect: Boolean = true, private val compare: (R, R) -> Int) {
 
     // Stores the currently selected route
     private var selectedRoute: R = table.invalidRoute
