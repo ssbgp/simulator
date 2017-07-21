@@ -251,4 +251,118 @@ object RouteSelectorTests : Spek({
         }
     }
 
+    given("a route selector using a table containing valid routes via neighbors 1 and 2 and selecting route via 1") {
+
+        val selector = routeSelector(table(
+                route(preference = 10) via node(1),
+                route(preference = 5) via node(2)
+        ))
+
+        on("disabling neighbor 1") {
+
+            val updated = selector.disable(node(1))
+
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+
+            it("selects route via neighbor 2") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+
+        }
+
+        on("updating route via neighbor 1 to a route with preference 15") {
+
+            val updated = selector.update(node(1), route(preference = 15))
+
+            it("indicates the selected route/neighbor was NOT updated") {
+                assertThat(updated, `is`(false))
+            }
+
+            it("selects route via neighbor 2") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+
+        }
+
+        on("enabling neighbor 1") {
+
+            val updated = selector.enable(node(1))
+
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
+            }
+
+            it("selects route with preference 15") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
+            }
+
+            it("selects neighbor 1") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
+            }
+
+        }
+
+        on("disabling neighbor 2") {
+
+            val updated = selector.disable(node(2))
+
+            it("indicates the selected route/neighbor was NOT updated") {
+                assertThat(updated, `is`(false))
+            }
+
+            it("selects route with preference 15") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
+            }
+
+            it("selects neighbor 1") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
+            }
+
+        }
+
+        on("enabling neighbor 2") {
+
+            val updated = selector.enable(node(2))
+
+            it("indicates the selected route/neighbor was NOT updated") {
+                assertThat(updated, `is`(false))
+            }
+
+            it("selects route with preference 15") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
+            }
+
+            it("selects neighbor 1") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
+            }
+
+        }
+
+        on("disabling neighbors 1 and 2") {
+
+            selector.disable(node(1))
+            selector.disable(node(2))
+
+            it("selects invalid route") {
+                assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
+            }
+
+            it("selects null neighbor") {
+                assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            }
+
+        }
+
+    }
+
 })

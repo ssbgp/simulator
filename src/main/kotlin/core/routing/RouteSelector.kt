@@ -31,6 +31,8 @@ class RouteSelector<N: Node, R: Route>
     // Stores the currently selected neighbor
     private var selectedNeighbor: N? = null
 
+    private val disabledNeighbors = HashSet<N>()
+
     init {
         if (forceReselect) {
             reselect()
@@ -65,9 +67,52 @@ class RouteSelector<N: Node, R: Route>
             reselect()
             return true
 
-        } else if (compare(route, selectedRoute) > 0) {
+        } else if (neighbor !in disabledNeighbors && compare(route, selectedRoute) > 0) {
             updateSelectedTo(route, neighbor)
             return true
+        }
+
+        return false
+    }
+
+    /**
+     * Disables a neighbor. Routes learned from a disabled neighbor are still stored in the routing table, but the
+     * selector will never select a candidate route associated with that neighbor.
+     *
+     * @return true if the selected route/neighbor was updated or false if otherwise
+     */
+    fun disable(neighbor: N): Boolean {
+
+        if (disabledNeighbors.add(neighbor)) {
+            // if i'm here then it actually disabled a neighbor
+
+            if (neighbor == selectedNeighbor) {
+                reselect()
+                return true
+            }
+
+        }
+
+        return false
+    }
+
+    /**
+     * Enables a neighbor that was disabled. If the neighbor was not disabled than nothing changes.
+     *
+     * @return true if the selected route/neighbor was updated or false if otherwise
+     */
+    fun enable(neighbor: N): Boolean {
+
+        if (disabledNeighbors.remove(neighbor)) {
+            // if i'm here then it actually enabled a neighbor
+
+            val route = table[neighbor]
+
+            if (compare(route, selectedRoute) > 0) {
+                updateSelectedTo(route, neighbor)
+                return true
+            }
+
         }
 
         return false
@@ -82,7 +127,7 @@ class RouteSelector<N: Node, R: Route>
         selectedRoute = table.invalidRoute
         selectedNeighbor = null
 
-        table.forEach { neighbor, route -> if (compare(route, selectedRoute) > 0) {
+        table.forEach { neighbor, route -> if (neighbor !in disabledNeighbors && compare(route, selectedRoute) > 0) {
                 selectedRoute = route
                 selectedNeighbor = neighbor
             }
