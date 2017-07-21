@@ -25,7 +25,7 @@ interface BGPRoute : Route {
 /**
  * An implementation for a valid BGP route.
  */
-internal class ValidBGPRoute(override val localPref: Int, override val asPath: Path<BGPNode>) : BGPRoute {
+internal data class ValidBGPRoute(override val localPref: Int, override val asPath: Path<BGPNode>) : BGPRoute {
 
     // A valid bgp route is always valid
     override fun isValid(): Boolean = true
