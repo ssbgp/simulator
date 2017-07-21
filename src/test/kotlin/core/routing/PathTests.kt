@@ -67,7 +67,23 @@ object PathTests : Spek({
             it("keeps the original path with size 1") {
                 assertThat(path.size, equalTo(1))
             }
+        }
 
+        on("copying the node") {
+
+            val pathCopy = path.copy()
+
+            it("returns a new path instance") {
+                assertThat(path !== pathCopy, `is`(true))
+            }
+
+            it("returns a path equal to the initial path") {
+                assertThat(pathCopy, equalTo(path))
+            }
+
+            it("returns a path equal to the initial path") {
+                assertThat(pathCopy, equalTo(path))
+            }
         }
 
     }

@@ -33,6 +33,11 @@ class Path<N: Node>(private val nodes: List<N>) {
     operator fun contains(node: N) = node in nodes
 
     /**
+     * Returns a path instance containing exactly the same nodes as this path and exactly in the same order.
+     */
+    fun copy(): Path<N> = Path(nodes)
+
+    /**
      * Two paths are considered equal if they have the exact same nodes in the exact same order.
      */
     override fun equals(other: Any?): Boolean {
