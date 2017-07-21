@@ -31,6 +31,10 @@ object PathTests : Spek({
                 assertThat(appendedPath.size, equalTo(1))
             }
 
+            it("returns a path containing that new node") {
+                assertThat(node(1) in appendedPath, `is`(true))
+            }
+
             it("keeps the original path empty") {
                 assertThat(emptyPath.size, equalTo(0))
             }
@@ -53,6 +57,11 @@ object PathTests : Spek({
 
             it("returns a path of size 2") {
                 assertThat(appendedPath.size, equalTo(2))
+            }
+
+            it("returns a path containing that previous node and the new node") {
+                assertThat(node(1) in appendedPath, `is`(true))
+                assertThat(node(2) in appendedPath, `is`(true))
             }
 
             it("keeps the original path with size 1") {

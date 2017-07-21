@@ -28,6 +28,11 @@ class Path<N: Node>(private val nodes: List<N>) {
     }
 
     /**
+     * Checks if this path contains the given node.
+     */
+    operator fun contains(node: N) = node in nodes
+
+    /**
      * Two paths are considered equal if they have the exact same nodes in the exact same order.
      */
     override fun equals(other: Any?): Boolean {
