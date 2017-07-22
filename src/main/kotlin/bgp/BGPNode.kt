@@ -1,8 +1,6 @@
 package bgp
 
-import core.routing.Node
-import core.routing.NodeID
-import core.routing.Relationship
+import core.routing.*
 
 typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
 
@@ -17,6 +15,14 @@ internal constructor(id: NodeID, private val mutableRelationships: MutableList<B
     // Gives public access to the relationships of the node without providing the ability to change the relationships
     val relationships: List<BGPRelationship>
         get () = mutableRelationships
+
+    val routingTable = RouteSelector(
+            table = RoutingTable(
+                    invalidRoute = BGPRoute.invalid(),
+                    neighbors = relationships.map { it.node }),
+            forceReselect = false,
+            compare = ::bgpRouteCompare
+    )
 
     /**
      * This method should be called when a message is received by the node.
