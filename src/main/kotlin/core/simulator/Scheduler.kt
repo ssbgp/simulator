@@ -29,8 +29,16 @@ class Scheduler {
 
     /**
      * Schedules an event to occur in the specified timestamp.
+     *
+     * @throws IllegalArgumentException if the specified timestamp is before the current time of the scheduler.
      */
+    @Throws(IllegalArgumentException::class)
     fun schedule(event: Event, timestamp: Time) {
+
+        if (timestamp < time) {
+            throw IllegalArgumentException("Scheduling time '$timestamp' is lower than the current time '$time'")
+        }
+
         events.add(ScheduledEvent(timestamp, event))
     }
 

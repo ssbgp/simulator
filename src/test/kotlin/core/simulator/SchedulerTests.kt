@@ -58,7 +58,6 @@ object SchedulerTests : Spek({
         on("scheduling an event at time 15") {
 
             scheduler.schedule(event(id = 1), timestamp = 15)
-
         }
 
         on("and scheduling another event at time 20") {
@@ -88,6 +87,22 @@ object SchedulerTests : Spek({
                 assertThat(scheduler.time, `is`(15))
             }
 
+        }
+
+        on("scheduling another event at time 10") {
+
+            it("throws an IllegalArgumentException") {
+                assertThrows(IllegalArgumentException::class.java) { ->
+                    scheduler.schedule(event(id = 3), timestamp = 10)
+                }
+            }
+        }
+
+        on("scheduling another event at time 15: equal to the current time") {
+
+            it("does not throw any exception") {
+                scheduler.schedule(event(id = 4), timestamp = 15)
+            }
         }
 
     }
