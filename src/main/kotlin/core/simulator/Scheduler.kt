@@ -44,7 +44,7 @@ class Scheduler {
      * Schedules an event to occur 'interval' units of time from the current time.
      */
     fun scheduleFromNow(event: Event, interval: Time) {
-
+        schedule(event, time + interval)
     }
 
     /**
