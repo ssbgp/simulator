@@ -12,7 +12,12 @@ sealed class BaseBGPProtocol {
      * always set to false when a new message arrives and should only be set to true if a new route is selected when
      * the message is being processed.
      */
-    protected var wasNewRouteSelected = false
+    private var wasNewRouteSelected: Boolean = false
+
+    /**
+     * Indicates if the selected route was updated in the last call to process.
+     */
+    fun wasSelectedRouteUpdated(): Boolean = wasNewRouteSelected
 
     /**
      * Processes a BGP message received by a node.
@@ -41,9 +46,20 @@ sealed class BaseBGPProtocol {
      * @param node   the node processing the route
      * @param sender the out-neighbor that sent the route
      * @param route  the route imported by the node (route obtained after applying the extender)
+     * @return the imported route if the route's AS-PATH does not include the node learning the route or it returns
+     * an invalid if the route's AS-PATH includes the learning node. Note that it may also return an invalid route if
+     * the imported route is invalid.
      */
     fun learn(node: BGPNode, sender: BGPNode, route: BGPRoute): BGPRoute {
-        return BGPRoute.invalid()
+
+        if (node in route.asPath) {
+            // Notify the implementations that a loop was detected
+            onLoopDetected(sender, route)
+
+            return BGPRoute.invalid()
+        } else {
+            return route
+        }
     }
 
     /**
