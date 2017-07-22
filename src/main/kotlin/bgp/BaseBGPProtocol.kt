@@ -27,6 +27,19 @@ sealed class BaseBGPProtocol {
      */
     fun process(message: BGPMessage) {
 
+        val node = message.receiver
+        val importedRoute = import(message.route, message.extender)
+        val learnedRoute = learn(node, message.sender, importedRoute)
+
+        val updated = node.routingTable.update(message.sender, learnedRoute)
+
+        // Set updated flag to true if 'updated' is true or keep its current state
+        wasNewRouteSelected = wasNewRouteSelected || updated
+
+        if (wasNewRouteSelected) {
+            export(node, node.routingTable.getSelectedRoute())
+        }
+
     }
 
     /**
