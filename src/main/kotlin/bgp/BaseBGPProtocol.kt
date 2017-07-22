@@ -12,12 +12,8 @@ sealed class BaseBGPProtocol {
      * always set to false when a new message arrives and should only be set to true if a new route is selected when
      * the message is being processed.
      */
-    private var wasNewRouteSelected: Boolean = false
-
-    /**
-     * Indicates if the selected route was updated in the last call to process.
-     */
-    fun wasSelectedRouteUpdated(): Boolean = wasNewRouteSelected
+    var wasSelectedRouteUpdated: Boolean = false
+        private set
 
     /**
      * Processes a BGP message received by a node.
@@ -34,9 +30,9 @@ sealed class BaseBGPProtocol {
         val updated = node.routingTable.update(message.sender, learnedRoute)
 
         // Set updated flag to true if 'updated' is true or keep its current state
-        wasNewRouteSelected = wasNewRouteSelected || updated
+        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
-        if (wasNewRouteSelected) {
+        if (wasSelectedRouteUpdated) {
             export(node, node.routingTable.getSelectedRoute())
         }
 

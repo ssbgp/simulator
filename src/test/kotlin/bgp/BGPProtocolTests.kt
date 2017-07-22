@@ -48,7 +48,7 @@ object BGPProtocolTests : Spek({
                 }
 
                 it("indicates the selected route was not updated") {
-                    assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+                    assertThat(protocol.wasSelectedRouteUpdated, `is`(false))
                 }
             }
 
@@ -62,7 +62,7 @@ object BGPProtocolTests : Spek({
                 }
 
                 it("indicates the selected route was not updated") {
-                    assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+                    assertThat(protocol.wasSelectedRouteUpdated, `is`(false))
                 }
             }
 
@@ -80,7 +80,7 @@ object BGPProtocolTests : Spek({
                 }
 
                 it("indicates the selected route was not updated") {
-                    assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+                    assertThat(protocol.wasSelectedRouteUpdated, `is`(false))
                 }
             }
         }
