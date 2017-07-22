@@ -17,7 +17,7 @@ object RandomDelayGeneratorTests : Spek({
 
     context("a random delay generator that has already generated 3 delays") {
 
-        val generator = RandomDelayGenerator.with(min = 0, max = 10)
+        val generator = RandomDelayGenerator.with(min = 0, max = 10, seed = 10L)
         val delays = listOf(generator.nextDelay(), generator.nextDelay(), generator.nextDelay())
 
         given ("reset is called") {
@@ -38,7 +38,7 @@ object RandomDelayGeneratorTests : Spek({
 
     given("a random delay generator with a minimum of 1 and a maximum of 5") {
 
-        val generator = RandomDelayGenerator.with(min = 1, max = 5)
+        val generator = RandomDelayGenerator.with(min = 1, max = 5, seed = 10L)
 
         on ("generating 100 delays values") {
 
