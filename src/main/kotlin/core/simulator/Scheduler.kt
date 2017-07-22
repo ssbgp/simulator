@@ -1,5 +1,7 @@
 package core.simulator
 
+import java.util.*
+
 /**
  * Created on 22-07-2017
  *
@@ -17,6 +19,8 @@ class Scheduler {
         }
     }
 
+    private val events = LinkedList<ScheduledEvent>()
+
     /**
      * Always indicates the current time. It updates every time a new event is taken from the scheduler.
      */
@@ -27,7 +31,7 @@ class Scheduler {
      * Schedules an event to occur in the specified timestamp.
      */
     fun schedule(event: Event, timestamp: Time) {
-
+        events.add(ScheduledEvent(timestamp, event))
     }
 
     /**
@@ -40,9 +44,7 @@ class Scheduler {
     /**
      * Returns true if the scheduler still has events in the queue or false if otherwise.
      */
-    fun hasEvents(): Boolean {
-        return false
-    }
+    fun hasEvents(): Boolean = !events.isEmpty()
 
     /**
      * Returns the next event in the queue. It ay update the current time.
@@ -51,7 +53,15 @@ class Scheduler {
      */
     @Throws(NoSuchElementException::class)
     fun nextEvent(): Event {
-        TODO("not implemented yet")
+
+        if (!hasEvents()) {
+            throw NoSuchElementException("Scheduler has no more events in the queue")
+        }
+
+        val scheduledEvent = events.removeFirst()
+        time = scheduledEvent.time
+
+        return scheduledEvent.event
     }
 
 }
