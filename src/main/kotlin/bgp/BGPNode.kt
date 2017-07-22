@@ -12,7 +12,7 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  * @author David Fialho
  */
 class BGPNode
-internal constructor(id: NodeID, private val relationships: MutableList<BGPRelationship>) : Node(id) {
+internal constructor(id: NodeID, val relationships: MutableList<BGPRelationship>) : Node(id) {
 
     /**
      * This method should be called when a message is received by the node.
