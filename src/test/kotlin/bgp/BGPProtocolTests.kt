@@ -30,56 +30,61 @@ object BGPProtocolTests : Spek({
 
     //endregion
 
-    context("BGP protocol: node with ID 1 learns a route imported from node with ID 2") {
+    context("BGP Protocol") {
 
         val protocol = BGPProtocol()
-        val node = BGPNodeWith(id = 1)
-        val sender = BGPNodeWith(id = 2)
 
-        given("imported route is invalid") {
+        context("node with ID 1 learns a route imported from node with ID 2") {
 
-            val learnedRoute = protocol.learn(node, sender, invalid())
+            val node = BGPNodeWith(id = 1)
+            val sender = BGPNodeWith(id = 2)
 
-            it("learns an invalid route") {
-                assertThat(learnedRoute, `is`(invalid()))
+            given("imported route is invalid") {
+
+                val learnedRoute = protocol.learn(node, sender, invalid())
+
+                it("learns an invalid route") {
+                    assertThat(learnedRoute, `is`(invalid()))
+                }
+
+                it("indicates the selected route was not updated") {
+                    assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+                }
             }
 
-            it("indicates the selected route was not updated") {
-                assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+            given("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 2]") {
+
+                val importedRoute = route(localPref = 10, asPath = pathOf(BGPNodeWith(id = 3), BGPNodeWith(id = 2)))
+                val learnedRoute = protocol.learn(node, sender, importedRoute)
+
+                it("learns the imported route") {
+                    assertThat(learnedRoute, `is`(importedRoute))
+                }
+
+                it("indicates the selected route was not updated") {
+                    assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+                }
+            }
+
+            given("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 1, 2]") {
+
+                val importedRoute = route(
+                        localPref = 10,
+                        asPath = pathOf(BGPNodeWith(id = 3), BGPNodeWith(id = 1), BGPNodeWith(id = 2))
+                )
+
+                val learnedRoute = protocol.learn(node, sender, importedRoute)
+
+                it("learns an invalid route") {
+                    assertThat(learnedRoute, `is`(invalid()))
+                }
+
+                it("indicates the selected route was not updated") {
+                    assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
+                }
             }
         }
 
-        given("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 2]") {
-
-            val importedRoute = route(localPref = 10, asPath = pathOf(BGPNodeWith(id = 3), BGPNodeWith(id = 2)))
-            val learnedRoute = protocol.learn(node, sender, importedRoute)
-
-            it("learns the imported route") {
-                assertThat(learnedRoute, `is`(importedRoute))
-            }
-
-            it("indicates the selected route was not updated") {
-                assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
-            }
-        }
-
-        given("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 1, 2]") {
-
-            val importedRoute = route(
-                    localPref = 10,
-                    asPath = pathOf(BGPNodeWith(id = 3), BGPNodeWith(id = 1), BGPNodeWith(id = 2))
-            )
-
-            val learnedRoute = protocol.learn(node, sender, importedRoute)
-
-            it("learns an invalid route") {
-                assertThat(learnedRoute, `is`(invalid()))
-            }
-
-            it("indicates the selected route was not updated") {
-                assertThat(protocol.wasSelectedRouteUpdated(), `is`(false))
-            }
-        }
     }
 
 })
