@@ -7,10 +7,24 @@ import core.routing.Message
  *
  * @author David Fialho
  */
-interface Exporter {
+class Exporter(private val delayGenerator: DelayGenerator) {
+
+    /**
+     * Stores the timestamp of the time at which the last message exported using this exporter was delivered to its
+     * destination.
+     */
+    private var lastDeliverTime = 0
 
     /**
      * It issues an export event with the specified message.
      */
-    fun export(message: Message)
+    fun export(message: Message) {
+
+        val delay = delayGenerator.nextDelay()
+        val deliverTime = maxOf(Scheduler.time + delay, lastDeliverTime) + 1
+
+        Scheduler.schedule(ExportEvent(message), deliverTime)
+        lastDeliverTime = deliverTime
+    }
+
 }
