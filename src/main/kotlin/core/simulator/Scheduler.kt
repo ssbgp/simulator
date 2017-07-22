@@ -13,13 +13,11 @@ class Scheduler {
      * A scheduled event associates a timestamp with an event. The timestamp is used by the scheduler to determine
      * the order in which the event occur.
      */
-    private data class ScheduledEvent(val time: Time, val event: Event) : Comparable<Time> {
-        override fun compareTo(other: Time): Int {
-            TODO("not implemented")
-        }
+    private class ScheduledEvent(val time: Time, val event: Event) : Comparable<ScheduledEvent> {
+        override operator fun compareTo(other: ScheduledEvent): Int = time.compareTo(other.time)
     }
 
-    private val events = LinkedList<ScheduledEvent>()
+    private val events = PriorityQueue<ScheduledEvent>()
 
     /**
      * Always indicates the current time. It updates every time a new event is taken from the scheduler.
@@ -62,13 +60,9 @@ class Scheduler {
     @Throws(NoSuchElementException::class)
     fun nextEvent(): Event {
 
-        if (!hasEvents()) {
-            throw NoSuchElementException("Scheduler has no more events in the queue")
-        }
+        val scheduledEvent = events.poll() ?: throw NoSuchElementException("Scheduler has no more events in the queue")
 
-        val scheduledEvent = events.removeFirst()
         time = scheduledEvent.time
-
         return scheduledEvent.event
     }
 

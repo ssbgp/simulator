@@ -104,6 +104,27 @@ object SchedulerTests : Spek({
                 scheduler.schedule(event(id = 4), timestamp = 15)
             }
         }
+    }
+
+    given("a scheduler with time 10 and containing an event to occur at time 20") {
+
+        val scheduler = Scheduler()
+        scheduler.schedule(event(id = 0), timestamp = 10)
+        scheduler.nextEvent()   // remove the event with timestamp 10, which updates the scheduler time to 10
+        scheduler.schedule(event(id = 1), timestamp = 20)
+
+        on("scheduling an event at time 15 and trying to get the next event") {
+
+            scheduler.schedule(event(id = 2), timestamp = 15)
+
+            it("returns the event scheduled to time 15") {
+                assertThat(scheduler.nextEvent(), `is`(event(id = 2)))
+            }
+
+            it("has time 15") {
+                assertThat(scheduler.time, `is`(15))
+            }
+        }
 
     }
 
