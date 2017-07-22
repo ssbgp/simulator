@@ -12,7 +12,11 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  * @author David Fialho
  */
 class BGPNode
-internal constructor(id: NodeID, private val relationships: MutableList<BGPRelationship>) : Node(id) {
+internal constructor(id: NodeID, private val mutableRelationships: MutableList<BGPRelationship>) : Node(id) {
+
+    // Gives public access to the relationships of the node without providing the ability to change the relationships
+    val relationships: List<BGPRelationship>
+        get () = mutableRelationships
 
     /**
      * This method should be called when a message is received by the node.
@@ -32,7 +36,7 @@ internal constructor(id: NodeID, private val relationships: MutableList<BGPRelat
      * Adds a relationship to this node.
      */
     fun addRelationship(neighbor: BGPNode, extender: BGPExtender) {
-        relationships.add(BGPRelationship(neighbor, extender))
+        mutableRelationships.add(BGPRelationship(neighbor, extender))
     }
 
     override fun toString(): String {
