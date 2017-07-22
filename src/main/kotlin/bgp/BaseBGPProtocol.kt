@@ -1,7 +1,5 @@
 package bgp
 
-import com.sun.xml.internal.ws.api.message.Message
-
 /**
  * Created on 21-07-2017
  *
@@ -28,12 +26,13 @@ sealed class BaseBGPProtocol {
 
     /**
      * Implements the process of importing a route.
+     * Returns the result of extending the given route with the given extender.
      *
      * @param route    the route received by the node (route obtained directly from the message)
      * @param extender the extender used to import the route (extender included in the message)
      */
     fun import(route: BGPRoute, extender: BGPExtender): BGPRoute {
-        return BGPRoute.invalid()
+        return extender.extend(route)
     }
 
     /**
@@ -50,10 +49,10 @@ sealed class BaseBGPProtocol {
     /**
      * Implements the process of exporting a route.
      *
-     * @param node          the node processing the route
-     * @param selectedRoute the route imported by the node (route obtained after applying the extender)
+     * @param node  the node processing the route
+     * @param route the route to be exported (route selected by the node)
      */
-    fun export(node: BGPNode, selectedRoute: BGPRoute) {
+    fun export(node: BGPNode, route: BGPRoute) {
 
     }
 
