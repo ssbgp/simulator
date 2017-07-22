@@ -7,7 +7,7 @@ import java.util.*
  *
  * @author David Fialho
  */
-class Scheduler {
+object Scheduler {
 
     /**
      * A scheduled event associates a timestamp with an event. The timestamp is used by the scheduler to determine
@@ -64,6 +64,14 @@ class Scheduler {
 
         time = scheduledEvent.time
         return scheduledEvent.event
+    }
+
+    /**
+     * Resets the scheduler to the initial state: with no events in the queue and time set to 0.
+     */
+    fun reset() {
+        events.clear()
+        time = 0
     }
 
 }
