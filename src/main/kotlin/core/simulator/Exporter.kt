@@ -17,14 +17,18 @@ class Exporter(private val delayGenerator: DelayGenerator) {
 
     /**
      * It issues an export event with the specified message.
+     *
+     * @return the deliver time of the exported message
      */
-    fun export(message: Message) {
+    fun export(message: Message): Time {
 
         val delay = delayGenerator.nextDelay()
         val deliverTime = maxOf(Scheduler.time + delay, lastDeliverTime) + 1
 
         Scheduler.schedule(ExportEvent(message), deliverTime)
         lastDeliverTime = deliverTime
+
+        return deliverTime
     }
 
 }
