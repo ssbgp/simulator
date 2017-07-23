@@ -12,6 +12,31 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
 class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRelationship>) : Node(id) {
 
     /**
+     * Defines a set of factory methods to create BGP nodes.
+     */
+    companion object Factory {
+
+        /**
+         * Returns a BGP node with the given ID an relationships. The relationships parameter is optional, if no value is
+         * provided for it returns a BGPNode with no neighbors.
+         *
+         * @param id                        the ID to assign to the new node
+         * @param relationships             a list containing all the relationships the node has (each one must be unique)
+         * @throws IllegalArgumentException if the given relationships list contains any duplicate relationships
+         */
+        @Throws(IllegalArgumentException::class)
+        fun with(id: NodeID, relationships: MutableList<Relationship<BGPNode, BGPRoute>> = ArrayList()): BGPNode {
+
+            if (HashSet(relationships).size != relationships.size) {
+                throw IllegalArgumentException("Can not create a BGP node with duplicate relationships")
+            }
+
+            return BGPNode(id, relationships)
+        }
+
+    }
+
+    /**
      * Mutable reference to the list containing the relationships this node holds.
      */
     private val mutableRelationships = relationships
@@ -58,25 +83,3 @@ class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRel
         return "BGPNode(id=$id)"
     }
 }
-
-//region Factory methods
-
-/**
- * Returns a BGP node with the given ID an relationships. The relationships parameter is optional, if no value is
- * provided for it returns a BGPNode with no neighbors.
- *
- * @param id                        the ID to assign to the new node
- * @param relationships             a list containing all the relationships the node has (each one must be unique)
- * @throws IllegalArgumentException if the given relationships list contains any duplicate relationships
- */
-@Throws(java.lang.IllegalArgumentException::class)
-fun BGPNodeWith(id: NodeID, relationships: MutableList<Relationship<BGPNode, BGPRoute>> = ArrayList()): BGPNode {
-
-    if (HashSet(relationships).size != relationships.size) {
-        throw IllegalArgumentException("Can not create a BGP node with duplicate relationships")
-    }
-
-    return BGPNode(id, relationships)
-}
-
-//endregion

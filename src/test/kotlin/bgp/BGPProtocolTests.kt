@@ -36,8 +36,8 @@ object BGPProtocolTests : Spek({
 
         context("node with ID 1 learns a route imported from node with ID 2") {
 
-            val node = BGPNodeWith(id = 1)
-            val sender = BGPNodeWith(id = 2)
+            val node = BGPNode.with(id = 1)
+            val sender = BGPNode.with(id = 2)
 
             given("imported route is invalid") {
 
@@ -54,7 +54,7 @@ object BGPProtocolTests : Spek({
 
             given("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 2]") {
 
-                val importedRoute = route(localPref = 10, asPath = pathOf(BGPNodeWith(id = 3), BGPNodeWith(id = 2)))
+                val importedRoute = route(localPref = 10, asPath = pathOf(BGPNode.with(id = 3), BGPNode.with(id = 2)))
                 val learnedRoute = protocol.learn(node, sender, importedRoute)
 
                 it("learns the imported route") {
@@ -70,7 +70,7 @@ object BGPProtocolTests : Spek({
 
                 val importedRoute = route(
                         localPref = 10,
-                        asPath = pathOf(BGPNodeWith(id = 3), BGPNodeWith(id = 1), BGPNodeWith(id = 2))
+                        asPath = pathOf(BGPNode.with(id = 3), BGPNode.with(id = 1), BGPNode.with(id = 2))
                 )
 
                 val learnedRoute = protocol.learn(node, sender, importedRoute)
