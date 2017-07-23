@@ -23,9 +23,9 @@ class Exporter(private val delayGenerator: DelayGenerator) {
     fun export(message: Message): Time {
 
         val delay = delayGenerator.nextDelay()
-        val deliverTime = maxOf(Scheduler.time + delay, lastDeliverTime) + 1
+        val deliverTime = maxOf(Engine.scheduler.time + delay, lastDeliverTime) + 1
 
-        Scheduler.schedule(ExportEvent(message), deliverTime)
+        Engine.scheduler.schedule(ExportEvent(message), deliverTime)
         lastDeliverTime = deliverTime
 
         return deliverTime
