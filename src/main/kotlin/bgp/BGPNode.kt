@@ -9,13 +9,22 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  *
  * @author David Fialho
  */
-class BGPNode
-internal constructor(id: NodeID, private val mutableRelationships: MutableList<BGPRelationship>) : Node(id) {
+class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRelationship>) : Node(id) {
 
-    // Gives public access to the relationships of the node without providing the ability to change the relationships
-    val relationships: List<BGPRelationship>
-        get () = mutableRelationships
+    /**
+     * Mutable reference to the list containing the relationships this node holds.
+     */
+    private val mutableRelationships = relationships
 
+    /**
+     * Immutable reference to the relationships list. This gives public access to the relationships without providing
+     * the ability to modify the list.
+     */
+    val relationships: List<BGPRelationship> get () = mutableRelationships
+
+    /**
+     * Routing table for this node. The table is wrapped in a Route Selector used to perform the route selection.
+     */
     val routingTable = RouteSelector(
             table = RoutingTable(
                     invalidRoute = BGPRoute.invalid(),
