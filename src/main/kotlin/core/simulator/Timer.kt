@@ -27,11 +27,25 @@ sealed class Timer {
      */
     abstract fun onExpired()
 
+    companion object Factories {
+
+        /**
+         * Returns an enabled timer with the specified duration and action.
+         */
+        fun enabled(duration: Time, action: () -> Unit): Timer = EnabledTimer(duration, action)
+
+        /**
+         * Returns a disabled timer.
+         */
+        fun disabled(): Timer = DisabledTimer
+
+    }
+
     /**
      * Timer implementation that represented an enabled timer. That is, it is a timer that actually works. Sew the
      * DisabledTimer below to understand what it means to say a timer is enabled/disabled.
      */
-    class EnabledTimer(val duration: Time, private val action: () -> Unit) : Timer() {
+    private class EnabledTimer(val duration: Time, private val action: () -> Unit) : Timer() {
 
         // At first the timer is set as expired to indicate that is available to be started
         override var expired = true
@@ -63,7 +77,7 @@ sealed class Timer {
      * Providing this timer implementation to an object is the same thing as saying that the timer used by that
      * object is disabled.
      */
-    class DisabledTimer() : Timer() {
+    private object DisabledTimer : Timer() {
 
         // A disabled timer is never expired
         override var expired: Boolean = false
