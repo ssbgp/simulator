@@ -24,7 +24,7 @@ class Timer(val duration: Time, private val action: () -> Unit) {
 
         if (!expired) throw IllegalStateException("Can not start an expired timer")
 
-        Scheduler.scheduleFromNow(TimerExpiredEvent(this), duration)
+        Engine.scheduler.scheduleFromNow(TimerExpiredEvent(this), duration)
         expired = false
     }
 
