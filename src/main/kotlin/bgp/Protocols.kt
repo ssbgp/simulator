@@ -100,6 +100,14 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
     }
 
     /**
+     * Resets the state of the protocol as if it was just created.
+     */
+    fun reset() {
+        mraiTimer = Timer.disabled()
+        wasSelectedRouteUpdated = false
+    }
+
+    /**
      * Called by the protocol when it detects a routing loop.
      */
     protected abstract fun onLoopDetected(sender: BGPNode, route: BGPRoute)
