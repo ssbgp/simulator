@@ -40,7 +40,7 @@ class RouteSelector<N: Node, R: Route> private constructor
          */
         fun <N: Node, R: Route> wrapNewTable(invalid: R, compare: (R, R) -> Int): RouteSelector<N, R> {
             return RouteSelector(
-                    table = RoutingTable(invalidRoute = invalid),
+                    table = RoutingTable.empty(invalid),
                     compare = compare,
                     forceReselect = false)
         }
@@ -88,20 +88,20 @@ class RouteSelector<N: Node, R: Route> private constructor
      */
     fun update(neighbor: N, route: R): Boolean {
 
-        val neighborExists = table.update(neighbor, route)
+        table[neighbor] = route
 
-        if (!neighborExists) return false
+        if (table.isEnabled(neighbor) && compare(route, selectedRoute) > 0) {
+            updateSelectedTo(route, neighbor)
+            return true
 
-        if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
+        } else if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
             reselect()
             return true
 
-        } else if (table.isEnabled(neighbor) && compare(route, selectedRoute) > 0) {
-            updateSelectedTo(route, neighbor)
-            return true
+        } else {
+            // do nothing
+            return false
         }
-
-        return false
     }
 
     /**
@@ -156,6 +156,15 @@ class RouteSelector<N: Node, R: Route> private constructor
                 selectedNeighbor = neighbor
             }
         }
+    }
+
+    /**
+     * Clears the wrapped routing table.
+     */
+    fun clear() {
+        selectedRoute = table.invalidRoute
+        selectedNeighbor = null
+        table.clear()
     }
 
     @Suppress("NOTHING_TO_INLINE")
