@@ -38,4 +38,4 @@ class BGPTopology(private val nodes: Map<NodeID, BGPNode>) : Topology<BGPNode, B
 }
 
 typealias BGPLink = Link<BGPNode, BGPRoute>
-typealias BGPExtender = Extender<BGPRoute>
+typealias BGPExtender = Extender<BGPNode, BGPRoute>

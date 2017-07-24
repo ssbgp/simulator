@@ -84,6 +84,15 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
         mutableRelationships.add(BGPRelationship(neighbor, extender, Exporter(delayGenerator)))
     }
 
+    /**
+     * Resets the state of this node as if it was just created.
+     * It keeps the relationships. It just resets the state related to routing.
+     */
+    fun reset() {
+        routingTable.clear()
+        protocol.reset()
+    }
+
     override fun toString(): String {
         return "BGPNode(id=$id)"
     }

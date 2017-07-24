@@ -21,7 +21,7 @@ import bgp.BGPNode
  *
  * @property size the number of nodes in the topology
  */
-interface Topology<out N: Node, R: Route> {
+interface Topology<N: Node, R: Route> {
 
     val size: Int
 
@@ -66,4 +66,4 @@ interface Topology<out N: Node, R: Route> {
 /**
  * Represents a link in the topology.
  */
-data class Link<out N: Node, R: Route>(val tail: N, val head: N, val extender: Extender<R>)
+data class Link<N: Node, R: Route>(val tail: N, val head: N, val extender: Extender<N, R>)

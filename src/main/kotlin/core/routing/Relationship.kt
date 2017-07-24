@@ -7,4 +7,4 @@ import core.simulator.Exporter
  *
  * @author David Fialho
  */
-data class Relationship<out N: Node, R: Route>(val node: N, val extender: Extender<R>, val exporter: Exporter)
+data class Relationship<N: Node, R: Route>(val node: N, val extender: Extender<N, R>, val exporter: Exporter)
