@@ -44,7 +44,11 @@ object EngineTests : Spek({
 
             on("simulating with node 1 as the destination") {
 
-                Engine.simulate(node1)
+                val terminated = Engine.simulate(node1, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 1 selecting self route") {
                     assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
@@ -65,7 +69,11 @@ object EngineTests : Spek({
 
             on("simulating with node 2 as the destination") {
 
-                Engine.simulate(node2)
+                val terminated = Engine.simulate(node2, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 1 selecting an invalid route") {
                     assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.invalid()))
@@ -110,7 +118,11 @@ object EngineTests : Spek({
 
             on("simulating with node 0 as the destination") {
 
-                Engine.simulate(node[0])
+                val terminated = Engine.simulate(node[0], threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 0 selecting route via himself") {
                     assertThat(node[0].routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
@@ -142,7 +154,11 @@ object EngineTests : Spek({
 
             on("simulating with node 1 as the destination") {
 
-                Engine.simulate(node[1])
+                val terminated = Engine.simulate(node[1], threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 0 without a route") {
                     assertThat(node[0].routingTable.getSelectedRoute(), `is`(BGPRoute.invalid()))
@@ -168,6 +184,39 @@ object EngineTests : Spek({
                     assertThat(node[4].routingTable.getSelectedRoute(),
                             `is`(BGPRoute.with(1, pathOf(node[1], node[3]))))
                     assertThat(node[4].routingTable.getSelectedNeighbor(), `is`(node[3]))
+                }
+            }
+        }
+
+        given("topology with 4 where three form a cycle and all three have a link for node 0") {
+
+            val topology = bgpTopology {
+                link { 1 to 0 withCost 0 }
+                link { 2 to 0 withCost 0 }
+                link { 3 to 0 withCost 0 }
+                link { 1 to 2 withCost 1 }
+                link { 2 to 3 withCost -1 }
+                link { 3 to 1 withCost 2 }
+            }
+
+            beforeEachTest {
+                Scheduler.reset()
+                topology.getNodes().forEach { it.reset() }
+            }
+
+            afterEachTest {
+                Scheduler.reset()
+            }
+
+            val node = topology.getNodes().sortedBy { it.id }
+            println(node)
+
+            on("simulating with node 0 as the destination") {
+
+                val terminated = Engine.simulate(node[0], threshold = 1000)
+
+                it("does not terminate") {
+                    assertThat(terminated, `is`(false))
                 }
             }
         }
