@@ -1,6 +1,8 @@
 package bgp
 
 import core.routing.*
+import core.simulator.Exporter
+import core.simulator.ZeroDelayGenerator
 
 typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
 
@@ -9,8 +11,8 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  *
  * @author David Fialho
  */
-class BGPNode private constructor(id: NodeID) : Node(id) {
-
+class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol,
+                                  private val exporter: Exporter) : Node(id) {
     /**
      * Defines a set of factory methods to create BGP nodes.
      */
@@ -21,9 +23,8 @@ class BGPNode private constructor(id: NodeID) : Node(id) {
          *
          * @param id the ID to assign to the new node
          */
-        fun with(id: NodeID): BGPNode {
-            return BGPNode(id)
-        }
+        fun with(id: NodeID, protocol: BaseBGPProtocol = BGPProtocol(),
+                 exporter: Exporter = Exporter(ZeroDelayGenerator())) = BGPNode(id, protocol, exporter)
 
     }
 
@@ -47,14 +48,19 @@ class BGPNode private constructor(id: NodeID) : Node(id) {
      * This method should be called when a message is received by the node.
      */
     fun onReceivingMessage(message: BGPMessage) {
-        TODO("not implemented yet")
+        protocol.process(message)
     }
 
     /**
-     * Exports a route to the neighbor defined in the given relationship.
+     * Exports the specified route to all neighbors of the node.
+     *
+     * TODO explain why we can export any route to all neighbors
      */
     fun export(route: BGPRoute) {
-        TODO("not implemented yet")
+
+        for ((neighbor, extender) in relationships) {
+            exporter.export(BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route))
+        }
     }
 
     /**
