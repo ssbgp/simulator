@@ -44,7 +44,11 @@ object EngineTests : Spek({
 
             on("simulating with node 1 as the destination") {
 
-                Engine.simulate(node1)
+                val terminated = Engine.simulate(node1, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 1 selecting self route") {
                     assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
@@ -65,7 +69,11 @@ object EngineTests : Spek({
 
             on("simulating with node 2 as the destination") {
 
-                Engine.simulate(node2)
+                val terminated = Engine.simulate(node2, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 1 selecting an invalid route") {
                     assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.invalid()))
@@ -110,7 +118,11 @@ object EngineTests : Spek({
 
             on("simulating with node 0 as the destination") {
 
-                Engine.simulate(node[0])
+                val terminated = Engine.simulate(node[0], threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 0 selecting route via himself") {
                     assertThat(node[0].routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
@@ -142,7 +154,11 @@ object EngineTests : Spek({
 
             on("simulating with node 1 as the destination") {
 
-                Engine.simulate(node[1])
+                val terminated = Engine.simulate(node[1], threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
 
                 it("finishes with node 0 without a route") {
                     assertThat(node[0].routingTable.getSelectedRoute(), `is`(BGPRoute.invalid()))
