@@ -12,7 +12,7 @@ package core.routing
  *
  * @property size expresses the number of nodes in the path
  */
-class Path<N: Node>internal constructor(private val nodes: List<N>) {
+class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N> {
 
     val size: Int = nodes.size
 
@@ -43,6 +43,13 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) {
      * Returns a path instance containing exactly the same nodes as this path and exactly in the same order.
      */
     fun copy(): Path<N> = Path(nodes)
+
+    /**
+     * Returns an iterator over the nodes of the path. The iterator starts at first node in the path.
+     */
+    override fun iterator(): Iterator<N> {
+        return nodes.iterator()
+    }
 
     /**
      * Two paths are considered equal if they have the exact same nodes in the exact same order.

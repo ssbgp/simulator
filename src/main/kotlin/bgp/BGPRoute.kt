@@ -20,6 +20,8 @@ sealed class BGPRoute : Route {
     abstract val localPref: Int
     abstract val asPath: Path<BGPNode>
 
+
+
     companion object Factory {
 
         /**
@@ -62,6 +64,10 @@ sealed class BGPRoute : Route {
         override val localPref: Int = Int.MAX_VALUE
         override val asPath: Path<BGPNode> = emptyPath()
         override fun isValid(): Boolean = true
+    }
+
+    override fun toString(): String {
+        return "BGPRoute(localPref=$localPref, asPath=$asPath)"
     }
 
 }
