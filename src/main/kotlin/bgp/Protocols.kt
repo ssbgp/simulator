@@ -30,7 +30,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
     fun process(message: BGPMessage) {
 
         val node = message.receiver
-        val importedRoute = import(message.route, message.extender)
+        val importedRoute = import(message.sender, message.route, message.extender)
         val learnedRoute = learn(node, message.sender, importedRoute)
 
         val updated = node.routingTable.update(message.sender, learnedRoute)
@@ -48,11 +48,12 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
      * Implements the process of importing a route.
      * Returns the result of extending the given route with the given extender.
      *
+     * @param sender   the node the sent the route
      * @param route    the route received by the node (route obtained directly from the message)
      * @param extender the extender used to import the route (extender included in the message)
      */
-    fun import(route: BGPRoute, extender: BGPExtender): BGPRoute {
-        return extender.extend(route)
+    fun import(sender: BGPNode, route: BGPRoute, extender: BGPExtender): BGPRoute {
+        return extender.extend(route, sender)
     }
 
     /**

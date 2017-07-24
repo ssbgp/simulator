@@ -153,5 +153,5 @@ fun someExtender(): BGPExtender {
 }
 
 object FakeExtender : BGPExtender {
-    override fun extend(route: BGPRoute): BGPRoute = BGPRoute.invalid()
+    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute = BGPRoute.invalid()
 }
