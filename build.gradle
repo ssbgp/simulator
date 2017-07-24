@@ -61,3 +61,10 @@ dokka {
     outputFormat = 'html'
     outputDirectory = "$buildDir/javadoc"
 }
+
+task enabledMockingFinalClasses << {
+    def mockMakerFile = new File("$projectDir/src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker")
+    mockMakerFile.parentFile.mkdirs()
+    mockMakerFile.createNewFile()
+    mockMakerFile.write("mock-maker-inline")
+}
