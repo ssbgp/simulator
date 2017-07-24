@@ -20,8 +20,6 @@ sealed class BGPRoute : Route {
     abstract val localPref: Int
     abstract val asPath: Path<BGPNode>
 
-
-
     companion object Factory {
 
         /**
