@@ -1,11 +1,17 @@
 package bgp
 
+import core.simulator.Time
+import core.simulator.Timer
+
 /**
  * Created on 21-07-2017
  *
  * @author David Fialho
  */
-sealed class BaseBGPProtocol {
+sealed class BaseBGPProtocol(private val mrai: Time) {
+
+    var mraiTimer = Timer.disabled()
+        private set
 
     /**
      * Flag that indicates if a new route was selected as a result of processing a new incoming message. This flag is
@@ -78,6 +84,14 @@ sealed class BaseBGPProtocol {
      */
     fun export(node: BGPNode) {
 
+        if (mraiTimer.expired) {
+            node.export(node.routingTable.getSelectedRoute())
+            mraiTimer = Timer.enabled(mrai) {
+                export(node)
+            }
+            mraiTimer.start()
+        }
+
     }
 
     /**
@@ -92,13 +106,15 @@ sealed class BaseBGPProtocol {
 /**
  * BGP Protocol: when a loop is detected it does nothing
  */
-class BGPProtocol : BaseBGPProtocol() { override fun onLoopDetected(sender: BGPNode, route: BGPRoute) = Unit }
+class BGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
+    override fun onLoopDetected(sender: BGPNode, route: BGPRoute) = Unit
+}
 
 /**
  * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the WEAK detection
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
-class SSBGPProtocol : BaseBGPProtocol() {
+class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
 
     override fun onLoopDetected(sender: BGPNode, route: BGPRoute) {
         TODO("not implemented")
@@ -109,7 +125,7 @@ class SSBGPProtocol : BaseBGPProtocol() {
  * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the STRONG detection
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
-class ISSBGPProtocol : BaseBGPProtocol() {
+class ISSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
     override fun onLoopDetected(sender: BGPNode, route: BGPRoute) {
         TODO("not implemented")
     }
