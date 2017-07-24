@@ -101,7 +101,7 @@ object BGPProtocolTests : Spek({
         given("a node that has never exported a route") {
 
             val node = mock(BGPNode::class.java)
-            val protocol = BGPProtocol()
+            val protocol = BGPProtocol(mrai = 10)
             val selectedRoute = route(localPref = 100, asPath = emptyPath())
 
             beforeEachTest {
@@ -153,6 +153,39 @@ object BGPProtocolTests : Spek({
 
                 it("starts the MRAI timer again") {
                     assertThat(protocol.mraiTimer.expired, `is`(false))
+                }
+            }
+        }
+
+        given("an MRAI value of 0") {
+
+            val node = mock(BGPNode::class.java)
+            val protocol = BGPProtocol(mrai = 0)
+            val selectedRoute = route(localPref = 100, asPath = emptyPath())
+
+            beforeEachTest {
+                // Reset the number of calls to export
+                reset(node)
+
+                // Force the selected route
+                @Suppress("UNCHECKED_CAST")
+                val table = mock(RouteSelector::class.java) as RouteSelector<BGPNode, BGPRoute>
+                `when`(table.getSelectedRoute()).thenReturn(selectedRoute)
+                `when`(node.routingTable).thenReturn(table)
+            }
+
+            on("calling export 3 times") {
+
+                protocol.export(node)
+                protocol.export(node)
+                protocol.export(node)
+
+                it("exports the route 3 times") {
+                    verify(node, times(3)).export(selectedRoute)
+                }
+
+                it("MRAI timer is never started") {
+                    assertThat(protocol.mraiTimer.expired, `is`(true))
                 }
             }
         }

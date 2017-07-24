@@ -86,10 +86,14 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
 
         if (mraiTimer.expired) {
             node.export(node.routingTable.getSelectedRoute())
-            mraiTimer = Timer.enabled(mrai) {
-                export(node)
+
+            if (mrai > 0) {
+                mraiTimer = Timer.enabled(mrai) {
+                    export(node)
+                }
+                mraiTimer.start()
             }
-            mraiTimer.start()
+
         }
 
     }
