@@ -53,7 +53,7 @@ class BGPNode private constructor(id: NodeID) : Node(id) {
     /**
      * Exports a route to the neighbor defined in the given relationship.
      */
-    fun export(route: BGPRoute, relationship: BGPRelationship) {
+    fun export(route: BGPRoute) {
         TODO("not implemented yet")
     }
 
