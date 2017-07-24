@@ -9,20 +9,39 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  *
  * @author David Fialho
  */
-class BGPNode
-internal constructor(id: NodeID, private val mutableRelationships: MutableList<BGPRelationship>) : Node(id) {
+class BGPNode private constructor(id: NodeID) : Node(id) {
 
-    // Gives public access to the relationships of the node without providing the ability to change the relationships
-    val relationships: List<BGPRelationship>
-        get () = mutableRelationships
+    /**
+     * Defines a set of factory methods to create BGP nodes.
+     */
+    companion object Factory {
 
-    val routingTable = RouteSelector(
-            table = RoutingTable(
-                    invalidRoute = BGPRoute.invalid(),
-                    neighbors = relationships.map { it.node }),
-            forceReselect = false,
-            compare = ::bgpRouteCompare
-    )
+        /**
+         * Returns a BGP node with the specified ID and with no neighbors.
+         *
+         * @param id the ID to assign to the new node
+         */
+        fun with(id: NodeID): BGPNode {
+            return BGPNode(id)
+        }
+
+    }
+
+    /**
+     * Mutable reference to the list containing the relationships this node holds.
+     */
+    private val mutableRelationships = ArrayList<BGPRelationship>()
+
+    /**
+     * Immutable reference to the relationships list. This gives public access to the relationships without providing
+     * the ability to modify the list.
+     */
+    val relationships: List<BGPRelationship> get () = mutableRelationships
+
+    /**
+     * Routing table for this node. The table is wrapped in a Route Selector used to perform the route selection.
+     */
+    val routingTable = RouteSelector.wrapNewTable<BGPNode, BGPRoute>(BGPRoute.invalid(), ::bgpRouteCompare)
 
     /**
      * This method should be called when a message is received by the node.
@@ -49,25 +68,3 @@ internal constructor(id: NodeID, private val mutableRelationships: MutableList<B
         return "BGPNode(id=$id)"
     }
 }
-
-//region Factory methods
-
-/**
- * Returns a BGP node with the given ID an relationships. The relationships parameter is optional, if no value is
- * provided for it returns a BGPNode with no neighbors.
- *
- * @param id                        the ID to assign to the new node
- * @param relationships             a list containing all the relationships the node has (each one must be unique)
- * @throws IllegalArgumentException if the given relationships list contains any duplicate relationships
- */
-@Throws(java.lang.IllegalArgumentException::class)
-fun BGPNodeWith(id: NodeID, relationships: MutableList<Relationship<BGPNode, BGPRoute>> = ArrayList()): BGPNode {
-
-    if (HashSet(relationships).size != relationships.size) {
-        throw IllegalArgumentException("Can not create a BGP node with duplicate relationships")
-    }
-
-    return BGPNode(id, relationships)
-}
-
-//endregion

@@ -37,7 +37,7 @@ class BGPTopologyBuilder {
         val nodes = HashMap<NodeID, BGPNode>(ids.size)
 
         // Create a node for each ID
-        ids.forEach { nodes.put(it, BGPNodeWith(it)) }
+        ids.forEach { nodes.put(it, BGPNode.with(it)) }
 
         // Establish relationships based on the links stored in the builder
         for ((tail, head, extender) in links) {

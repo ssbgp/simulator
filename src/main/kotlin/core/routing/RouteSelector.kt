@@ -1,5 +1,8 @@
 package core.routing
 
+import bgp.BGPNode
+import bgp.BGPRoute
+
 /**
  * Created on 21-07-2017
  *
@@ -24,8 +27,35 @@ package core.routing
  * @param forceReselect if set to true the selector will perform a reselect operation in the initializer
  * @param compare       the method used by the selector to compare the routes
  */
-class RouteSelector<N: Node, R: Route>
-(private val table: RoutingTable<N, R>, forceReselect: Boolean = true, private val compare: (R, R) -> Int) {
+class RouteSelector<N: Node, R: Route> private constructor
+(private val table: RoutingTable<N, R>, private val compare: (R, R) -> Int, forceReselect: Boolean = true) {
+
+    companion object Factory {
+
+        /**
+         * Returns a RouteSelector wrapping a newly created routing table.
+         *
+         * @param invalid the invalid route
+         * @param compare the compare method used to compare route preferences
+         */
+        fun <N: Node, R: Route> wrapNewTable(invalid: R, compare: (R, R) -> Int): RouteSelector<N, R> {
+            return RouteSelector(
+                    table = RoutingTable(invalidRoute = invalid),
+                    compare = compare,
+                    forceReselect = false)
+        }
+
+        /**
+         * Returns a RouteSelector wrapping an existing routing table.
+         *
+         * @param table   the table to be wrapped by the selector
+         * @param compare the compare method used to compare route preferences
+         */
+        fun <N: Node, R: Route> wrap(table: RoutingTable<N, R>, compare: (R, R) -> Int): RouteSelector<N, R> {
+            return RouteSelector(table, compare)
+        }
+
+    }
 
     // Stores the currently selected route
     private var selectedRoute: R = table.invalidRoute
