@@ -1,5 +1,7 @@
 package core.simulator
 
+import core.routing.Destination
+
 /**
  * Created on 23-07-2017
  *
@@ -12,6 +14,17 @@ object Engine {
      */
     var scheduler = Scheduler
 
+    /**
+     * Runs the simulation for the given destination.
+     */
+    fun simulate(destination: Destination) {
 
+        destination.announceItSelf()
+
+        while (scheduler.hasEvents()) {
+            scheduler.nextEvent().processIt()
+        }
+
+    }
 
 }
