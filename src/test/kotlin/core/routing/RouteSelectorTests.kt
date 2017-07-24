@@ -24,33 +24,11 @@ object RouteSelectorTests : Spek({
         return RouteSelector.wrap(table, ::fakeCompare)
     }
 
-    /**
-     * Returns an initialized routing table based on the pairs that are provided.
-     */
-    fun table(vararg routes: Pair<Node, Route>): RoutingTable<Node, Route> {
-
-        val neighbors = routes.map { it.first }.toList()
-        val table = RoutingTable(invalidRoute(), neighbors)
-
-        for ((neighbor, route) in routes) {
-            table[neighbor] = route
-        }
-
-        return table
-    }
-
-    /**
-     * Allows us to write something like 'route(1) via node(1)'
-     */
-    infix fun Route.via(neighbor: Node): Pair<Node, Route> {
-        return Pair(neighbor, this)
-    }
-
     //endregion
 
-    given("a route selector using a table with no neighbors") {
+    given("a route selector using a table with no entries") {
 
-        val selector = routeSelector(table())
+        val selector = routeSelector(RoutingTable.empty(invalidRoute()))
 
         it("selects an invalid route") {
             assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
@@ -64,23 +42,23 @@ object RouteSelectorTests : Spek({
 
             val updated = selector.update(node(1), route(preference = 10))
 
-            it("still selects an invalid route") {
-                assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
+            it("selects route with preference 10") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 10)))
             }
 
-            it("still selects a null neighbor") {
-                assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            it("selects neighbor 1") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(1)))
             }
 
-            it("indicates the selected route/neighbor was NOT updated") {
-                assertThat(updated, `is`(false))
+            it("indicates the selected route/neighbor was updated") {
+                assertThat(updated, `is`(true))
             }
         }
     }
 
     given("a route selector using a table containing a route with preference 10 via a neighbor with ID 1") {
 
-        val selector = routeSelector(table(
+        val selector = routeSelector(RoutingTable.of(invalidRoute(),
                 route(preference = 10) via node(1)
         ))
 
@@ -147,7 +125,7 @@ object RouteSelectorTests : Spek({
 
     given("a route selector using a table containing invalid routes via neighbors 1 and 2") {
 
-        val selector = routeSelector(table(
+        val selector = routeSelector(RoutingTable.of(invalidRoute(),
                 invalidRoute() via node(1),
                 invalidRoute() via node(2)
         ))
@@ -253,7 +231,7 @@ object RouteSelectorTests : Spek({
 
     given("a route selector using a table containing valid routes via neighbors 1 and 2 and selecting route via 1") {
 
-        val selector = routeSelector(table(
+        val selector = routeSelector(RoutingTable.of(invalidRoute(),
                 route(preference = 10) via node(1),
                 route(preference = 5) via node(2)
         ))
@@ -363,6 +341,67 @@ object RouteSelectorTests : Spek({
 
         }
 
+    }
+
+    given("a route selector wrapping a table with valid routes via neighbors 1 and 2 is cleared") {
+
+        val selector = routeSelector(RoutingTable.of(invalidRoute(),
+                route(preference = 10) via node(1),
+                route(preference = 5) via node(2)
+        ))
+
+        on("clearing selector") {
+
+            selector.clear()
+
+            it("selects an invalid route") {
+                assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
+            }
+
+            it("selects a null neighbor") {
+                assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            }
+        }
+
+        on("updating neighbor 2 to route with preference 8") {
+
+            selector.update(node(2), route(preference = 8))
+
+            it("selects a route with preference 8") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 8)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+        }
+
+        on("updating neighbor 2 to route with preference 15") {
+
+            selector.update(node(2), route(preference = 15))
+
+            it("selects a route with preference 15") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+        }
+
+        on("updating neighbor 2 to route with preference 5") {
+            // this will for the selector to reselect: if the table was not cleared it will select route(10) via node 1
+
+            selector.update(node(2), route(preference = 5))
+
+            it("selects a route with preference 5") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+        }
     }
 
 })

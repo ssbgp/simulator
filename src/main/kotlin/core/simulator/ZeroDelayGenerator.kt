@@ -7,7 +7,7 @@ package core.simulator
  *
  * Generates constant delay values of zero! The method nextDelay() always returns 0.
  */
-class ZeroDelayGenerator : DelayGenerator {
+object ZeroDelayGenerator : DelayGenerator {
 
     override val seed = 0L
 

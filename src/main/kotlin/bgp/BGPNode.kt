@@ -1,6 +1,7 @@
 package bgp
 
 import core.routing.*
+import core.simulator.DelayGenerator
 import core.simulator.Exporter
 import core.simulator.ZeroDelayGenerator
 
@@ -11,8 +12,8 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  *
  * @author David Fialho
  */
-class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol,
-                                  private val exporter: Exporter) : Node(id) {
+class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : Node(id), Destination {
+
     /**
      * Defines a set of factory methods to create BGP nodes.
      */
@@ -22,9 +23,9 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol,
          * Returns a BGP node with the specified ID and with no neighbors.
          *
          * @param id the ID to assign to the new node
+         * @param protocol the protocol implemented by the node
          */
-        fun with(id: NodeID, protocol: BaseBGPProtocol = BGPProtocol(),
-                 exporter: Exporter = Exporter(ZeroDelayGenerator())) = BGPNode(id, protocol, exporter)
+        fun with(id: NodeID, protocol: BaseBGPProtocol = BGPProtocol()) = BGPNode(id, protocol)
 
     }
 
@@ -58,16 +59,27 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol,
      */
     fun export(route: BGPRoute) {
 
-        for ((neighbor, extender) in relationships) {
+        for ((neighbor, extender, exporter) in relationships) {
             exporter.export(BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route))
         }
     }
 
     /**
-     * Adds a relationship to this node.
+     * Announces a BGP self route to all neighbors of this node.
      */
-    fun addRelationship(neighbor: BGPNode, extender: BGPExtender) {
-        mutableRelationships.add(BGPRelationship(neighbor, extender))
+    override fun announceItSelf() {
+        export(BGPRoute.self())
+    }
+
+    /**
+     * Adds a relationship from this node to the specified neighbor.
+     *
+     * @param neighbor       the neighbor to create relationship with
+     * @param extender       the extender that models the routes exported from this node to the specified neighbor
+     * @param delayGenerator the generator that generates the message delays from this node to the specified neighbor
+     */
+    fun addRelationship(neighbor: BGPNode, extender: BGPExtender, delayGenerator: DelayGenerator = ZeroDelayGenerator) {
+        mutableRelationships.add(BGPRelationship(neighbor, extender, Exporter(delayGenerator)))
     }
 
     override fun toString(): String {
