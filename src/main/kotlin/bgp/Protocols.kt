@@ -33,7 +33,7 @@ sealed class BaseBGPProtocol {
         wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
         if (wasSelectedRouteUpdated) {
-            export(node, node.routingTable.getSelectedRoute())
+            export(node)
         }
 
     }
@@ -72,12 +72,11 @@ sealed class BaseBGPProtocol {
     }
 
     /**
-     * Implements the process of exporting a route.
+     * Implements the process of exporting a route. It exports the currently selected by the node.
      *
-     * @param node  the node processing the route
-     * @param route the route to be exported (route selected by the node)
+     * @param node  the node exporting the node
      */
-    fun export(node: BGPNode, route: BGPRoute) {
+    fun export(node: BGPNode) {
 
     }
 
