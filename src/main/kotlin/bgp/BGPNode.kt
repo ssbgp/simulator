@@ -12,7 +12,7 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  *
  * @author David Fialho
  */
-class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : Node(id) {
+class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : Node(id), Destination {
 
     /**
      * Defines a set of factory methods to create BGP nodes.
@@ -62,6 +62,13 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
         for ((neighbor, extender, exporter) in relationships) {
             exporter.export(BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route))
         }
+    }
+
+    /**
+     * Announces a BGP self route to all neighbors of this node.
+     */
+    override fun announceItSelf() {
+        export(BGPRoute.self())
     }
 
     /**
