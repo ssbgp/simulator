@@ -30,7 +30,7 @@ object TopologyBuilderTests : Spek({
             val topology = builder.build()
 
             it("returns a topology containing a single node with ID 1") {
-                assertThat(topology.getNodes(), containsInAnyOrder(BGPNodeWith(id = 1)))
+                assertThat(topology.getNodes(), containsInAnyOrder(BGPNode.with(id = 1)))
             }
 
         }
@@ -63,7 +63,7 @@ object TopologyBuilderTests : Spek({
             val topology = builder.build()
 
             it("returns a topology containing two nodes with IDs 1 and 2") {
-                assertThat(topology.getNodes(), containsInAnyOrder(BGPNodeWith(id = 1), BGPNodeWith(id = 2)))
+                assertThat(topology.getNodes(), containsInAnyOrder(BGPNode.with(id = 1), BGPNode.with(id = 2)))
             }
 
         }
@@ -142,7 +142,7 @@ object TopologyBuilderTests : Spek({
  * obtained using the someExtender() method.
  */
 fun BGPLink(from: NodeID, to: NodeID): BGPLink {
-    return BGPLink(BGPNodeWith(from), BGPNodeWith(to), someExtender())
+    return BGPLink(BGPNode.with(from), BGPNode.with(to), someExtender())
 }
 
 /**
