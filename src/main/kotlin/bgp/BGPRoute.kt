@@ -30,6 +30,10 @@ sealed class BGPRoute : Route {
             return InvalidBGPRoute
         }
 
+        fun self(): BGPRoute {
+            return SelfBGPRoute
+        }
+
     }
 
     /**
@@ -46,6 +50,15 @@ sealed class BGPRoute : Route {
         override val localPref: Int = Int.MIN_VALUE
         override val asPath: Path<BGPNode> = emptyPath()
         override fun isValid(): Boolean = false
+    }
+
+    /**
+     * An implementation for a self BGP route.
+     */
+    private object SelfBGPRoute : BGPRoute() {
+        override val localPref: Int = Int.MAX_VALUE
+        override val asPath: Path<BGPNode> = emptyPath()
+        override fun isValid(): Boolean = true
     }
 
 }
