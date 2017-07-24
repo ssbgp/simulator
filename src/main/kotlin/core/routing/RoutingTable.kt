@@ -11,14 +11,39 @@ package core.routing
  *
  * It does not perform any route selection! For that use the RouteSelector.
  */
-class RoutingTable<N: Node, R: Route>(val invalidRoute: R, neighbors: Collection<N> = emptyList()) {
+class RoutingTable<N: Node, R: Route>
+private constructor(val invalidRoute: R, private val routes: MutableMap<N, EntryData<R>> = HashMap()) {
 
-    data class Entry<R>(var route: R, var enabled: Boolean)
+    /**
+     * Contains the data stored in each entry.
+     */
+    data class EntryData<R>(var route: R, var enabled: Boolean = true)
 
-    private val routes = HashMap<N, Entry<R>>(neighbors.size)
-    init {
-        // By default, all neighbors are enabled
-        neighbors.forEach { routes[it] = Entry(invalidRoute, enabled = true) }
+    /**
+     * Represents an entry in the routing table.
+     */
+    data class Entry<out N: Node, out R: Route>(val neighbor: N, val route: R, val enabled: Boolean = true)
+
+    companion object Factory {
+
+        /**
+         * Returns a routing table with no entries.
+         */
+        fun <N: Node, R: Route> empty(invalid: R) = RoutingTable<N, R>(invalid)
+
+        /**
+         * Returns a routing table containing the specified entries.
+         */
+        fun <N: Node, R: Route> of(invalid: R, vararg entries: Entry<N, R>): RoutingTable<N, R> {
+
+            val routes = HashMap<N, EntryData<R>>(entries.size)
+            for ((neighbor, route, enabled) in entries) {
+                routes.put(neighbor, EntryData(route, enabled))
+            }
+
+            return RoutingTable(invalid, routes)
+        }
+
     }
 
     /**
@@ -33,32 +58,22 @@ class RoutingTable<N: Node, R: Route>(val invalidRoute: R, neighbors: Collection
      * If the given node is not defined as a neighbor, then the table is not modified.
      */
     operator fun set(neighbor: N, route: R) {
-        routes[neighbor]?.route = route
-    }
 
-    /**
-     * Sets the candidate route via a neighbor.
-     * If the given node is not defined as a neighbor, then the table is not modified and the method returns false.
-     *
-     * @return true if the neighbor is defined and false if otherwise
-     */
-    fun update(neighbor: N, route: R): Boolean {
         val entry = routes[neighbor]
 
-        if (entry != null) {
-            entry.route = route
-            return true
+        if (entry == null) {
+            routes[neighbor] = EntryData(route)
         } else {
-            return false
+            entry.route = route
         }
+
     }
 
     /**
      * Sets invalid routes for all defined neighbors an enables all disabled neighbors.
      */
     fun clear() {
-        // Sets invalid route for all neighbors
-        routes.forEach { _, entry -> entry.route = invalidRoute }
+        routes.clear()
     }
 
     /**
@@ -78,7 +93,7 @@ class RoutingTable<N: Node, R: Route>(val invalidRoute: R, neighbors: Collection
     /**
      * Provides way to iterate over each entry in the table.
      */
-    internal fun forEach(operation: (N, R, Boolean) -> Unit) {
+    inline internal fun forEach(operation: (N, R, Boolean) -> Unit) {
         for ((neighbor, entry) in routes) {
             operation(neighbor, entry.route, entry.enabled)
         }

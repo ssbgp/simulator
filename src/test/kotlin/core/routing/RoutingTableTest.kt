@@ -9,6 +9,7 @@ import org.hamcrest.Matchers.*
 import testing.invalidRoute
 import testing.node
 import testing.route
+import testing.via
 
 /**
  * Created on 21-07-2017
@@ -19,29 +20,31 @@ object RoutingTableTest : Spek({
 
     given("an empty routing table") {
 
-        val table = RoutingTable<Node, Route>(invalidRoute())
+        val table = RoutingTable.empty<Node, Route>(invalidRoute())
 
         on("getting the route for any neighbor") {
 
             val neighborRoute = table[node(1)]
 
             it("returns an invalid route") {
-                assertThat(neighborRoute.isValid(), `is`(false))
+                assertThat(neighborRoute, `is`(invalidRoute()))
             }
         }
 
     }
 
-    given("a routing table with neighbor with ID 1") {
+    given("a routing table with invalid route via neighbor with ID 1") {
 
-        val table = RoutingTable(invalidRoute(), listOf(node(1)))
+        val table = RoutingTable.of(invalidRoute(),
+                invalidRoute() via node(1)
+        )
 
         on("getting the route for neighbor 1") {
 
             val neighborRoute = table[node(1)]
 
             it("returns an invalid route") {
-                assertThat(neighborRoute.isValid(), `is`(false))
+                assertThat(neighborRoute, `is`(invalidRoute()))
             }
         }
 
@@ -56,9 +59,12 @@ object RoutingTableTest : Spek({
 
     }
 
-    given("a routing table with two neighbors with IDs 1 and 2") {
+    given("a routing table with two invalid routes via neighbors 1 and 2") {
 
-        val table = RoutingTable(invalidRoute(), listOf(node(1), node(2)))
+        val table = RoutingTable.of(invalidRoute(),
+                invalidRoute() via node(1),
+                invalidRoute() via node(2)
+        )
 
         on("setting route with preference 10 for neighbor 1") {
 
@@ -73,13 +79,13 @@ object RoutingTableTest : Spek({
             }
         }
 
-        on("setting valid route for neighbor not included in the table") {
+        on("setting a route with prefrence 10 for neighbor not yet included in the table") {
 
             table[node(5)] = route(preference = 10)
 
-            it("returns an invalid route when getting route for that neighbor") {
+            it("returns the route with preference 10") {
                 // returning an invalid route indicates the neighbor was not added to the table
-                assertThat(table[node(5)], `is`(invalidRoute()))
+                assertThat(table[node(5)], `is`(route(preference = 10)))
             }
         }
 
