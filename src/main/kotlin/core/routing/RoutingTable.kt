@@ -15,6 +15,11 @@ class RoutingTable<N: Node, R: Route>
 private constructor(val invalidRoute: R, private val routes: MutableMap<N, EntryData<R>> = HashMap()) {
 
     /**
+     * Returns the number of entries in the table.
+     */
+    val size: Int get() = routes.size
+
+    /**
      * Contains the data stored in each entry.
      */
     data class EntryData<R>(var route: R, var enabled: Boolean = true)
