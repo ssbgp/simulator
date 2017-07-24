@@ -28,7 +28,7 @@ import bgp.BGPRoute
  * @param compare       the method used by the selector to compare the routes
  */
 class RouteSelector<N: Node, R: Route> private constructor
-(private val table: RoutingTable<N, R>, private val compare: (R, R) -> Int, forceReselect: Boolean = true) {
+(val table: RoutingTable<N, R>, private val compare: (R, R) -> Int, forceReselect: Boolean = true) {
 
     companion object Factory {
 
