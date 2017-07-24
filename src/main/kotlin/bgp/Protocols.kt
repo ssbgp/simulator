@@ -40,6 +40,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
 
         if (wasSelectedRouteUpdated) {
             export(node)
+            wasSelectedRouteUpdated = false
         }
 
     }
@@ -90,6 +91,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
 
             if (mrai > 0) {
                 mraiTimer = Timer.enabled(mrai) {
+                    // this will only be executed when the timer expires!
                     export(node)
                 }
                 mraiTimer.start()
