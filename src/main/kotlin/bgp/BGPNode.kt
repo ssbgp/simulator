@@ -68,7 +68,9 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
      * Announces a BGP self route to all neighbors of this node.
      */
     override fun announceItSelf() {
-        export(BGPRoute.self())
+        val selfRoute = BGPRoute.self()
+        routingTable.update(this, selfRoute)
+        export(selfRoute)
     }
 
     /**
