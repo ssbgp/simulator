@@ -20,19 +20,22 @@ sealed class BGPRoute : Route {
     abstract val localPref: Int
     abstract val asPath: Path<BGPNode>
 
-    companion object Factories {
+    companion object Factory {
 
-        fun with(localPref: Int, asPath: Path<BGPNode>): BGPRoute {
-            return ValidBGPRoute(localPref, asPath)
-        }
+        /**
+         * Returns a BGP route with the specified LOCAL-PREF and AS-PATH.
+         */
+        fun with(localPref: Int, asPath: Path<BGPNode>): BGPRoute = ValidBGPRoute(localPref, asPath)
 
-        fun invalid(): BGPRoute {
-            return InvalidBGPRoute
-        }
+        /**
+         * Returns an invalid BGP route.
+         */
+        fun invalid(): BGPRoute = InvalidBGPRoute
 
-        fun self(): BGPRoute {
-            return SelfBGPRoute
-        }
+        /**
+         * Returns a self BGP route. A self BGP route is the BGP route with the highest preference possible.
+         */
+        fun self(): BGPRoute = SelfBGPRoute
 
     }
 
@@ -53,7 +56,7 @@ sealed class BGPRoute : Route {
     }
 
     /**
-     * An implementation for a self BGP route.
+     * An implementation for a self BGP route. A self BGP route is the BGP route with the highest preference possible.
      */
     private object SelfBGPRoute : BGPRoute() {
         override val localPref: Int = Int.MAX_VALUE
