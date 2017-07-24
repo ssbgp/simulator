@@ -173,4 +173,8 @@ class RouteSelector<N: Node, R: Route> private constructor
         selectedNeighbor = neighbor
     }
 
+    override fun toString(): String {
+        return "RouteSelector(table=$table)"
+    }
+
 }

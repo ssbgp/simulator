@@ -33,6 +33,9 @@ junitPlatform {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
 }
 
 dependencies {
@@ -47,6 +50,7 @@ dependencies {
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "com.github.inamik.text.tables:inamik-text-tables:1.0-SNAPSHOT"
 }
 
 compileKotlin {

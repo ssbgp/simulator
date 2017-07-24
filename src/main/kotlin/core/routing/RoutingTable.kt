@@ -99,4 +99,8 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<N, Entry
         }
     }
 
+    override fun toString(): String {
+        return "RoutingTable(routes=$routes)"
+    }
+
 }
