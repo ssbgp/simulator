@@ -8,11 +8,10 @@ package core.simulator
  * A time starts in expired mode
  * The timer performs the specified action action whe it expires.
  */
-sealed class Timer {
+interface Timer {
 
     // Flag indicating if the time has expired or not
-    abstract var expired: Boolean
-        protected set
+    val expired: Boolean
 
     /**
      * Starts the timer if the timer has not expired. The timer is set to 'not expired' after calling start().
@@ -20,14 +19,14 @@ sealed class Timer {
      * @throws IllegalStateException if the timer has not expired yet
      */
     @Throws(IllegalStateException::class)
-    abstract fun start()
+    fun start()
 
     /**
      * Should be called when the timer expires.
      */
-    abstract fun onExpired()
+    fun onExpired()
 
-    companion object Factories {
+    companion object Factory {
 
         /**
          * Returns an enabled timer with the specified duration and action.
@@ -45,10 +44,11 @@ sealed class Timer {
      * Timer implementation that represented an enabled timer. That is, it is a timer that actually works. Sew the
      * DisabledTimer below to understand what it means to say a timer is enabled/disabled.
      */
-    private class EnabledTimer(val duration: Time, private val action: () -> Unit) : Timer() {
+    private class EnabledTimer(val duration: Time, private val action: () -> Unit) : Timer {
 
         // At first the timer is set as expired to indicate that is available to be started
         override var expired = true
+            private set
 
         /**
          * Starts the timer. Started timer will expire 'duration' units of time from now.
@@ -77,10 +77,10 @@ sealed class Timer {
      * Providing this timer implementation to an object is the same thing as saying that the timer used by that
      * object is disabled.
      */
-    private object DisabledTimer : Timer() {
+    private object DisabledTimer : Timer {
 
         // A disabled timer is never expired
-        override var expired: Boolean = false
+        override val expired: Boolean = true
 
         /**
          * Does not start anything.
