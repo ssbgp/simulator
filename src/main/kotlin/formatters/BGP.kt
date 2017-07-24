@@ -20,7 +20,15 @@ import core.routing.RoutingTable
  */
 fun BGPNode.format() = this.id.toString()
 fun Path<BGPNode>.format() = "[" + map { it.format() }.joinToString() + "]"
-fun BGPRoute.format() = "LOCAL-PREF=$localPref, AS-PATH=${asPath.format()}"
+
+fun BGPRoute.format(): String {
+
+    return if (BGPRoute.self() == this || BGPRoute.invalid() == this) {
+        this.toString()
+    } else {
+        "LOCAL-PREF=$localPref, AS-PATH=${asPath.format()}"
+    }
+}
 
 fun RoutingTable<BGPNode, BGPRoute>.format(): String {
 

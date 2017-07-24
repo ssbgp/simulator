@@ -53,6 +53,7 @@ sealed class BGPRoute : Route {
         override val localPref: Int = Int.MIN_VALUE
         override val asPath: Path<BGPNode> = emptyPath()
         override fun isValid(): Boolean = false
+        override fun toString(): String = "•"
     }
 
     /**
@@ -62,6 +63,7 @@ sealed class BGPRoute : Route {
         override val localPref: Int = Int.MAX_VALUE
         override val asPath: Path<BGPNode> = emptyPath()
         override fun isValid(): Boolean = true
+        override fun toString(): String = "◦"
     }
 
     override fun toString(): String {
