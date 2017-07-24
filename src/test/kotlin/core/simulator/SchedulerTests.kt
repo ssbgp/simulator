@@ -112,13 +112,13 @@ object SchedulerTests : Spek({
 
     given("a scheduler with time 10 and containing an event to occur at time 20") {
 
-        Scheduler.schedule(event(id = 0), timestamp = 10)
-        Scheduler.nextEvent()   // remove the event with timestamp 10, which updates the Scheduler time to 10
-        Scheduler.schedule(event(id = 1), timestamp = 20)
-
         beforeGroup {
             Scheduler.reset()
         }
+
+        Scheduler.schedule(event(id = 0), timestamp = 10)
+        Scheduler.nextEvent()   // remove the event with timestamp 10, which updates the Scheduler time to 10
+        Scheduler.schedule(event(id = 1), timestamp = 20)
 
         on("scheduling an event at time 15 and trying to get the next event") {
 
