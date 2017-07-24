@@ -21,7 +21,7 @@ object RouteSelectorTests : Spek({
      * Returns a route selector for testing based on fake nodes and fake routes.
      */
     fun routeSelector(table: RoutingTable<Node, Route>): RouteSelector<Node, Route> {
-        return RouteSelector(table, forceReselect = true, compare = ::fakeCompare)
+        return RouteSelector.wrap(table, ::fakeCompare)
     }
 
     /**

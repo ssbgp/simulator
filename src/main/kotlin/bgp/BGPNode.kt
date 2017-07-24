@@ -50,13 +50,7 @@ class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRel
     /**
      * Routing table for this node. The table is wrapped in a Route Selector used to perform the route selection.
      */
-    val routingTable = RouteSelector(
-            table = RoutingTable(
-                    invalidRoute = BGPRoute.invalid(),
-                    neighbors = relationships.map { it.node }),
-            forceReselect = false,
-            compare = ::bgpRouteCompare
-    )
+    val routingTable = RouteSelector.wrapNewTable<BGPNode, BGPRoute>(BGPRoute.invalid(), ::bgpRouteCompare)
 
     /**
      * This method should be called when a message is received by the node.
