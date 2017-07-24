@@ -90,16 +90,18 @@ class RouteSelector<N: Node, R: Route> private constructor
 
         table[neighbor] = route
 
-        if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
+        if (table.isEnabled(neighbor) && compare(route, selectedRoute) > 0) {
+            updateSelectedTo(route, neighbor)
+            return true
+
+        } else if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
             reselect()
             return true
 
-        } else if (table.isEnabled(neighbor) && compare(route, selectedRoute) > 0) {
-            updateSelectedTo(route, neighbor)
-            return true
+        } else {
+            // do nothing
+            return false
         }
-
-        return false
     }
 
     /**
@@ -160,7 +162,9 @@ class RouteSelector<N: Node, R: Route> private constructor
      * Clears the wrapped routing table.
      */
     fun clear() {
-
+        selectedRoute = table.invalidRoute
+        selectedNeighbor = null
+        table.clear()
     }
 
     @Suppress("NOTHING_TO_INLINE")

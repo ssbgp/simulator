@@ -343,4 +343,65 @@ object RouteSelectorTests : Spek({
 
     }
 
+    given("a route selector wrapping a table with valid routes via neighbors 1 and 2 is cleared") {
+
+        val selector = routeSelector(RoutingTable.of(invalidRoute(),
+                route(preference = 10) via node(1),
+                route(preference = 5) via node(2)
+        ))
+
+        on("clearing selector") {
+
+            selector.clear()
+
+            it("selects an invalid route") {
+                assertThat(selector.getSelectedRoute(), `is`(invalidRoute()))
+            }
+
+            it("selects a null neighbor") {
+                assertThat(selector.getSelectedNeighbor(), `is`(nullValue()))
+            }
+        }
+
+        on("updating neighbor 2 to route with preference 8") {
+
+            selector.update(node(2), route(preference = 8))
+
+            it("selects a route with preference 8") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 8)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+        }
+
+        on("updating neighbor 2 to route with preference 15") {
+
+            selector.update(node(2), route(preference = 15))
+
+            it("selects a route with preference 15") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 15)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+        }
+
+        on("updating neighbor 2 to route with preference 5") {
+            // this will for the selector to reselect: if the table was not cleared it will select route(10) via node 1
+
+            selector.update(node(2), route(preference = 5))
+
+            it("selects a route with preference 5") {
+                assertThat(selector.getSelectedRoute(), `is`(route(preference = 5)))
+            }
+
+            it("selects neighbor 2") {
+                assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+            }
+        }
+    }
+
 })
