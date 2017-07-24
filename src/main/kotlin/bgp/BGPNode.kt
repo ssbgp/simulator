@@ -9,7 +9,7 @@ typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
  *
  * @author David Fialho
  */
-class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRelationship>) : Node(id) {
+class BGPNode private constructor(id: NodeID) : Node(id) {
 
     /**
      * Defines a set of factory methods to create BGP nodes.
@@ -17,21 +17,12 @@ class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRel
     companion object Factory {
 
         /**
-         * Returns a BGP node with the given ID an relationships. The relationships parameter is optional, if no value is
-         * provided for it returns a BGPNode with no neighbors.
+         * Returns a BGP node with the specified ID and with no neighbors.
          *
-         * @param id                        the ID to assign to the new node
-         * @param relationships             a list containing all the relationships the node has (each one must be unique)
-         * @throws IllegalArgumentException if the given relationships list contains any duplicate relationships
+         * @param id the ID to assign to the new node
          */
-        @Throws(IllegalArgumentException::class)
-        fun with(id: NodeID, relationships: MutableList<Relationship<BGPNode, BGPRoute>> = ArrayList()): BGPNode {
-
-            if (HashSet(relationships).size != relationships.size) {
-                throw IllegalArgumentException("Can not create a BGP node with duplicate relationships")
-            }
-
-            return BGPNode(id, relationships)
+        fun with(id: NodeID): BGPNode {
+            return BGPNode(id)
         }
 
     }
@@ -39,7 +30,7 @@ class BGPNode internal constructor(id: NodeID, relationships: MutableList<BGPRel
     /**
      * Mutable reference to the list containing the relationships this node holds.
      */
-    private val mutableRelationships = relationships
+    private val mutableRelationships = ArrayList<BGPRelationship>()
 
     /**
      * Immutable reference to the relationships list. This gives public access to the relationships without providing
