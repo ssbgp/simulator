@@ -93,6 +93,52 @@ object EngineTests : Spek({
             }
         }
 
+        given("topology with 2 nodes with a link in each direction") {
+
+            val topology = bgpTopology {
+                link { 2 to 1 withCost 10 }
+                link { 1 to 2 withCost 10 }
+            }
+
+            beforeEachTest {
+                Scheduler.reset()
+                topology.getNodes().forEach { it.reset() }
+            }
+
+            afterEachTest {
+                Scheduler.reset()
+            }
+
+            val node1 = topology.getNode(1)!!
+            val node2 = topology.getNode(2)!!
+
+            on("simulating with node 1 as the destination") {
+                // Make sure that node 1 always elects the self route
+
+                val terminated = Engine.simulate(node1, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
+
+                it("finishes with node 1 selecting self route") {
+                    assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
+                }
+
+                it("finishes with node 1 selecting route via himself") {
+                    assertThat(node1.routingTable.getSelectedNeighbor(), `is`(node1))
+                }
+
+                it("finishes with node 2 selecting route with LOCAL-PREF=10 and AS-PATH=[1]") {
+                    assertThat(node2.routingTable.getSelectedRoute(), `is`(BGPRoute.with(10, pathOf(node1))))
+                }
+
+                it("finishes with node 2 selecting route via node 1") {
+                    assertThat(node2.routingTable.getSelectedNeighbor(), `is`(node1))
+                }
+            }
+        }
+
         given("topology with 5 nodes forming a pyramid") {
 
             val topology = bgpTopology {
