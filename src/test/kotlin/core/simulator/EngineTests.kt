@@ -160,7 +160,6 @@ object EngineTests : Spek({
             }
 
             val node = topology.getNodes().sortedBy { it.id }
-            println(node)
 
             on("simulating with node 0 as the destination") {
 
@@ -255,7 +254,6 @@ object EngineTests : Spek({
             }
 
             val node = topology.getNodes().sortedBy { it.id }
-            println(node)
 
             on("simulating with node 0 as the destination") {
 
