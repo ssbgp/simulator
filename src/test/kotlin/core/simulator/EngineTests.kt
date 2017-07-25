@@ -39,8 +39,8 @@ object EngineTests : Spek({
                 Scheduler.reset()
             }
 
-            val node1 = topology.getNode(1)!!
-            val node2 = topology.getNode(2)!!
+            val node1 = topology[1]!!
+            val node2 = topology[2]!!
 
             on("simulating with node 1 as the destination") {
 
@@ -109,8 +109,8 @@ object EngineTests : Spek({
                 Scheduler.reset()
             }
 
-            val node1 = topology.getNode(1)!!
-            val node2 = topology.getNode(2)!!
+            val node1 = topology[1]!!
+            val node2 = topology[2]!!
 
             on("simulating with node 1 as the destination") {
                 // Make sure that node 1 always elects the self route
