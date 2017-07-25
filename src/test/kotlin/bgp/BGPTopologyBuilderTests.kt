@@ -14,7 +14,7 @@ import testing.someExtender
 
  * @author David Fialho
  */
-object TopologyBuilderTests : Spek({
+object BGPTopologyBuilderTests : Spek({
 
     /**
      * Returns a BGP link connecting two BGP nodes with the given IDs. The returned link is associated with a extender
