@@ -7,6 +7,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import testing.someExtender
 
 /**
  * Created on 21-07-2017
@@ -14,6 +15,14 @@ import org.hamcrest.Matchers.*
  * @author David Fialho
  */
 object TopologyBuilderTests : Spek({
+
+    /**
+     * Returns a BGP link connecting two BGP nodes with the given IDs. The returned link is associated with a extender
+     * obtained using the someExtender() method.
+     */
+    fun BGPLink(from: NodeID, to: NodeID): BGPLink {
+        return BGPLink(BGPNode.with(from), BGPNode.with(to), someExtender())
+    }
 
     given("a clean builder") {
 
@@ -136,22 +145,3 @@ object TopologyBuilderTests : Spek({
     }
 
 })
-
-/**
- * Returns a BGP link connecting two BGP nodes with the given IDs. The returned link is associated with a extender
- * obtained using the someExtender() method.
- */
-fun BGPLink(from: NodeID, to: NodeID): BGPLink {
-    return BGPLink(BGPNode.with(from), BGPNode.with(to), someExtender())
-}
-
-/**
- * Returns an extender when it is needed one but it is not important which one.
- */
-fun someExtender(): BGPExtender {
-    return FakeExtender
-}
-
-object FakeExtender : BGPExtender {
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute = BGPRoute.invalid()
-}
