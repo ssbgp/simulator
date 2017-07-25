@@ -19,7 +19,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
      * the message is being processed.
      */
     var wasSelectedRouteUpdated: Boolean = false
-        private set
+        protected set
 
     /**
      * Processes a BGP message received by a node.
@@ -134,10 +134,14 @@ class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
     override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
 
         //Since a loop was detected, the route via the sender node is invalid
-        node.routingTable.update(sender, BGPRoute.invalid())
+        var updated = node.routingTable.update(sender, BGPRoute.invalid())
+        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
-        if (route.localPref > node.routingTable.getSelectedRoute().localPref) {
-            node.routingTable.disable(sender)
+        val alternativeRoute = node.routingTable.getSelectedRoute()
+
+        if (route.localPref > alternativeRoute.localPref) {
+            updated = node.routingTable.disable(sender)
+            wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
         }
 
     }
@@ -152,13 +156,15 @@ class ISSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
     override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
 
         //Since a loop was detected, the route via the sender node is invalid
-        node.routingTable.update(sender, BGPRoute.invalid())
+        var updated = node.routingTable.update(sender, BGPRoute.invalid())
+        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
         val alternativeRoute = node.routingTable.getSelectedRoute()
 
         if (route.localPref > alternativeRoute.localPref) {
             if (alternativeRoute.asPath == route.asPath.subPathBefore(node)) {
-                node.routingTable.disable(sender)
+                updated = node.routingTable.disable(sender)
+                wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
             }
         }
     }
