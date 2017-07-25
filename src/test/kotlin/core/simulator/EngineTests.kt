@@ -20,6 +20,9 @@ import testing.*
  */
 object EngineTests : Spek({
 
+    /**
+     * Returns a path of BGPNodes with the specified IDs and in the specified order.
+     */
     fun pathOf(vararg ids: Int): Path<BGPNode> {
         val nodes = ids.map { BGPNode.with(it) }.toTypedArray()
         return pathOf(*nodes)
@@ -397,17 +400,17 @@ object EngineTests : Spek({
 
                 it("finishes with node 1 selecting route with cost 0 via node 0") {
                     assertThat(node[1].routingTable.getSelectedRoute(),
-                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(BGPNode.with(0)))))
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
                 }
 
                 it("finishes with node 2 selecting route with cost 0 via node 0") {
                     assertThat(node[2].routingTable.getSelectedRoute(),
-                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(BGPNode.with(0)))))
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
                 }
 
                 it("finishes with node 3 selecting route with cost 2 via node 1") {
                     assertThat(node[3].routingTable.getSelectedRoute(),
-                          `is`(BGPRoute.with(localPref = 2, asPath = pathOf(BGPNode.with(0), BGPNode.with(1)))))
+                          `is`(BGPRoute.with(localPref = 2, asPath = pathOf(0, 1))))
                 }
 
                 it("finishes with link from 1 to 2 disabled") {
@@ -461,7 +464,7 @@ object EngineTests : Spek({
 
                 it("finishes with node 1 selecting route with cost 0 via node 0") {
                     assertThat(node[1].routingTable.getSelectedRoute(),
-                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(BGPNode.with(0)))))
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
                 }
 
                 it("finishes with node 2 selecting route with cost 3 via node 3") {
@@ -528,17 +531,17 @@ object EngineTests : Spek({
 
                 it("finishes with node 1 selecting route with cost 0 via node 0") {
                     assertThat(node[1].routingTable.getSelectedRoute(),
-                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(BGPNode.with(0)))))
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
                 }
 
                 it("finishes with node 2 selecting route with cost 0 via node 0") {
                     assertThat(node[2].routingTable.getSelectedRoute(),
-                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(BGPNode.with(0)))))
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
                 }
 
                 it("finishes with node 3 selecting route with cost 2 via node 1") {
                     assertThat(node[3].routingTable.getSelectedRoute(),
-                            `is`(BGPRoute.with(localPref = 2, asPath = pathOf(BGPNode.with(0), BGPNode.with(1)))))
+                            `is`(BGPRoute.with(localPref = 2, asPath = pathOf(0, 1))))
                 }
 
                 it("finishes with link from 1 to 2 disabled") {
