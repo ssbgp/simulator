@@ -217,8 +217,8 @@ object BGPTopologyBuilderTests : Spek({
             builder.addNode(2)
 
             val topology = builder.build()
-            val node1 = topology.getNode(1)!!
-            val node2 = topology.getNode(2)!!
+            val node1 = topology[1]!!
+            val node2 = topology[2]!!
 
             it("assigns different instances of the default protocol to each node") {
                 assertThat(node1.protocol !== node2.protocol, `is`(true))

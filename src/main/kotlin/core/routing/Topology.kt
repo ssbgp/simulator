@@ -39,7 +39,7 @@ interface Topology<N: Node, R: Route> {
      * @param id the ID of the node to get from the network.
      * @return the node associated with the given ID or null if the topology does not contain a node with such an ID.
      */
-    fun getNode(id: Int): BGPNode?
+    operator fun get(id: Int): BGPNode?
 
     /**
      * Returns a collection with all nodes contained in the topology in no particular order.

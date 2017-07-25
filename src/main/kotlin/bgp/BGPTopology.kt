@@ -33,7 +33,7 @@ class BGPTopology(private val nodes: Map<NodeID, BGPNode>) : Topology<BGPNode, B
      * Returns the BGP identified by the specified ID. It returns null if the topology does not hold any node with
      * the specified ID.
      */
-    override fun getNode(id: NodeID): BGPNode? = nodes[id]
+    override operator fun get(id: NodeID): BGPNode? = nodes[id]
 
     /**
      * Returns an immutable collection containing all nodes in the topology.
