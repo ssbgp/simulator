@@ -1,6 +1,7 @@
 package core.simulator
 
 import bgp.*
+import core.routing.Path
 import core.routing.pathOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
@@ -18,6 +19,11 @@ import testing.*
  * @author David Fialho
  */
 object EngineTests : Spek({
+
+    fun pathOf(vararg ids: Int): Path<BGPNode> {
+        val nodes = ids.map { BGPNode.with(it) }.toTypedArray()
+        return pathOf(*nodes)
+    }
 
     context("shortest-path routing with BGP") {
 
@@ -401,15 +407,15 @@ object EngineTests : Spek({
 
                 it("finishes with node 3 selecting route with cost 2 via node 1") {
                     assertThat(node[3].routingTable.getSelectedRoute(),
-                          `is`(BGPRoute.with(localPref = 2, asPath = pathOf(BGPNode.with(0), BGPNode.with(1)))))
+                            `is`(BGPRoute.with(localPref = 2, asPath = pathOf(BGPNode.with(0), BGPNode.with(1)))))
                 }
 
                 it("finishes with link from 1 to 2 disabled") {
-                    assertThat(node[2].routingTable.table.isEnabled(node[1]), `is`(false))
+                    assertThat(node[1].routingTable.table.isEnabled(node[2]), `is`(false))
                 }
 
                 it("finishes with link from 2 to 3 disabled") {
-                    assertThat(node[3].routingTable.table.isEnabled(node[2]), `is`(false))
+                    assertThat(node[2].routingTable.table.isEnabled(node[3]), `is`(false))
                 }
 
                 it("finishes with link from 3 to 1 enabled") {
@@ -421,7 +427,7 @@ object EngineTests : Spek({
 
     context("shortest-path routing with ISS-BGP") {
 
-        given("topology with 4 where three form a cycle and all three have a link for node 0") {
+        given("topology with non-absorbent cycle") {
 
             val topology = bgpTopology {
                 node { 0 using ISSBGPProtocol() }
@@ -472,11 +478,11 @@ object EngineTests : Spek({
                 }
 
                 it("finishes with link from 1 to 2 disabled") {
-                    assertThat(node[2].routingTable.table.isEnabled(node[1]), `is`(false))
+                    assertThat(node[1].routingTable.table.isEnabled(node[2]), `is`(false))
                 }
 
                 it("finishes with link from 2 to 3 disabled") {
-                    assertThat(node[3].routingTable.table.isEnabled(node[2]), `is`(false))
+                    assertThat(node[2].routingTable.table.isEnabled(node[3]), `is`(false))
                 }
 
                 it("finishes with link from 3 to 1 enabled") {
