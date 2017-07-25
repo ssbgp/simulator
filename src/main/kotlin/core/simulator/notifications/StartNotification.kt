@@ -1,6 +1,6 @@
 package core.simulator.notifications
 
-import java.sql.Time
+import core.simulator.Time
 
 /**
  * Created on 25-07-2017.
@@ -8,5 +8,7 @@ import java.sql.Time
  * @author David Fialho
  *
  * Notification sent before the simulation starts.
+ *
+ * @property seed the initial seed used to generate the communication delays
  */
-data class StartNotification(override val time: Time, val seed: Long) : Notification
+data class StartNotification(override val time: Time = 0, val seed: Long) : Notification
