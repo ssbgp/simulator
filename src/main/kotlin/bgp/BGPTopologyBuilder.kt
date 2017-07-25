@@ -11,17 +11,22 @@ class BGPTopologyBuilder {
 
     private data class Link(val tailID: NodeID, val headID: NodeID, val extender: BGPExtender)
 
-    private val ids = mutableSetOf<NodeID>()
+    private val ids = HashMap<NodeID, BaseBGPProtocol>()
     private val links = mutableSetOf<Link>()
 
     /**
      * Adds a new node with the specified ID to the builder. If a node with the same ID was already added to the
      * builder then it does not add anything.
      *
+     * It provides the option to specify the protocol to associate with the new node. If none is provided then it
+     * will use the BGPProtocol by default.
+     *
+     * @param id       the ID to identify the new node
+     * @param protocol the protocol to associate with the new node
      * @return true if the ID was not added yet to the builder or false if otherwise
      */
-    fun  addNode(id: NodeID): Boolean {
-        return ids.add(id)
+    fun  addNode(id: NodeID, protocol: BaseBGPProtocol = BGPProtocol()): Boolean {
+        return ids.putIfAbsent(id, protocol) == null
     }
 
     /**
@@ -48,7 +53,7 @@ class BGPTopologyBuilder {
         val nodes = HashMap<NodeID, BGPNode>(ids.size)
 
         // Create a node for each ID
-        for (it in ids) nodes.put(it, BGPNode.with(it))
+        for ((id, protocol) in ids) nodes.put(id, BGPNode.with(id, protocol))
 
         // Establish relationships based on the links stored in the builder
         for ((tail, head, extender) in links) {

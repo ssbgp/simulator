@@ -7,6 +7,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.jetbrains.spek.api.dsl.context
 import testing.someExtender
 
 /**
@@ -204,6 +205,26 @@ object BGPTopologyBuilderTests : Spek({
                         not(contains(BGPLink(from = 3, to = 1))))
             }
         }
+    }
+
+    context("adding new nodes with default protocol") {
+
+        val builder = BGPTopologyBuilder()
+
+        on("adding two nodes to the builder") {
+
+            builder.addNode(1)
+            builder.addNode(2)
+
+            val topology = builder.build()
+            val node1 = topology.getNode(1)!!
+            val node2 = topology.getNode(2)!!
+
+            it("assigns different instances of the default protocol to each node") {
+                assertThat(node1.protocol !== node2.protocol, `is`(true))
+            }
+        }
+
     }
 
 })
