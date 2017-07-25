@@ -12,6 +12,6 @@ interface StartListener : NotificationListener {
     /**
      * Invoked to notify the listener of a new start notification.
      */
-    fun notifyStarted(notification: StartNotification)
+    fun notifyStart(notification: StartNotification)
 
 }

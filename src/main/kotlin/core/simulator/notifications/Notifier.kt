@@ -39,7 +39,7 @@ object Notifier {
      * @param notification the start notification to send to each registered listener.
      */
     fun notifyStart(notification: StartNotification) {
-        startListeners.forEach { listener -> listener.notifyStarted(notification) }
+        startListeners.forEach { listener -> listener.notifyStart(notification) }
     }
 
     //endregion
