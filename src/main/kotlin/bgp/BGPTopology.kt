@@ -21,6 +21,15 @@ class BGPTopology(private val nodes: Map<NodeID, BGPNode>) : Topology<BGPNode, B
     override val size: Int = nodes.size
 
     /**
+     * Returns the number of links in the topology.
+     *
+     * Due to the way links are stored in this type of topology, this is a time consuming operation. Try to avoid
+     * having to use it.
+     */
+    override val linkCount: Int
+        get() = nodes.flatMap { it.value.relationships }.count()
+
+    /**
      * Returns the BGP identified by the specified ID. It returns null if the topology does not hold any node with
      * the specified ID.
      */
@@ -49,19 +58,6 @@ class BGPTopology(private val nodes: Map<NodeID, BGPNode>) : Topology<BGPNode, B
 
         return links
     }
-
-    /**
-     * Returns the number of BGP nodes in the topology.
-     */
-    override fun nodeCount() = size
-
-    /**
-     * Returns the number of links in the topology.
-     *
-     * Due to the way links are stored in this type of topology, this is a time consuming operation. Try to avoid
-     * having to use it.
-     */
-    override fun linkCount(): Int = nodes.flatMap { it.value.relationships }.count()
 
 }
 

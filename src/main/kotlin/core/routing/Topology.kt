@@ -23,7 +23,15 @@ import bgp.BGPNode
  */
 interface Topology<N: Node, R: Route> {
 
+    /**
+     * Returns the number of nodes in the topology.
+     */
     val size: Int
+
+    /**
+     * Returns the number of links in the topology.
+     */
+    val linkCount: Int
 
     /**
      * Returns the node associated with the given ID.
@@ -46,20 +54,6 @@ interface Topology<N: Node, R: Route> {
      * @return a collection with all links contained in the topology in no particular order.
      */
     fun getLinks(): Collection<Link<N, R>>
-
-    /**
-     * Returns the number of nodes currently in the topology.
-     *
-     * @return the number of nodes currently in the topology
-     */
-    fun nodeCount(): Int
-
-    /**
-     * Returns the number of different links between nodes in the topology.
-     *
-     * @return the number of links currently in the topology
-     */
-    fun linkCount(): Int
 
 }
 

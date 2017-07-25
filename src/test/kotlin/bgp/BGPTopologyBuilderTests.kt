@@ -38,7 +38,7 @@ object BGPTopologyBuilderTests : Spek({
             }
 
             it("builds a topology with 0 links") {
-                assertThat(topology.linkCount(), `is`(0))
+                assertThat(topology.linkCount, `is`(0))
             }
         }
 
@@ -61,7 +61,7 @@ object BGPTopologyBuilderTests : Spek({
             }
 
             it("builds a topology with 0 links") {
-                assertThat(topology.linkCount(), `is`(0))
+                assertThat(topology.linkCount, `is`(0))
             }
         }
 
@@ -111,7 +111,7 @@ object BGPTopologyBuilderTests : Spek({
             val topology = builder.build()
 
             it("builds a topology with 1 link") {
-                assertThat(topology.linkCount(), equalTo(1))
+                assertThat(topology.linkCount, equalTo(1))
             }
 
             it("builds a topology with a link from 1 to 2") {
@@ -130,7 +130,7 @@ object BGPTopologyBuilderTests : Spek({
             val topology = builder.build()
 
             it("builds a topology with 1 link") {
-                assertThat(topology.linkCount(), equalTo(1))
+                assertThat(topology.linkCount, equalTo(1))
             }
 
             it("builds a topology with a link from 1 to 2") {
@@ -149,7 +149,7 @@ object BGPTopologyBuilderTests : Spek({
             val topology = builder.build()
 
             it("builds a topology with 2 links") {
-                assertThat(topology.linkCount(), equalTo(2))
+                assertThat(topology.linkCount, equalTo(2))
             }
 
             it("builds a topology with a link from 1 to 2 and from 2 to 1") {
@@ -173,7 +173,7 @@ object BGPTopologyBuilderTests : Spek({
             }
 
             it("builds a topology with 2 links still") {
-                assertThat(topology.linkCount(), equalTo(2))
+                assertThat(topology.linkCount, equalTo(2))
             }
 
             it("builds a topology not containing a link from 1 to 3") {
@@ -197,7 +197,7 @@ object BGPTopologyBuilderTests : Spek({
             }
 
             it("builds a topology with 2 links still") {
-                assertThat(topology.linkCount(), equalTo(2))
+                assertThat(topology.linkCount, equalTo(2))
             }
 
             it("builds a topology not containing a link from 1 to 3") {
