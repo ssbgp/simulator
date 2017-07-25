@@ -148,8 +148,19 @@ class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
 class ISSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
+
     override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
-        TODO("not implemented")
+
+        //Since a loop was detected, the route via the sender node is invalid
+        node.routingTable.update(sender, BGPRoute.invalid())
+
+        val alternativeRoute = node.routingTable.getSelectedRoute()
+
+        if (route.localPref > alternativeRoute.localPref) {
+            if (alternativeRoute.asPath == route.asPath.subPathBefore(node)) {
+                node.routingTable.disable(sender)
+            }
+        }
     }
 }
 
