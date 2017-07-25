@@ -1,5 +1,6 @@
 package core.simulator
 
+import bgp.BGPProtocol
 import bgp.BGPRoute
 import core.routing.pathOf
 import org.hamcrest.MatcherAssert.assertThat
@@ -10,10 +11,7 @@ import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import testing.bgpTopology
-import testing.link
-import testing.to
-import testing.withCost
+import testing.*
 
 /**
  * Created on 24-07-2017.
@@ -27,6 +25,9 @@ object EngineTests : Spek({
         given("topology with a single link from 2 to 1 with cost 10") {
 
             val topology = bgpTopology {
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+
                 link { 2 to 1 withCost 10 }
             }
 
@@ -96,6 +97,9 @@ object EngineTests : Spek({
         given("topology with 2 nodes with a link in each direction") {
 
             val topology = bgpTopology {
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+
                 link { 2 to 1 withCost 10 }
                 link { 1 to 2 withCost 10 }
             }
@@ -142,6 +146,12 @@ object EngineTests : Spek({
         given("topology with 5 nodes forming a pyramid") {
 
             val topology = bgpTopology {
+                node { 0 using BGPProtocol() }
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+                node { 3 using BGPProtocol() }
+                node { 4 using BGPProtocol() }
+
                 link { 2 to 0 withCost 0 }
                 link { 2 to 3 withCost -10 }
                 link { 3 to 1 withCost 0 }
@@ -236,6 +246,11 @@ object EngineTests : Spek({
         given("topology with 4 where three form a cycle and all three have a link for node 0") {
 
             val topology = bgpTopology {
+                node { 0 using BGPProtocol() }
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+                node { 3 using BGPProtocol() }
+
                 link { 1 to 0 withCost 0 }
                 link { 2 to 0 withCost 0 }
                 link { 3 to 0 withCost 0 }
