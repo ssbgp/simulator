@@ -1,6 +1,7 @@
 package core.simulator
 
-import bgp.BGPRoute
+import bgp.*
+import core.routing.Path
 import core.routing.pathOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
@@ -10,10 +11,7 @@ import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import testing.bgpTopology
-import testing.link
-import testing.to
-import testing.withCost
+import testing.*
 
 /**
  * Created on 24-07-2017.
@@ -22,11 +20,22 @@ import testing.withCost
  */
 object EngineTests : Spek({
 
-    context("shortest-path routing") {
+    /**
+     * Returns a path of BGPNodes with the specified IDs and in the specified order.
+     */
+    fun pathOf(vararg ids: Int): Path<BGPNode> {
+        val nodes = ids.map { BGPNode.with(it) }.toTypedArray()
+        return pathOf(*nodes)
+    }
+
+    context("shortest-path routing with BGP") {
 
         given("topology with a single link from 2 to 1 with cost 10") {
 
             val topology = bgpTopology {
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+
                 link { 2 to 1 withCost 10 }
             }
 
@@ -96,6 +105,9 @@ object EngineTests : Spek({
         given("topology with 2 nodes with a link in each direction") {
 
             val topology = bgpTopology {
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+
                 link { 2 to 1 withCost 10 }
                 link { 1 to 2 withCost 10 }
             }
@@ -142,6 +154,12 @@ object EngineTests : Spek({
         given("topology with 5 nodes forming a pyramid") {
 
             val topology = bgpTopology {
+                node { 0 using BGPProtocol() }
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+                node { 3 using BGPProtocol() }
+                node { 4 using BGPProtocol() }
+
                 link { 2 to 0 withCost 0 }
                 link { 2 to 3 withCost -10 }
                 link { 3 to 1 withCost 0 }
@@ -236,6 +254,11 @@ object EngineTests : Spek({
         given("topology with 4 where three form a cycle and all three have a link for node 0") {
 
             val topology = bgpTopology {
+                node { 0 using BGPProtocol() }
+                node { 1 using BGPProtocol() }
+                node { 2 using BGPProtocol() }
+                node { 3 using BGPProtocol() }
+
                 link { 1 to 0 withCost 0 }
                 link { 2 to 0 withCost 0 }
                 link { 3 to 0 withCost 0 }
@@ -261,6 +284,276 @@ object EngineTests : Spek({
 
                 it("does not terminate") {
                     assertThat(terminated, `is`(false))
+                }
+            }
+        }
+    }
+
+    context("shortest-path routing with SS-BGP") {
+
+        given("topology with a single link from 2 to 1 with cost 10") {
+
+            val topology = bgpTopology {
+                node { 1 using SSBGPProtocol() }
+                node { 2 using SSBGPProtocol() }
+
+                link { 2 to 1 withCost 10 }
+            }
+
+            beforeEachTest {
+                Scheduler.reset()
+                topology.getNodes().forEach { it.reset() }
+            }
+
+            afterEachTest {
+                Scheduler.reset()
+            }
+
+            val node1 = topology[1]!!
+            val node2 = topology[2]!!
+
+            on("simulating with node 1 as the destination") {
+
+                val terminated = Engine.simulate(node1, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
+
+                it("finishes with node 1 selecting self route") {
+                    assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
+                }
+
+                it("finishes with node 1 selecting route via himself") {
+                    assertThat(node1.routingTable.getSelectedNeighbor(), `is`(node1))
+                }
+
+                it("finishes with node 2 selecting route with LOCAL-PREF=10 and AS-PATH=[1]") {
+                    assertThat(node2.routingTable.getSelectedRoute(), `is`(BGPRoute.with(10, pathOf(node1))))
+                }
+
+                it("finishes with node 2 selecting route via node 1") {
+                    assertThat(node2.routingTable.getSelectedNeighbor(), `is`(node1))
+                }
+            }
+
+            on("simulating with node 2 as the destination") {
+
+                val terminated = Engine.simulate(node2, threshold = 1000)
+
+                it("terminated") {
+                    assertThat(terminated, `is`(true))
+                }
+
+                it("finishes with node 1 selecting an invalid route") {
+                    assertThat(node1.routingTable.getSelectedRoute(), `is`(BGPRoute.invalid()))
+                }
+
+                it("finishes with node 1 selecting null neighbor") {
+                    assertThat(node1.routingTable.getSelectedNeighbor(), `is`(nullValue()))
+                }
+
+                it("finishes with node 2 selecting self route") {
+                    assertThat(node2.routingTable.getSelectedRoute(), `is`(BGPRoute.self()))
+                }
+
+                it("finishes with node 2 selecting route via himself") {
+                    assertThat(node2.routingTable.getSelectedNeighbor(), `is`(node2))
+                }
+            }
+        }
+
+        given("topology with 4 where three form a cycle and all three have a link for node 0") {
+
+            val topology = bgpTopology {
+                node { 0 using SSBGPProtocol() }
+                node { 1 using SSBGPProtocol() }
+                node { 2 using SSBGPProtocol() }
+                node { 3 using SSBGPProtocol() }
+
+                link { 1 to 0 withCost 0 }
+                link { 2 to 0 withCost 0 }
+                link { 3 to 0 withCost 0 }
+                link { 1 to 2 withCost 1 }
+                link { 2 to 3 withCost -1 }
+                link { 3 to 1 withCost 2 }
+            }
+
+            beforeEachTest {
+                Scheduler.reset()
+                topology.getNodes().forEach { it.reset() }
+            }
+
+            afterEachTest {
+                Scheduler.reset()
+            }
+
+            val node = topology.getNodes().sortedBy { it.id }
+
+            on("simulating with node 0 as the destination") {
+
+                val terminated = Engine.simulate(node[0], threshold = 1000)
+
+                it("terminates") {
+                    assertThat(terminated, `is`(true))
+                }
+
+                it("finishes with node 1 selecting route with cost 0 via node 0") {
+                    assertThat(node[1].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
+                }
+
+                it("finishes with node 2 selecting route with cost 0 via node 0") {
+                    assertThat(node[2].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
+                }
+
+                it("finishes with node 3 selecting route with cost 2 via node 1") {
+                    assertThat(node[3].routingTable.getSelectedRoute(),
+                          `is`(BGPRoute.with(localPref = 2, asPath = pathOf(0, 1))))
+                }
+
+                it("finishes with link from 1 to 2 disabled") {
+                    assertThat(node[1].routingTable.table.isEnabled(node[2]), `is`(false))
+                }
+
+                it("finishes with link from 2 to 3 disabled") {
+                    assertThat(node[2].routingTable.table.isEnabled(node[3]), `is`(false))
+                }
+
+                it("finishes with link from 3 to 1 enabled") {
+                    assertThat(node[3].routingTable.table.isEnabled(node[1]), `is`(true))
+                }
+            }
+        }
+
+        given("topology with absorbent cycle") {
+
+            val topology = bgpTopology {
+                node { 0 using SSBGPProtocol() }
+                node { 1 using SSBGPProtocol() }
+                node { 2 using SSBGPProtocol() }
+                node { 3 using SSBGPProtocol() }
+
+                link { 1 to 0 withCost 0 }
+                link { 2 to 0 withCost 0 }
+                link { 3 to 0 withCost 0 }
+                link { 1 to 2 withCost -3 }
+                link { 2 to 3 withCost 1 }
+                link { 3 to 1 withCost 2 }
+            }
+
+            beforeEachTest {
+                Scheduler.reset()
+                topology.getNodes().forEach { it.reset() }
+            }
+
+            afterEachTest {
+                Scheduler.reset()
+            }
+
+            val node = topology.getNodes().sortedBy { it.id }
+
+            on("simulating with node 0 as the destination") {
+
+                val terminated = Engine.simulate(node[0], threshold = 1000)
+
+                it("terminates") {
+                    assertThat(terminated, `is`(true))
+                }
+
+                it("finishes with node 1 selecting route with cost 0 via node 0") {
+                    assertThat(node[1].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
+                }
+
+                it("finishes with node 2 selecting route with cost 3 via node 3") {
+                    assertThat(node[2].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 3, asPath = pathOf(0, 1, 3))))
+                }
+
+                it("finishes with node 3 selecting route with cost 2 via node 1") {
+                    assertThat(node[3].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 2, asPath = pathOf(0, 1))))
+                }
+
+                it("finishes with link from 1 to 2 enabled") {
+                    assertThat(node[1].routingTable.table.isEnabled(node[2]), `is`(true))
+                }
+
+                it("finishes with link from 2 to 3 enabled") {
+                    assertThat(node[2].routingTable.table.isEnabled(node[3]), `is`(true))
+                }
+
+                it("finishes with link from 3 to 1 enabled") {
+                    assertThat(node[3].routingTable.table.isEnabled(node[1]), `is`(true))
+                }
+            }
+        }
+    }
+
+    context("shortest-path routing with ISS-BGP") {
+
+        given("topology with non-absorbent cycle") {
+
+            val topology = bgpTopology {
+                node { 0 using ISSBGPProtocol() }
+                node { 1 using ISSBGPProtocol() }
+                node { 2 using ISSBGPProtocol() }
+                node { 3 using ISSBGPProtocol() }
+
+                link { 1 to 0 withCost 0 }
+                link { 2 to 0 withCost 0 }
+                link { 3 to 0 withCost 0 }
+                link { 1 to 2 withCost 1 }
+                link { 2 to 3 withCost -1 }
+                link { 3 to 1 withCost 2 }
+            }
+
+            beforeEachTest {
+                Scheduler.reset()
+                topology.getNodes().forEach { it.reset() }
+            }
+
+            afterEachTest {
+                Scheduler.reset()
+            }
+
+            val node = topology.getNodes().sortedBy { it.id }
+
+            on("simulating with node 0 as the destination") {
+
+                val terminated = Engine.simulate(node[0], threshold = 1000)
+
+                it("terminates") {
+                    assertThat(terminated, `is`(true))
+                }
+
+                it("finishes with node 1 selecting route with cost 0 via node 0") {
+                    assertThat(node[1].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
+                }
+
+                it("finishes with node 2 selecting route with cost 0 via node 0") {
+                    assertThat(node[2].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 0, asPath = pathOf(0))))
+                }
+
+                it("finishes with node 3 selecting route with cost 2 via node 1") {
+                    assertThat(node[3].routingTable.getSelectedRoute(),
+                            `is`(BGPRoute.with(localPref = 2, asPath = pathOf(0, 1))))
+                }
+
+                it("finishes with link from 1 to 2 disabled") {
+                    assertThat(node[1].routingTable.table.isEnabled(node[2]), `is`(false))
+                }
+
+                it("finishes with link from 2 to 3 disabled") {
+                    assertThat(node[2].routingTable.table.isEnabled(node[3]), `is`(false))
+                }
+
+                it("finishes with link from 3 to 1 enabled") {
+                    assertThat(node[3].routingTable.table.isEnabled(node[1]), `is`(true))
                 }
             }
         }

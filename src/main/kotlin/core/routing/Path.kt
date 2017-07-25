@@ -45,6 +45,16 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N
     fun copy(): Path<N> = Path(nodes)
 
     /**
+     * Returns a path corresponding to the sub-path from the beginning of the path until the fir node equal to the
+     * specified node.
+     */
+    fun subPathBefore(node: N): Path<N> {
+
+        val nodeIndex = nodes.indexOf(node)
+        return if (nodeIndex >= 0) Path(nodes.subList(0, nodeIndex)) else this
+    }
+
+    /**
      * Returns an iterator over the nodes of the path. The iterator starts at first node in the path.
      */
     override fun iterator(): Iterator<N> {

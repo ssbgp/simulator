@@ -14,6 +14,6 @@ import core.routing.RoutingTable
  * Allows us to write something like 'route(1) via node(1)'.
  * The neighbors defined here are all enabled.
  */
-infix fun Route.via(neighbor: Node): RoutingTable.Entry<Node, Route> {
+infix fun <N: Node, R: Route> R.via(neighbor: N): RoutingTable.Entry<N, R> {
     return RoutingTable.Entry(neighbor, this, enabled = true)
 }

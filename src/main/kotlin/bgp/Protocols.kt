@@ -19,7 +19,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
      * the message is being processed.
      */
     var wasSelectedRouteUpdated: Boolean = false
-        private set
+        protected set
 
     /**
      * Processes a BGP message received by a node.
@@ -71,7 +71,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
 
         if (node in route.asPath) {
             // Notify the implementations that a loop was detected
-            onLoopDetected(sender, route)
+            onLoopDetected(node, sender, route)
 
             return BGPRoute.invalid()
         } else {
@@ -112,7 +112,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
     /**
      * Called by the protocol when it detects a routing loop.
      */
-    protected abstract fun onLoopDetected(sender: BGPNode, route: BGPRoute)
+    abstract fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute)
 
 }
 
@@ -122,7 +122,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
  * BGP Protocol: when a loop is detected it does nothing
  */
 class BGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
-    override fun onLoopDetected(sender: BGPNode, route: BGPRoute) = Unit
+    override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) = Unit
 }
 
 /**
@@ -131,8 +131,19 @@ class BGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
  */
 class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
 
-    override fun onLoopDetected(sender: BGPNode, route: BGPRoute) {
-        TODO("not implemented")
+    override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
+
+        //Since a loop was detected, the route via the sender node is invalid
+        var updated = node.routingTable.update(sender, BGPRoute.invalid())
+        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+
+        val alternativeRoute = node.routingTable.getSelectedRoute()
+
+        if (route.localPref > alternativeRoute.localPref) {
+            updated = node.routingTable.disable(sender)
+            wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+        }
+
     }
 }
 
@@ -141,8 +152,21 @@ class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
 class ISSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
-    override fun onLoopDetected(sender: BGPNode, route: BGPRoute) {
-        TODO("not implemented")
+
+    override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
+
+        //Since a loop was detected, the route via the sender node is invalid
+        var updated = node.routingTable.update(sender, BGPRoute.invalid())
+        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+
+        val alternativeRoute = node.routingTable.getSelectedRoute()
+
+        if (route.localPref > alternativeRoute.localPref) {
+            if (alternativeRoute.asPath == route.asPath.subPathBefore(node)) {
+                updated = node.routingTable.disable(sender)
+                wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+            }
+        }
     }
 }
 

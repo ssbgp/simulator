@@ -32,6 +32,16 @@ fun bgpTopology(body: BGPTopologyBuilder.() -> Unit): BGPTopology {
     return builder.build()
 }
 
+/**
+ *
+ */
+fun ssbgpTopology(body: BGPTopologyBuilder.() -> Unit): BGPTopology {
+
+    val builder = BGPTopologyBuilder()
+    body(builder)
+    return builder.build()
+}
+
 infix fun Int.to(head: Int) = Link(tail = this, head = head)
 
 infix fun Link.using(extender: BGPExtender): Link {
@@ -44,11 +54,19 @@ infix fun Link.delaysFrom(delayGenerator: DelayGenerator): Link {
     return this
 }
 
+infix fun Int.using(protocol: BaseBGPProtocol): Pair<Int, BaseBGPProtocol> {
+    return Pair(this, protocol)
+}
+
+fun BGPTopologyBuilder.node(nodePair: () -> Pair<Int, BaseBGPProtocol>) {
+
+    val pair = nodePair()
+    this.addNode(id = pair.first, protocol = pair.second)
+}
+
 fun BGPTopologyBuilder.link(createLink: () -> Link) {
 
     val link = createLink()
-    this.addNode(link.tail)
-    this.addNode(link.head)
     this.addLink(link.tail, link.head, link.extender)
 }
 
