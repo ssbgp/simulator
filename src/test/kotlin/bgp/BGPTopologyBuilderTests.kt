@@ -156,6 +156,54 @@ object BGPTopologyBuilderTests : Spek({
                     containsInAnyOrder(BGPLink(from = 1, to = 2), BGPLink(from = 2, to = 1)))
             }
         }
+
+        on("adding a link from node 1 to node 3 (not added yet)") {
+
+            val added = builder.addLink(from = 1, to = 3, extender = someExtender())
+
+            it("returns false indicating the link was NOT added") {
+                assertThat(added, `is`(false))
+            }
+
+            val topology = builder.build()
+
+            it("builds a topology with size 2") {
+                assertThat(topology.size, equalTo(2))
+            }
+
+            it("builds a topology with 2 links still") {
+                assertThat(topology.linkCount(), equalTo(2))
+            }
+
+            it("builds a topology not containing a link from 1 to 3") {
+                assertThat(topology.getLinks(),
+                        not(contains(BGPLink(from = 1, to = 3))))
+            }
+        }
+
+        on("adding a link from node 3 (not added yet) to node 1") {
+
+            val added = builder.addLink(from = 3, to = 1, extender = someExtender())
+
+            it("returns false indicating the link was NOT added") {
+                assertThat(added, `is`(false))
+            }
+
+            val topology = builder.build()
+
+            it("builds a topology with size 2") {
+                assertThat(topology.size, equalTo(2))
+            }
+
+            it("builds a topology with 2 links still") {
+                assertThat(topology.linkCount(), equalTo(2))
+            }
+
+            it("builds a topology not containing a link from 1 to 3") {
+                assertThat(topology.getLinks(),
+                        not(contains(BGPLink(from = 3, to = 1))))
+            }
+        }
     }
 
 })

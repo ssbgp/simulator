@@ -9,13 +9,14 @@ import core.routing.NodeID
  */
 class BGPTopologyBuilder {
 
-    data class Link(val tailID: NodeID, val headID: NodeID, val extender: BGPExtender)
+    private data class Link(val tailID: NodeID, val headID: NodeID, val extender: BGPExtender)
 
     private val ids = mutableSetOf<NodeID>()
     private val links = mutableSetOf<Link>()
 
     /**
-     * Indicates to the builder that the topology to be built must include a node with the given ID.
+     * Adds a new node with the specified ID to the builder. If a node with the same ID was already added to the
+     * builder then it does not add anything.
      *
      * @return true if the ID was not added yet to the builder or false if otherwise
      */
@@ -23,7 +24,17 @@ class BGPTopologyBuilder {
         return ids.add(id)
     }
 
+    /**
+     * Adds a new link connecting the node identified by the 'from' ID with to the node identified by the 'to' ID. It
+     * associates the link the specified extender that will be used to extend the routes learned by the 'from' node
+     * from the 'to' node.
+     */
     fun addLink(from: NodeID, to: NodeID, extender: BGPExtender): Boolean {
+
+        if (from !in ids || to !in ids) {
+            return false
+        }
+
         return links.add(Link(from, to, extender))
     }
 
@@ -37,11 +48,11 @@ class BGPTopologyBuilder {
         val nodes = HashMap<NodeID, BGPNode>(ids.size)
 
         // Create a node for each ID
-        ids.forEach { nodes.put(it, BGPNode.with(it)) }
+        for (it in ids) nodes.put(it, BGPNode.with(it))
 
         // Establish relationships based on the links stored in the builder
         for ((tail, head, extender) in links) {
-            nodes[head]!!.addRelationship(nodes[tail]!!, extender)
+            nodes[head]?.addRelationship(nodes[tail]!!, extender)
         }
 
         return BGPTopology(nodes)
