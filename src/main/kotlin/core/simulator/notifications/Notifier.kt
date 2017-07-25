@@ -9,8 +9,8 @@ object Notifier {
 
     //region Lists containing the registered listeners
 
-    private val startListeners = ArrayList<StartListener>()
-    private val endListeners = ArrayList<EndListener>()
+    private val startListeners = mutableListOf<StartListener>()
+    private val endListeners = mutableListOf<EndListener>()
 
     //endregion
 
@@ -40,7 +40,7 @@ object Notifier {
      * @param notification the start notification to send to each registered listener.
      */
     fun notifyStart(notification: StartNotification) {
-        startListeners.forEach { listener -> listener.notifyStart(notification) }
+        startListeners.forEach { it.notify(notification) }
     }
 
     //endregion
@@ -71,7 +71,7 @@ object Notifier {
      * @param notification the end notification to send to each registered listener.
      */
     fun notifyEnd(notification: EndNotification) {
-        endListeners.forEach { listener -> listener.notifyEnd(notification) }
+        endListeners.forEach { it.notify(notification) }
     }
 
     //endregion

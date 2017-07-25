@@ -12,5 +12,5 @@ interface EndListener {
     /**
      * Invoked to notify the listener of a new end notification.
      */
-    fun notifyEnd(notification: EndNotification)
+    fun notify(notification: EndNotification)
 }
