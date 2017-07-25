@@ -28,120 +28,134 @@ object BGPTopologyBuilderTests : Spek({
 
         val builder = BGPTopologyBuilder()
 
-        on("adding a node with ID 1") {
-            it("returns true indicating the node was added") {
-                assertThat(builder.addNode(1), `is`(true))
-            }
-        }
-
         on("calling build") {
 
             val topology = builder.build()
 
-            it("returns a topology containing a single node with ID 1") {
-                assertThat(topology.getNodes(), containsInAnyOrder(BGPNode.with(id = 1)))
+            it("builds a topology of size 0") {
+                assertThat(topology.size, `is`(0))
             }
 
+            it("builds a topology with 0 links") {
+                assertThat(topology.linkCount(), `is`(0))
+            }
         }
 
-        on("adding second node with ID 1 ") {
-            val added = builder.addNode(1)
+        on("adding a node with ID 1") {
+
+            val added = builder.addNode(id = 1)
 
             it("returns true indicating the node was added") {
+                assertThat(added, `is`(true))
+            }
+
+            val topology = builder.build()
+
+            it("builds a topology of size 1") {
+                assertThat(topology.size, `is`(1))
+            }
+
+            it("builds a topology containing a node with ID 1") {
+                assertThat(topology.getNodes(), contains(BGPNode.with(id = 1)))
+            }
+
+            it("builds a topology with 0 links") {
+                assertThat(topology.linkCount(), `is`(0))
+            }
+        }
+
+        on("adding second node with ID 1 again") {
+
+            val added = builder.addNode(id = 1)
+
+            it("returns false indicating the node was NOT added") {
                 assertThat(added, `is`(false))
             }
-        }
-
-        on("calling build") {
 
             val topology = builder.build()
 
-            it("returns a topology of size 1") {
-                assertThat(topology.size, equalTo(1))
+            it("builds a topology of size 1") {
+                assertThat(topology.size, `is`(1))
             }
         }
 
         on("adding second node with ID 2") {
+
+            val added = builder.addNode(id = 2)
+
             it("returns true indicating the node was added") {
-                assertThat(builder.addNode(2), `is`(true))
-            }
-        }
-
-        on("calling build") {
-
-            val topology = builder.build()
-
-            it("returns a topology containing two nodes with IDs 1 and 2") {
-                assertThat(topology.getNodes(), containsInAnyOrder(BGPNode.with(id = 1), BGPNode.with(id = 2)))
-            }
-
-        }
-
-    }
-
-    given("a builder with two nodes with IDs 1 and 2") {
-
-        val builder = BGPTopologyBuilder()
-        builder.addNode(1)
-        builder.addNode(2)
-
-        on("adding a relationship from 1 to 2") {
-
-            val added = builder.addLink(from = 1, to = 2, extender = someExtender())
-
-            it("returns true") {
                 assertThat(added, `is`(true))
             }
 
-        }
-
-        on("calling build") {
             val topology = builder.build()
-            val links = topology.getLinks()
 
-            it("returns a topology with 1 link") {
-                assertThat(topology.linkCount(), equalTo(1))
+            it("builds a topology of size 2") {
+                assertThat(topology.size, `is`(2))
             }
 
-            it("returns a topology with a link from 1 to 2") {
-                assertThat(links, contains(BGPLink(from = 1, to = 2)))
+            it("builds a topology containing nodes 1 and 2") {
+                assertThat(topology.getNodes(),
+                    containsInAnyOrder(BGPNode.with(id = 1), BGPNode.with(id = 2)))
             }
         }
 
-        on("trying to add a relationship from 1 to 2 again") {
+        on("adding a link from node 1 to node 2") {
 
             val added = builder.addLink(from = 1, to = 2, extender = someExtender())
 
-            it("returns false") {
+            it("returns true indicating the link was added") {
+                assertThat(added, `is`(true))
+            }
+
+            val topology = builder.build()
+
+            it("builds a topology with 1 link") {
+                assertThat(topology.linkCount(), equalTo(1))
+            }
+
+            it("builds a topology with a link from 1 to 2") {
+                assertThat(topology.getLinks(), contains(BGPLink(from = 1, to = 2)))
+            }
+        }
+
+        on("adding a link from node 1 to node 2 again") {
+
+            val added = builder.addLink(from = 1, to = 2, extender = someExtender())
+
+            it("returns false indicating the link was NOT added") {
                 assertThat(added, `is`(false))
             }
 
-        }
-
-        on("adding a relationship from 2 to 1") {
-
-            val added = builder.addLink(from = 2, to = 1, extender = someExtender())
-
-            it("returns true") {
-                assertThat(added, `is`(true))
-            }
-
-        }
-
-        on("calling build") {
-
             val topology = builder.build()
-            val links = topology.getLinks()
 
-            it("returns a topology with 2 links") {
+            it("builds a topology with 1 link") {
                 assertThat(topology.linkCount(), equalTo(1))
             }
 
-            it("returns a topology with a link from 1 to 2 and another from 2 to 1") {
-                assertThat(links, containsInAnyOrder(BGPLink(from = 1, to = 2), BGPLink(from = 2, to = 1)))
+            it("builds a topology with a link from 1 to 2") {
+                assertThat(topology.getLinks(), contains(BGPLink(from = 1, to = 2)))
             }
         }
 
+        on("adding a link from node 2 to node 1") {
+
+            val added = builder.addLink(from = 2, to = 1, extender = someExtender())
+
+            it("returns true indicating the link was added") {
+                assertThat(added, `is`(true))
+            }
+
+            val topology = builder.build()
+
+            it("builds a topology with 2 links") {
+                assertThat(topology.linkCount(), equalTo(2))
+            }
+
+            it("builds a topology with a link from 1 to 2 and from 2 to 1") {
+                assertThat(topology.getLinks(),
+                    containsInAnyOrder(BGPLink(from = 1, to = 2), BGPLink(from = 2, to = 1)))
+            }
+        }
     }
 
 })
