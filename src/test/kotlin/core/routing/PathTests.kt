@@ -6,6 +6,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.jetbrains.spek.api.dsl.context
 import testing.node
 
 /**
@@ -130,6 +131,133 @@ object PathTests : Spek({
             assertThat(path1, not(equalTo(path2)))
         }
 
+    }
+
+    context("obtaining the sub-path before some node") {
+
+        given("path is empty") {
+
+            val path = emptyPath<Node>()
+
+            on("obtaining sub-path before some node") {
+
+                val subPath = path.subPathBefore(node(1))
+
+                it("returns empty path") {
+                    assertThat(subPath, `is`(emptyPath()))
+                }
+            }
+        }
+
+        given("path contains only node 1") {
+
+            val path = pathOf(node(1))
+
+            on("obtaining sub-path before node 1") {
+
+                val subPath = path.subPathBefore(node(1))
+
+                it("returns empty path") {
+                    assertThat(subPath, `is`(emptyPath()))
+                }
+            }
+
+            on("obtaining sub-path before node 2") {
+
+                val subPath = path.subPathBefore(node(2))
+
+                it("returns original path with node 1") {
+                    assertThat(subPath, `is`(path))
+                }
+            }
+        }
+
+        given("path with nodes 1, 2, 3, 4, and 5") {
+
+            val path = pathOf(node(1), node(2), node(3), node(4), node(5))
+
+            on("obtaining sub-path before node 1") {
+
+                val subPath = path.subPathBefore(node(1))
+
+                it("returns empty path") {
+                    assertThat(subPath, `is`(emptyPath()))
+                }
+            }
+
+            on("obtaining sub-path before node 2") {
+
+                val subPath = path.subPathBefore(node(2))
+
+                it("returns path with node 1") {
+                    assertThat(subPath, `is`(pathOf(node(1))))
+                }
+            }
+
+            on("obtaining sub-path before node 3") {
+
+                val subPath = path.subPathBefore(node(3))
+
+                it("returns path with nodes 1 and 2") {
+                    assertThat(subPath, `is`(pathOf(node(1), node(2))))
+                }
+            }
+
+            on("obtaining sub-path before node 4") {
+
+                val subPath = path.subPathBefore(node(4))
+
+                it("returns path with nodes 1, 2, and 3") {
+                    assertThat(subPath, `is`(pathOf(node(1), node(2), node(3))))
+                }
+            }
+
+            on("obtaining sub-path before node 5") {
+
+                val subPath = path.subPathBefore(node(5))
+
+                it("returns path with nodes 1, 2, 3, and 4") {
+                    assertThat(subPath, `is`(pathOf(node(1), node(2), node(3), node(4))))
+                }
+            }
+
+            on("obtaining sub-path before node 6") {
+
+                val subPath = path.subPathBefore(node(6))
+
+                it("returns original path with nodes 1, 2, 3, 4, and 5") {
+                    assertThat(subPath, `is`(pathOf(node(1), node(2), node(3), node(4), node(5))))
+                }
+            }
+        }
+
+        given("path contains nodes 1 and 1") {
+
+            val path = pathOf(node(1), node(1))
+
+            on("obtaining sub-path before node 1") {
+
+                val subPath = path.subPathBefore(node(1))
+
+                it("returns empty path") {
+                    assertThat(subPath, `is`(emptyPath()))
+                }
+            }
+        }
+
+        given("path contains nodes 2, 1, 3, 1") {
+
+            val path = pathOf(node(2), node(1), node(3), node(1))
+
+            on("obtaining sub-path before node 1") {
+
+                val subPath = path.subPathBefore(node(1))
+
+                it("returns path with node 2") {
+                    assertThat(subPath, `is`(pathOf(node(2))))
+                }
+            }
+        }
     }
 
 
