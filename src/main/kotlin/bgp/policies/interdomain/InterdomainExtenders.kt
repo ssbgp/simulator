@@ -62,3 +62,17 @@ object PeerplusExtender : BGPExtender {
     }
 
 }
+
+object SiblingExtender : BGPExtender {
+
+    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+
+        return when {
+            !route.isValid()          -> BGPRoute.invalid()
+            route === BGPRoute.self() -> customerRoute(siblingHops = 1, asPath = route.asPath.append(sender))
+            else                      -> BGPRoute.with(localPref = route.localPref + 1,
+                                                       asPath = route.asPath.append(sender))
+        }
+    }
+
+}
