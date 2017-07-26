@@ -2,7 +2,7 @@ package core.simulator
 
 import core.routing.Destination
 import core.simulator.notifications.EndNotification
-import core.simulator.notifications.Notifier
+import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.StartNotification
 
 /**
@@ -20,7 +20,7 @@ object Engine {
     /**
      * Holds the notifier used to send notifications during the simulations.
      */
-    var notifier = Notifier
+    var notifier: BasicNotifier = BasicNotifier()
 
     /**
      * Runs the simulation for the given destination.

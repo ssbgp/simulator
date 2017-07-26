@@ -53,7 +53,7 @@ class NotificationCollector private constructor(): StartListener, EndListener {
 
     companion object {
 
-        fun collect(notifier: Notifier = Engine.notifier, body: () -> Unit): NotificationCollector {
+        fun collect(notifier: BasicNotifier = Engine.notifier, body: () -> Unit): NotificationCollector {
             val collector = NotificationCollector()
 
             // Register the collector with the notifier
