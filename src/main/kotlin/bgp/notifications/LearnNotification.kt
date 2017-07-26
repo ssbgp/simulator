@@ -17,4 +17,4 @@ import core.simulator.notifications.Notification
  * @property neighbor the neighbor from which the route was learned
  */
 data class LearnNotification
-(override val time: Time, val node: BGPNode, val route: BGPRoute, val neighbor: BGPNode) : Notification
+(val node: BGPNode, val route: BGPRoute, val neighbor: BGPNode) : Notification()

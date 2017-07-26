@@ -17,4 +17,4 @@ import core.simulator.notifications.Notification
  * @property previousRoute the route being selected before
  */
 data class SelectNotification
-(override val time: Time, val node: BGPNode, val selectedRoute: BGPRoute, val previousRoute: BGPRoute) : Notification
+(val node: BGPNode, val selectedRoute: BGPRoute, val previousRoute: BGPRoute) : Notification()

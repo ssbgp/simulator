@@ -50,7 +50,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
      * This method should be called when a message is received by the node.
      */
     fun onReceivingMessage(message: BGPMessage) {
-        BGPNotifier.notifyMessageReceived(MessageReceivedNotification(currentTime(), message))
+        BGPNotifier.notifyMessageReceived(MessageReceivedNotification(message))
         protocol.process(message)
     }
 
@@ -65,7 +65,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
             val message = BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route)
             exporter.export(message)
 
-            BGPNotifier.notifyMessageSent(MessageSentNotification(currentTime(), message))
+            BGPNotifier.notifyMessageSent(MessageSentNotification(message))
         }
     }
 

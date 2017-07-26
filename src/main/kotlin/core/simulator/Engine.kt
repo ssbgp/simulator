@@ -32,7 +32,7 @@ object Engine {
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
-        BasicNotifier.notifyStart(StartNotification(currentTime(), seed = 0))
+        BasicNotifier.notifyStart(StartNotification(seed = 0))
 
         // The simulation execution starts with the destination announcing itself
         destination.announceItSelf()
@@ -52,7 +52,7 @@ object Engine {
             event.processIt()
         }
 
-        BasicNotifier.notifyEnd(EndNotification(currentTime()))
+        BasicNotifier.notifyEnd(EndNotification())
 
         return terminatedBeforeThreshold
     }

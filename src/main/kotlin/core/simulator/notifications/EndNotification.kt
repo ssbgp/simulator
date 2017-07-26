@@ -1,10 +1,9 @@
 package core.simulator.notifications
 
-import core.simulator.Time
 
 /**
  * Created on 25-07-2017.
  *
  * @author David Fialho
  */
-data class EndNotification(override val time: Time) : Notification
+class EndNotification : Notification()

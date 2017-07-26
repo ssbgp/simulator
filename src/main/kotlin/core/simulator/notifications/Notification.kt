@@ -1,6 +1,7 @@
 package core.simulator.notifications
 
 import core.simulator.Time
+import core.simulator.currentTime
 
 /**
  * Created on 25-07-2017.
@@ -9,10 +10,4 @@ import core.simulator.Time
  *
  * @property time the time at which the notification was sent.
  */
-interface Notification {
-
-    /**
-     * Time at which the notification was generated.
-     */
-    val time: Time
-}
+abstract class Notification(val time: Time = currentTime())

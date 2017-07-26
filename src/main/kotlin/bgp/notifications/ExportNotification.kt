@@ -18,4 +18,4 @@ import core.simulator.notifications.Notification
  * @property node  the node that exported a route
  * @property route the route that was exported
  */
-data class ExportNotification(override val time: Time, val node: BGPNode, val route: BGPRoute) : Notification
+data class ExportNotification(val node: BGPNode, val route: BGPRoute) : Notification()

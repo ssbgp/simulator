@@ -11,4 +11,4 @@ import core.simulator.Time
  *
  * @property seed the initial seed used to generate the communication delays
  */
-data class StartNotification(override val time: Time = 0, val seed: Long) : Notification
+data class StartNotification(val seed: Long) : Notification()

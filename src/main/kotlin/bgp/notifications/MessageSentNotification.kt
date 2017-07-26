@@ -14,4 +14,4 @@ import core.simulator.notifications.Notification
  * @property message the message sent
  */
 data class MessageSentNotification
-(override val time: Time, val message: BGPMessage) : Notification
+(val message: BGPMessage) : Notification()
