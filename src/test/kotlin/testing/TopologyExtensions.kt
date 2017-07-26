@@ -1,6 +1,7 @@
 package testing
 
 import bgp.*
+import bgp.policies.interdomain.*
 import bgp.policies.shortestpath.ShortestPathExtender
 import core.simulator.DelayGenerator
 import core.simulator.ZeroDelayGenerator
@@ -75,6 +76,31 @@ fun BGPTopologyBuilder.link(createLink: () -> Link) {
 infix fun Link.withCost(cost: Int): Link {
     this.extender = ShortestPathExtender(cost)
     return this
+}
+
+infix fun BGPTopologyBuilder.peerplusLink(createLink: () -> Link) {
+    val link = createLink()
+    this.addLink(link.tail, link.head, PeerplusExtender)
+}
+
+infix fun BGPTopologyBuilder.customerLink(createLink: () -> Link) {
+    val link = createLink()
+    this.addLink(link.tail, link.head, CustomerExtender)
+}
+
+infix fun BGPTopologyBuilder.peerLink(createLink: () -> Link) {
+    val link = createLink()
+    this.addLink(link.tail, link.head, PeerExtender)
+}
+
+infix fun BGPTopologyBuilder.providerLink(createLink: () -> Link) {
+    val link = createLink()
+    this.addLink(link.tail, link.head, ProviderExtender)
+}
+
+infix fun BGPTopologyBuilder.siblingLink(createLink: () -> Link) {
+    val link = createLink()
+    this.addLink(link.tail, link.head, SiblingExtender)
 }
 
 //endregion
