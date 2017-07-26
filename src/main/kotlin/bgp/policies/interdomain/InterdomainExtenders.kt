@@ -20,8 +20,8 @@ object CustomerExtender : BGPExtender {
     override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
 
         return when {
-            !route.isValid() -> BGPRoute.invalid()
-            else             -> customerRoute(asPath = route.asPath.append(sender))
+            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
+            else                               -> customerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -44,8 +44,8 @@ object ProviderExtender : BGPExtender {
     override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
 
         return when {
-            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
-            else                               -> providerRoute(asPath = route.asPath.append(sender))
+            !route.isValid() -> BGPRoute.invalid()
+            else             -> providerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -56,8 +56,8 @@ object PeerplusExtender : BGPExtender {
     override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
 
         return when {
-            !route.isValid() -> BGPRoute.invalid()
-            else             -> peerplusRoute(asPath = route.asPath.append(sender))
+            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
+            else                               -> peerplusRoute(asPath = route.asPath.append(sender))
         }
     }
 

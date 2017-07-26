@@ -63,8 +63,8 @@ object InterdomainExtendersTests : Spek({
 
             val extendedRoute = CustomerExtender.extend(route, sender)
 
-            it("returns a customer route") {
-                assertThat(extendedRoute, `is`(customerRoute(asPath = pathOf(sender))))
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
             }
         }
 
@@ -75,8 +75,8 @@ object InterdomainExtendersTests : Spek({
 
             val extendedRoute = CustomerExtender.extend(route, sender)
 
-            it("returns a customer route") {
-                assertThat(extendedRoute, `is`(customerRoute(asPath = pathOf(sender))))
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
             }
         }
 
@@ -237,8 +237,8 @@ object InterdomainExtendersTests : Spek({
 
             val extendedRoute = ProviderExtender.extend(route, sender)
 
-            it("returns an invalid route") {
-                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            it("returns provider route") {
+                assertThat(extendedRoute, `is`(providerRoute(asPath = pathOf(sender))))
             }
         }
 
@@ -249,8 +249,8 @@ object InterdomainExtendersTests : Spek({
 
             val extendedRoute = ProviderExtender.extend(route, sender)
 
-            it("returns an invalid route") {
-                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            it("returns provider route") {
+                assertThat(extendedRoute, `is`(providerRoute(asPath = pathOf(sender))))
             }
         }
 
@@ -324,8 +324,8 @@ object InterdomainExtendersTests : Spek({
 
             val extendedRoute = PeerplusExtender.extend(route, sender)
 
-            it("returns a peer+ route") {
-                assertThat(extendedRoute, `is`(peerplusRoute(asPath = pathOf(sender))))
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
             }
         }
 
@@ -336,8 +336,8 @@ object InterdomainExtendersTests : Spek({
 
             val extendedRoute = PeerplusExtender.extend(route, sender)
 
-            it("returns a peer+ route") {
-                assertThat(extendedRoute, `is`(peerplusRoute(asPath = pathOf(sender))))
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
             }
         }
 
