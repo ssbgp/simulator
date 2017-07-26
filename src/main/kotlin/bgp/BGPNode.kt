@@ -75,7 +75,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
     override fun announceItSelf() {
         val selfRoute = BGPRoute.self()
         routingTable.update(this, selfRoute)
-        export(selfRoute)
+        protocol.export(this)
     }
 
     /**
