@@ -2,7 +2,6 @@ package bgp
 
 import core.routing.RouteSelector
 import core.routing.emptyPath
-import core.routing.pathOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is` as Is
 import org.jetbrains.spek.api.Spek
@@ -11,6 +10,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.mockito.Mockito.*
 import testing.bgp.invalid
+import testing.bgp.pathOf
 import testing.bgp.route
 import testing.mock.any
 
@@ -42,7 +42,7 @@ object BGPProtocolTests : Spek({
 
         on("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 2]") {
 
-            val importedRoute = route(localPref = 10, asPath = pathOf(BGPNode.with(id = 3), BGPNode.with(id = 2)))
+            val importedRoute = route(localPref = 10, asPath = pathOf(3, 2))
             val learnedRoute = protocol.learn(node, sender, importedRoute)
 
             it("learns the imported route") {
@@ -56,11 +56,7 @@ object BGPProtocolTests : Spek({
 
         on("imported route is valid with LOCAL-PREF 10 and AS-PATH [3, 1, 2]") {
 
-            val importedRoute = route(
-                    localPref = 10,
-                    asPath = pathOf(BGPNode.with(id = 3), BGPNode.with(id = 1), BGPNode.with(id = 2))
-            )
-
+            val importedRoute = route(localPref = 10, asPath = pathOf(3, 1, 2))
             val learnedRoute = protocol.learn(node, sender, importedRoute)
 
             it("learns an invalid route") {
