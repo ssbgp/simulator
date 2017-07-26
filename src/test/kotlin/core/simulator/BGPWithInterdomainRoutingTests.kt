@@ -217,4 +217,40 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
     }
 
+    given("topology with non-absorbent cycle and with siblings") {
+
+        val topology = bgpTopology {
+            node { 0 using BGPProtocol() }
+            node { 1 using BGPProtocol() }
+            node { 2 using BGPProtocol() }
+            node { 3 using BGPProtocol() }
+
+            siblingLink { 1 to 0 }
+            siblingLink { 2 to 0 }
+            customerLink { 1 to 2 }
+            customerLink { 2 to 3 }
+            siblingLink { 3 to 1 }
+        }
+
+        val node = topology.getNodes().sortedBy { it.id }
+
+        beforeEachTest {
+            Scheduler.reset()
+            topology.getNodes().forEach { it.reset() }
+        }
+
+        afterEachTest {
+            Scheduler.reset()
+        }
+
+        on("simulating with node 0 as the destination") {
+
+            val terminated = Engine.simulate(node[0], threshold = 1000)
+
+            it("terminates") {
+                assertThat(terminated, Is(false))
+            }
+        }
+    }
+
 })

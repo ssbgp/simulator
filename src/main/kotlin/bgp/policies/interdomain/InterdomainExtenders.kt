@@ -20,8 +20,8 @@ object CustomerExtender : BGPExtender {
     override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
 
         return when {
-            route.localPref < LOCAL_PREF_CUSTOMER -> BGPRoute.invalid()
-            else                                   -> customerRoute(asPath = route.asPath.append(sender))
+            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
+            else                               -> customerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -32,8 +32,8 @@ object PeerExtender : BGPExtender {
     override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
 
         return when {
-            route.localPref < LOCAL_PREF_CUSTOMER -> BGPRoute.invalid()
-            else                                   -> peerRoute(asPath = route.asPath.append(sender))
+            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
+            else                               -> peerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -56,8 +56,8 @@ object PeerplusExtender : BGPExtender {
     override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
 
         return when {
-            route.localPref < LOCAL_PREF_CUSTOMER -> BGPRoute.invalid()
-            else                                   -> peerplusRoute(asPath = route.asPath.append(sender))
+            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
+            else                               -> peerplusRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -70,7 +70,7 @@ object SiblingExtender : BGPExtender {
         return when {
             !route.isValid()          -> BGPRoute.invalid()
             route === BGPRoute.self() -> customerRoute(siblingHops = 1, asPath = route.asPath.append(sender))
-            else                      -> BGPRoute.with(localPref = route.localPref + 1,
+            else                      -> BGPRoute.with(localPref = route.localPref - 1,
                                                        asPath = route.asPath.append(sender))
         }
     }

@@ -10,6 +10,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.assertThat
+import org.jetbrains.spek.api.dsl.context
 
 /**
  * Created on 26-07-2017
