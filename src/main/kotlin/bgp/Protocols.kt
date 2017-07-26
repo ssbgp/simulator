@@ -143,12 +143,17 @@ class BGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
 }
 
 /**
- * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the WEAK detection
- * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
+ * Base class for the SS-BGP like protocols. Implements the deactivation of neighbors and leaves the detection
+ * condition to the subclasses.
  */
-class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
+abstract class BaseSSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
 
-    override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
+    /**
+     * Checks if the routing loop detected is recurrent.
+     */
+    abstract fun isRecurrentRoutingLoop(node: BGPNode, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean
+
+    final override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
 
         //Since a loop was detected, the route via the sender node is invalid
         var updated = node.routingTable.update(sender, BGPRoute.invalid())
@@ -156,13 +161,23 @@ class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
 
         val alternativeRoute = node.routingTable.getSelectedRoute()
 
-        if (route.localPref > alternativeRoute.localPref) {
+        if (isRecurrentRoutingLoop(node, route, alternativeRoute)) {
             updated = node.routingTable.disable(sender)
             wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
             BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
         }
+    }
+}
 
+/**
+ * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the WEAK detection
+ * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
+ */
+class SSBGPProtocol(mrai: Time = 0) : BaseSSBGPProtocol(mrai) {
+
+    override fun isRecurrentRoutingLoop(node: BGPNode, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean {
+        return learnedRoute.localPref > alternativeRoute.localPref
     }
 }
 
@@ -170,24 +185,11 @@ class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
  * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the STRONG detection
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
-class ISSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
+class ISSBGPProtocol(mrai: Time = 0) : BaseSSBGPProtocol(mrai) {
 
-    override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
-
-        //Since a loop was detected, the route via the sender node is invalid
-        var updated = node.routingTable.update(sender, BGPRoute.invalid())
-        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
-
-        val alternativeRoute = node.routingTable.getSelectedRoute()
-
-        if (route.localPref > alternativeRoute.localPref) {
-            if (alternativeRoute.asPath == route.asPath.subPathBefore(node)) {
-                updated = node.routingTable.disable(sender)
-                wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
-
-                BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
-            }
-        }
+    override fun isRecurrentRoutingLoop(node: BGPNode, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean {
+        return learnedRoute.localPref > alternativeRoute.localPref &&
+                alternativeRoute.asPath == learnedRoute.asPath.subPathBefore(node)
     }
 }
 
