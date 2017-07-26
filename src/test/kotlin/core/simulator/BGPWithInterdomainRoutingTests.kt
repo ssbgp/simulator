@@ -247,7 +247,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
             val terminated = Engine.simulate(node[0], threshold = 1000)
 
-            it("terminates") {
+            it("does NOT terminate") {
                 assertThat(terminated, Is(false))
             }
         }
