@@ -21,7 +21,7 @@ object CustomerExtender : BGPExtender {
 
         return when {
             !route.isValid() -> BGPRoute.invalid()
-            else             -> customerRoute(route.asPath.append(sender))
+            else             -> customerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -33,7 +33,7 @@ object PeerExtender : BGPExtender {
 
         return when {
             route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
-            else                               -> peerRoute(route.asPath.append(sender))
+            else                               -> peerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -45,7 +45,7 @@ object ProviderExtender : BGPExtender {
 
         return when {
             route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
-            else                               -> providerRoute(route.asPath.append(sender))
+            else                               -> providerRoute(asPath = route.asPath.append(sender))
         }
     }
 
@@ -57,7 +57,7 @@ object PeerplusExtender : BGPExtender {
 
         return when {
             !route.isValid() -> BGPRoute.invalid()
-            else             -> peerplusRoute(route.asPath.append(sender))
+            else             -> peerplusRoute(asPath = route.asPath.append(sender))
         }
     }
 

@@ -16,19 +16,23 @@ import core.routing.emptyPath
 /**
  * Returns a peer+ route.
  */
-fun peerplusRoute(asPath: Path<BGPNode> = emptyPath()) = BGPRoute.with(localPref = LOCAL_PREF_PEERPLUS, asPath = asPath)
+fun peerplusRoute(siblingHops: Int = 0, asPath: Path<BGPNode> = emptyPath())
+        = BGPRoute.with(localPref = LOCAL_PREF_PEERPLUS + siblingHops, asPath = asPath)
 
 /**
  * Returns a customer route.
  */
-fun customerRoute(asPath: Path<BGPNode> = emptyPath()) = BGPRoute.with(localPref = LOCAL_PREF_CUSTOMER, asPath = asPath)
+fun customerRoute(siblingHops: Int = 0, asPath: Path<BGPNode> = emptyPath())
+        = BGPRoute.with(localPref = LOCAL_PREF_CUSTOMER + siblingHops, asPath = asPath)
 
 /**
  * Returns a peer route.
  */
-fun peerRoute(asPath: Path<BGPNode> = emptyPath()) = BGPRoute.with(localPref = LOCAL_PREF_PEER, asPath = asPath)
+fun peerRoute(siblingHops: Int = 0, asPath: Path<BGPNode> = emptyPath())
+        = BGPRoute.with(localPref = LOCAL_PREF_PEER + siblingHops, asPath = asPath)
 
 /**
  * Returns a provider route.
  */
-fun providerRoute(asPath: Path<BGPNode> = emptyPath()) = BGPRoute.with(localPref = LOCAL_PREF_PROVIDER, asPath = asPath)
+fun providerRoute(siblingHops: Int = 0, asPath: Path<BGPNode> = emptyPath())
+        = BGPRoute.with(localPref = LOCAL_PREF_PROVIDER + siblingHops, asPath = asPath)
