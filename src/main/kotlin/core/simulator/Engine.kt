@@ -18,6 +18,11 @@ object Engine {
     var scheduler = Scheduler
 
     /**
+     * Holds the notifier used to send notifications during the simulations.
+     */
+    var notifier = Notifier
+
+    /**
      * Runs the simulation for the given destination.
      * The threshold value determines the number of units of time the simulation should have terminated on. If this
      * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the
@@ -32,7 +37,7 @@ object Engine {
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
-        Notifier.notifyStart(StartNotification(scheduler.time, seed = 0))
+        notifier.notifyStart(StartNotification(scheduler.time, seed = 0))
 
         // The simulation execution starts with the destination announcing itself
         destination.announceItSelf()
@@ -52,7 +57,7 @@ object Engine {
             event.processIt()
         }
 
-        Notifier.notifyEnd(EndNotification(scheduler.time))
+        notifier.notifyEnd(EndNotification(scheduler.time))
 
         return terminatedBeforeThreshold
     }
