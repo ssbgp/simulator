@@ -103,6 +103,54 @@ object InterdomainExtendersTests : Spek({
                 assertThat(extendedRoute, `is`(BGPRoute.invalid()))
             }
         }
+
+        on("extending a customer route with 1 sibling hop") {
+
+            val route = customerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = CustomerExtender.extend(route, sender)
+
+            it("returns a customer route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(customerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer+ route with 1 sibling hop") {
+
+            val route = peerplusRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = CustomerExtender.extend(route, sender)
+
+            it("returns a customer route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(customerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer route with 1 sibling hop") {
+
+            val route = peerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = CustomerExtender.extend(route, sender)
+
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            }
+        }
+
+        on("extending a provider route with 1 sibling hop") {
+
+            val route = providerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = CustomerExtender.extend(route, sender)
+
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            }
+        }
     }
 
     given("a peer extender") {
@@ -182,6 +230,54 @@ object InterdomainExtendersTests : Spek({
         on("extending a invalid route") {
 
             val route = BGPRoute.invalid()
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerExtender.extend(route, sender)
+
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            }
+        }
+
+        on("extending a customer route with 1 sibling hop") {
+
+            val route = customerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerExtender.extend(route, sender)
+
+            it("returns a peer route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(peerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer+ route with 1 sibling hop") {
+
+            val route = peerplusRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerExtender.extend(route, sender)
+
+            it("returns a peer route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(peerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer route with 1 sibling hop") {
+
+            val route = peerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerExtender.extend(route, sender)
+
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            }
+        }
+
+        on("extending a provider route with 1 sibling hop") {
+
+            val route = providerRoute(siblingHops = 1, asPath = emptyPath())
             val sender = BGPNode.with(id = 1)
 
             val extendedRoute = PeerExtender.extend(route, sender)
@@ -277,6 +373,54 @@ object InterdomainExtendersTests : Spek({
                 assertThat(extendedRoute, `is`(BGPRoute.invalid()))
             }
         }
+
+        on("extending a customer route with 1 sibling hop") {
+
+            val route = customerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = ProviderExtender.extend(route, sender)
+
+            it("returns a provider route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(providerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer+ route with 1 sibling hop") {
+
+            val route = peerplusRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = ProviderExtender.extend(route, sender)
+
+            it("returns a provider route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(providerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer route with 1 sibling hop") {
+
+            val route = peerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = ProviderExtender.extend(route, sender)
+
+            it("returns a provider route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(providerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a provider route with 1 sibling hop") {
+
+            val route = providerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = ProviderExtender.extend(route, sender)
+
+            it("returns a provider route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(providerRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
     }
 
     given("a peer+ extender") {
@@ -356,6 +500,54 @@ object InterdomainExtendersTests : Spek({
         on("extending an invalid route") {
 
             val route = BGPRoute.invalid()
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerplusExtender.extend(route, sender)
+
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            }
+        }
+
+        on("extending a customer route with 1 sibling hop") {
+
+            val route = customerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerplusExtender.extend(route, sender)
+
+            it("returns a peer+ route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(peerplusRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer+ route with 1 sibling hop") {
+
+            val route = peerplusRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerplusExtender.extend(route, sender)
+
+            it("returns a peer+ route with 0 sibling hops") {
+                assertThat(extendedRoute, `is`(peerplusRoute(siblingHops = 0, asPath = pathOf(sender))))
+            }
+        }
+
+        on("extending a peer route with 1 sibling hop") {
+
+            val route = peerRoute(siblingHops = 1, asPath = emptyPath())
+            val sender = BGPNode.with(id = 1)
+
+            val extendedRoute = PeerplusExtender.extend(route, sender)
+
+            it("returns an invalid route") {
+                assertThat(extendedRoute, `is`(BGPRoute.invalid()))
+            }
+        }
+
+        on("extending a provider route with 1 sibling hop") {
+
+            val route = providerRoute(siblingHops = 1, asPath = emptyPath())
             val sender = BGPNode.with(id = 1)
 
             val extendedRoute = PeerplusExtender.extend(route, sender)
