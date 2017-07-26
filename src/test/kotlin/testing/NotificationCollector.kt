@@ -14,14 +14,14 @@ open class NotificationCollector : StartListener, EndListener {
     val startNotifications = ArrayList<StartNotification>()
     val endNotifications = ArrayList<EndNotification>()
 
-    open fun register(notifier: BasicNotifier) {
-        notifier.addStartListener(this)
-        notifier.addEndListener(this)
+    open fun register() {
+        BasicNotifier.addStartListener(this)
+        BasicNotifier.addEndListener(this)
     }
 
-    open fun unregister(notifier: BasicNotifier) {
-        notifier.removeStartListener(this)
-        notifier.removeEndListener(this)
+    open fun unregister() {
+        BasicNotifier.removeStartListener(this)
+        BasicNotifier.removeEndListener(this)
     }
 
     final override fun notify(notification: StartNotification) {
@@ -34,11 +34,11 @@ open class NotificationCollector : StartListener, EndListener {
 
 }
 
-fun collectNotificationsFom(notifier: BasicNotifier, body: () -> Unit): NotificationCollector {
+fun collectBasicNotifications(body: () -> Unit): NotificationCollector {
 
     val collector = NotificationCollector()
-    collector.register(notifier)
+    collector.register()
     body()
-    collector.unregister(notifier)
+    collector.unregister()
     return collector
 }

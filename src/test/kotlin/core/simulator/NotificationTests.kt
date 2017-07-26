@@ -29,7 +29,7 @@ object NotificationsTests : Spek({
 
             val node = topology.getNodes().sortedBy { it.id }
 
-            val collector = collectNotificationsFom(Engine.notifier) {
+            val collector = collectBasicNotifications {
                 Engine.simulate(node[0], threshold = 1000)
             }
 

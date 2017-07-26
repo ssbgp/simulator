@@ -1,13 +1,11 @@
 package bgp.notifications
 
-import core.simulator.notifications.BasicNotifier
-
 /**
  * Created on 26-07-2017
  *
  * @author David Fialho
  */
-open class BGPNotifier : BasicNotifier() {
+object BGPNotifier {
 
     //region Lists containing the registered listeners
 
