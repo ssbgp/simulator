@@ -50,3 +50,15 @@ object ProviderExtender : BGPExtender {
     }
 
 }
+
+object PeerplusExtender : BGPExtender {
+
+    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+
+        return when {
+            !route.isValid() -> BGPRoute.invalid()
+            else             -> peerplusRoute(route.asPath.append(sender))
+        }
+    }
+
+}
