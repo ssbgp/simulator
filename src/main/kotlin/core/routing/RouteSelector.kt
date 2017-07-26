@@ -62,6 +62,11 @@ class RouteSelector<N: Node, R: Route> private constructor
     // Stores the currently selected neighbor
     private var selectedNeighbor: N? = null
 
+    /**
+     * Keeps record of the neighbors that are disabled.
+     */
+    private val disabledNeighbors = HashSet<N>()
+
     init {
         if (forceReselect) {
             reselect()
@@ -114,9 +119,11 @@ class RouteSelector<N: Node, R: Route> private constructor
 
         table.setEnabled(neighbor, false)
 
-        if (neighbor == selectedNeighbor) {
-            reselect()
-            return true
+        if (disabledNeighbors.add(neighbor)) {
+            if (neighbor == selectedNeighbor) {
+                reselect()
+                return true
+            }
         }
 
         return false
@@ -131,14 +138,47 @@ class RouteSelector<N: Node, R: Route> private constructor
 
         table.setEnabled(neighbor, true)
 
-        val route = table[neighbor]
+        if (disabledNeighbors.remove(neighbor)) {
+            val route = table[neighbor]
 
-        if (compare(route, selectedRoute) > 0) {
-            updateSelectedTo(route, neighbor)
-            return true
+            if (compare(route, selectedRoute) > 0) {
+                updateSelectedTo(route, neighbor)
+                return true
+            }
         }
 
         return false
+    }
+
+    /**
+     * Enables all neighbors that are currently disabled.
+     *
+     * @return true if the selected route/neighbor was updated or false if otherwise
+     */
+    fun enableAll(): Boolean {
+
+        var selectedRouteAmongDisabled = table.invalidRoute
+        var selectedNeighborAmongDisabled: N? = null
+
+        for (neighbor in disabledNeighbors) {
+            val route = table.setEnabled(neighbor, true)
+
+            if (compare(route, selectedRouteAmongDisabled) > 0) {
+                selectedRouteAmongDisabled = route
+                selectedNeighborAmongDisabled = neighbor
+            }
+        }
+
+        // If we are enabling all neighbors that this set can be cleared
+        disabledNeighbors.clear()
+
+        if (compare(selectedRouteAmongDisabled, selectedRoute) > 0) {
+            selectedRoute = selectedRouteAmongDisabled
+            selectedNeighbor = selectedNeighborAmongDisabled
+            return true
+        } else {
+            return false
+        }
     }
 
     /**

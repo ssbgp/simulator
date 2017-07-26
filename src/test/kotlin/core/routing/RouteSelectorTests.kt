@@ -5,6 +5,7 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.on
 import testing.*
 
@@ -404,4 +405,67 @@ object RouteSelectorTests : Spek({
         }
     }
 
-})
+    context("a route selector wrapping a table with 4 entries and neighbors 1 and 3 are disabled") {
+
+        given("all nodes have valid routes and the most preferred route is via node 3") {
+
+            val selector = routeSelector(RoutingTable.of(invalidRoute(),
+                    route(preference = 15) via node(1),
+                    route(preference = 5) via node(2),
+                    route(preference = 30) via node(3),
+                    route(preference = 10) via node(4)
+            ))
+
+            selector.disable(node(1))
+            selector.disable(node(3))
+
+            on("enabling all neighbors") {
+
+                val updated = selector.enableAll()
+
+                it("selects a route with preference 30") {
+                    assertThat(selector.getSelectedRoute(), `is`(route(preference = 30)))
+                }
+
+                it("selects neighbor 3") {
+                    assertThat(selector.getSelectedNeighbor(), `is`(node(3)))
+                }
+
+                it("indicates the selected route/neighbor was updated") {
+                    assertThat(updated, `is`(true))
+                }
+            }
+        }
+
+        given("all nodes have valid routes and the most preferred route is via node 2") {
+
+            val selector = routeSelector(RoutingTable.of(invalidRoute(),
+                    route(preference = 15) via node(1),
+                    route(preference = 50) via node(2),
+                    route(preference = 30) via node(3),
+                    route(preference = 10) via node(4)
+            ))
+
+            selector.disable(node(1))
+            selector.disable(node(3))
+
+            on("enabling all neighbors") {
+
+                val updated = selector.enableAll()
+
+                it("selects a route with preference 50") {
+                    assertThat(selector.getSelectedRoute(), `is`(route(preference = 50)))
+                }
+
+                it("selects neighbor 2") {
+                    assertThat(selector.getSelectedNeighbor(), `is`(node(2)))
+                }
+
+                it("indicates the selected route/neighbor was NOT updated") {
+                    assertThat(updated, `is`(false))
+                }
+            }
+        }
+    }
+
+    })
