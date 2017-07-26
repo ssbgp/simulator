@@ -118,12 +118,14 @@ class RouteSelector<N: Node, R: Route> private constructor
     fun disable(neighbor: N): Boolean {
 
         table.setEnabled(neighbor, false)
+        disabledNeighbors.add(neighbor)
 
-        if (disabledNeighbors.add(neighbor)) {
-            if (neighbor == selectedNeighbor) {
-                reselect()
-                return true
-            }
+        // Do not need to check if the node was added to the disabled neighbors set:
+        // if it wasn't then the neighbor was already disabled and surely is not the selected neighbor
+
+        if (neighbor == selectedNeighbor) {
+            reselect()
+            return true
         }
 
         return false
@@ -138,7 +140,12 @@ class RouteSelector<N: Node, R: Route> private constructor
 
         table.setEnabled(neighbor, true)
 
+        // Checking if the neighbor was really removed from the disabled set prevents making a table lookup
+        // if the node was not disabled
+
         if (disabledNeighbors.remove(neighbor)) {
+
+
             val route = table[neighbor]
 
             if (compare(route, selectedRoute) > 0) {
