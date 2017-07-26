@@ -12,6 +12,7 @@ object BGPNotifier {
     private val messageReceivedListeners = mutableListOf<MessageReceivedListener>()
     private val importListeners = mutableListOf<ImportListener>()
     private val learnListeners = mutableListOf<LearnListener>()
+    private val detectListeners = mutableListOf<DetectListener>()
     private val selectListeners = mutableListOf<SelectListener>()
     private val exportListeners = mutableListOf<ExportListener>()
     private val messageSentListeners = mutableListOf<MessageSentListener>()
@@ -107,6 +108,37 @@ object BGPNotifier {
      */
     fun notifyLearn(notification: LearnNotification) {
         learnListeners.forEach { it.notify(notification) }
+    }
+
+    //endregion
+
+    //region Detect notification
+
+    /**
+     * Registers a new detect listener.
+     *
+     * @param listener detect listener to register.
+     */
+    fun addDetectListener(listener: DetectListener) {
+        detectListeners.add(listener)
+    }
+
+    /**
+     * Unregisters a new detect listener.
+     *
+     * @param listener detect listener to unregister.
+     */
+    fun removeDetectListener(listener: DetectListener) {
+        detectListeners.remove(listener)
+    }
+
+    /**
+     * Sends a detect notification to each detect listener.
+     *
+     * @param notification the detect notification to send to each registered listener.
+     */
+    fun notifyDetect(notification: DetectNotification) {
+        detectListeners.forEach { it.notify(notification) }
     }
 
     //endregion

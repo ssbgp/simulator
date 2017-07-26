@@ -8,13 +8,15 @@ import bgp.notifications.*
  * @author David Fialho
  */
 class BGPNotificationCollector : NotificationCollector(),
-        MessageReceivedListener, ImportListener, LearnListener, SelectListener, ExportListener, MessageSentListener {
+        MessageReceivedListener, ImportListener, LearnListener, DetectListener, SelectListener, ExportListener,
+        MessageSentListener {
 
     //region Lists containing all notifications
 
     val messageReceivedNotifications = ArrayList<MessageReceivedNotification>()
     val importNotifications = ArrayList<ImportNotification>()
     val learnNotifications = ArrayList<LearnNotification>()
+    val detectNotifications = ArrayList<DetectNotification>()
     val selectNotifications = ArrayList<SelectNotification>()
     val exportNotifications = ArrayList<ExportNotification>()
     val messageSentNotifications = ArrayList<MessageSentNotification>()
@@ -28,6 +30,7 @@ class BGPNotificationCollector : NotificationCollector(),
         BGPNotifier.addMessageReceivedListener(this)
         BGPNotifier.addImportListener(this)
         BGPNotifier.addLearnListener(this)
+        BGPNotifier.addDetectListener(this)
         BGPNotifier.addSelectListener(this)
         BGPNotifier.addExportListener(this)
         BGPNotifier.addMessageSentListener(this)
@@ -39,6 +42,7 @@ class BGPNotificationCollector : NotificationCollector(),
         BGPNotifier.removeMessageReceivedListener(this)
         BGPNotifier.removeImportListener(this)
         BGPNotifier.removeLearnListener(this)
+        BGPNotifier.removeDetectListener(this)
         BGPNotifier.removeSelectListener(this)
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeMessageSentListener(this)
@@ -58,6 +62,10 @@ class BGPNotificationCollector : NotificationCollector(),
 
     override fun notify(notification: LearnNotification) {
         learnNotifications.add(notification)
+    }
+
+    override fun notify(notification: DetectNotification) {
+        detectNotifications.add(notification)
     }
 
     override fun notify(notification: SelectNotification) {
