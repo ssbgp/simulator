@@ -22,6 +22,11 @@ interface Timer {
     fun start()
 
     /**
+     * Cancels the timer if the timer as not expired yet.
+     */
+    fun cancel()
+
+    /**
      * Should be called when the timer expires.
      */
     fun onExpired()
@@ -50,6 +55,9 @@ interface Timer {
         override var expired = true
             private set
 
+        // Flags used to indicate if a timer was canceled
+        private var canceled = false
+
         /**
          * Starts the timer. Started timer will expire 'duration' units of time from now.
          */
@@ -63,11 +71,21 @@ interface Timer {
         }
 
         /**
+         * Avoids the action of the time being performed when the timer expires. If the timer has already expired
+         * then it does nothing.
+         */
+        override fun cancel() {
+            if (!expired) canceled = true
+        }
+
+        /**
          * Should be called when the timer expires. It calls the action and sets the timer as 'expired'.
          */
         override fun onExpired() {
+
             expired = true
-            action()
+            if (!canceled) action()
+            canceled = false
         }
 
     }
@@ -86,6 +104,11 @@ interface Timer {
          * Does not start anything.
          */
         override fun start() = Unit
+
+        /**
+         * Does nothing because a disabled timer itself does nothing.
+         */
+        override fun cancel() = Unit
 
         /**
          * Does nothing, because this should never be called.
