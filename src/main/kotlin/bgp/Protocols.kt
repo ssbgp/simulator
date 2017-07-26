@@ -146,7 +146,10 @@ class BGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
  * Base class for the SS-BGP like protocols. Implements the deactivation of neighbors and leaves the detection
  * condition to the subclasses.
  */
-abstract class BaseSSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
+abstract class BaseSSBGPProtocol(val reenableInterval: Time, mrai: Time = 0) : BaseBGPProtocol(mrai) {
+
+    var reenableTimer = Timer.disabled()
+        private set
 
     /**
      * Checks if the routing loop detected is recurrent.
@@ -166,7 +169,20 @@ abstract class BaseSSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
             wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
             BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
+
+            if (reenableInterval > 0) {
+                reenableTimer.cancel()
+                reenableTimer = Timer.enabled(reenableInterval) { reenableNeighbors(node) }
+                reenableTimer.start()
+            }
         }
+    }
+
+    fun reenableNeighbors(node: BGPNode) {
+        val updatedSelectedRoute = node.routingTable.enableAll()
+
+        if (updatedSelectedRoute)
+            export(node)
     }
 }
 
@@ -174,7 +190,7 @@ abstract class BaseSSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
  * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the WEAK detection
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
-class SSBGPProtocol(mrai: Time = 0) : BaseSSBGPProtocol(mrai) {
+class SSBGPProtocol(reenableInterval: Time = 0, mrai: Time = 0) : BaseSSBGPProtocol(reenableInterval, mrai) {
 
     override fun isRecurrentRoutingLoop(node: BGPNode, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean {
         return learnedRoute.localPref > alternativeRoute.localPref
@@ -185,7 +201,7 @@ class SSBGPProtocol(mrai: Time = 0) : BaseSSBGPProtocol(mrai) {
  * SS-BGP Protocol: when a loop is detected it tries to detect if the loop is recurrent using the STRONG detection
  * condition. If it determines the loop is recurrent, it disables the neighbor that exported the route.
  */
-class ISSBGPProtocol(mrai: Time = 0) : BaseSSBGPProtocol(mrai) {
+class ISSBGPProtocol(reenableInterval: Time = 0, mrai: Time = 0) : BaseSSBGPProtocol(reenableInterval, mrai) {
 
     override fun isRecurrentRoutingLoop(node: BGPNode, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean {
         return learnedRoute.localPref > alternativeRoute.localPref &&
