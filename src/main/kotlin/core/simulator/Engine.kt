@@ -1,6 +1,9 @@
 package core.simulator
 
 import core.routing.Destination
+import core.simulator.notifications.EndNotification
+import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.StartNotification
 
 /**
  * Created on 23-07-2017
@@ -26,6 +29,12 @@ object Engine {
      */
     fun simulate(destination: Destination, threshold: Time = Int.MAX_VALUE): Boolean {
 
+        // Ensure the scheduler is completely clean before starting the simulation
+        scheduler.reset()
+
+        BasicNotifier.notifyStart(StartNotification(seed = 0))
+
+        // The simulation execution starts with the destination announcing itself
         destination.announceItSelf()
 
         var terminatedBeforeThreshold = true
@@ -35,7 +44,7 @@ object Engine {
             // Check if the threshold was reached:
             // This verification needs to be performed after obtaining the next event because the scheduler's time is
             // updated when performing that action
-            if (scheduler.time >= threshold) {
+            if (currentTime() >= threshold) {
                 terminatedBeforeThreshold = false
                 break
             }
@@ -43,7 +52,15 @@ object Engine {
             event.processIt()
         }
 
+        BasicNotifier.notifyEnd(EndNotification())
+
         return terminatedBeforeThreshold
     }
 
 }
+
+/**
+ * Cleaner way to access the simulation time.
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun currentTime(): Time = Engine.scheduler.time

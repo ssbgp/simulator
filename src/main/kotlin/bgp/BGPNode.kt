@@ -1,9 +1,10 @@
 package bgp
 
+import bgp.notifications.BGPNotifier
+import bgp.notifications.MessageReceivedNotification
+import bgp.notifications.MessageSentNotification
 import core.routing.*
-import core.simulator.DelayGenerator
-import core.simulator.Exporter
-import core.simulator.ZeroDelayGenerator
+import core.simulator.*
 
 typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
 
@@ -49,6 +50,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
      * This method should be called when a message is received by the node.
      */
     fun onReceivingMessage(message: BGPMessage) {
+        BGPNotifier.notifyMessageReceived(MessageReceivedNotification(message))
         protocol.process(message)
     }
 
@@ -60,7 +62,10 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
     fun export(route: BGPRoute) {
 
         for ((neighbor, extender, exporter) in relationships) {
-            exporter.export(BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route))
+            val message = BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route)
+            exporter.export(message)
+
+            BGPNotifier.notifyMessageSent(MessageSentNotification(message))
         }
     }
 
@@ -70,7 +75,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
     override fun announceItSelf() {
         val selfRoute = BGPRoute.self()
         routingTable.update(this, selfRoute)
-        export(selfRoute)
+        protocol.export(this)
     }
 
     /**

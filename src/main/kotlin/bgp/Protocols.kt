@@ -1,5 +1,6 @@
 package bgp
 
+import bgp.notifications.*
 import core.simulator.Time
 import core.simulator.Timer
 
@@ -30,8 +31,15 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
     fun process(message: BGPMessage) {
 
         val node = message.receiver
+
+        // Store the route the node was selecting before processing this message
+        val previousSelectedRoute = node.routingTable.getSelectedRoute()
+
         val importedRoute = import(message.sender, message.route, message.extender)
+        BGPNotifier.notifyImport(ImportNotification(node, importedRoute, message.sender))
+
         val learnedRoute = learn(node, message.sender, importedRoute)
+        BGPNotifier.notifyLearn(LearnNotification(node, learnedRoute, message.sender))
 
         val updated = node.routingTable.update(message.sender, learnedRoute)
 
@@ -39,6 +47,11 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
         wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
         if (wasSelectedRouteUpdated) {
+
+            val selectedRoute = node.routingTable.getSelectedRoute()
+            BGPNotifier.notifySelect(
+                    SelectNotification(node, selectedRoute, previousSelectedRoute))
+
             export(node)
             wasSelectedRouteUpdated = false
         }
@@ -87,7 +100,11 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
     fun export(node: BGPNode) {
 
         if (mraiTimer.expired) {
-            node.export(node.routingTable.getSelectedRoute())
+
+            val exportedRoute = node.routingTable.getSelectedRoute()
+            node.export(exportedRoute)
+
+            BGPNotifier.notifyExport(ExportNotification(node, exportedRoute))
 
             if (mrai > 0) {
                 mraiTimer = Timer.enabled(mrai) {
@@ -142,6 +159,8 @@ class SSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
         if (route.localPref > alternativeRoute.localPref) {
             updated = node.routingTable.disable(sender)
             wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+
+            BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
         }
 
     }
@@ -165,6 +184,8 @@ class ISSBGPProtocol(mrai: Time = 0) : BaseBGPProtocol(mrai) {
             if (alternativeRoute.asPath == route.asPath.subPathBefore(node)) {
                 updated = node.routingTable.disable(sender)
                 wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+
+                BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
             }
         }
     }
