@@ -125,27 +125,36 @@ object RoutingTableTest : Spek({
         table.setEnabled(node(1), false)
         table.setEnabled(node(3), false)
 
-        it("contains node 1 in the disabled collection") {
-            assertThat(node(1) in table.disabledNeighbors, Is(true))
-        }
+        on("enabling node 1") {
 
-        it("does NOT contain node 2 in the disabled collection") {
-            assertThat(node(2) in table.disabledNeighbors, Is(false))
-        }
-
-        it("contains node 3 in the disabled collection") {
-            assertThat(node(3) in table.disabledNeighbors, Is(true))
-        }
-
-        it("does NOT contain node 4 in the disabled collection") {
-            assertThat(node(4) in table.disabledNeighbors, Is(false))
-        }
-
-        on("enabling all neighbors") {
-
-            table.enableAll()
+            val route = table.setEnabled(node(1), true)
 
             it("enabled node 1") {
+                assertThat(table.isEnabled(node(1)), Is(true))
+            }
+
+            it("kept node 2 enabled") {
+                assertThat(table.isEnabled(node(2)), Is(true))
+            }
+
+            it("kept node 3 disabled") {
+                assertThat(table.isEnabled(node(3)), Is(false))
+            }
+
+            it("kept node 4 enabled") {
+                assertThat(table.isEnabled(node(4)), Is(true))
+            }
+
+            it("returns the candidate route via node 1") {
+                assertThat(route, Is(route(preference = 10)))
+            }
+        }
+
+        on("enabling node 3") {
+
+            val route = table.setEnabled(node(3), true)
+
+            it("kept node 1 enabled") {
                 assertThat(table.isEnabled(node(1)), Is(true))
             }
 
@@ -161,32 +170,17 @@ object RoutingTableTest : Spek({
                 assertThat(table.isEnabled(node(4)), Is(true))
             }
 
-            it("s disabled neighbors collection is empty") {
-                assertThat(table.disabledNeighbors.isEmpty(), Is(true))
+            it("returns the candidate route via node 3") {
+                assertThat(route, Is(route(preference = 15)))
             }
         }
-    }
 
-    given("routing table containing valid routes via 2 neighbors that are disabled") {
+        on("enabling node 10") {
 
-        val table = RoutingTable.of(invalidRoute(),
-                route(preference = 10) via node(1),
-                route(preference = 5) via node(2)
-        )
+            val route = table.setEnabled(node(10), true)
 
-        table.setEnabled(node(1), false)
-        table.setEnabled(node(2), false)
-
-        it("s disabled neighbors collection contains 2 nodes") {
-            assertThat(table.disabledNeighbors.size, Is(2))
-        }
-
-        on("calling clear") {
-
-            table.clear()
-
-            it("s disabled neighbors collection is empty") {
-                assertThat(table.disabledNeighbors.isEmpty(), Is(true))
+            it("returns invalid route") {
+                assertThat(route, Is(invalidRoute()))
             }
         }
     }
