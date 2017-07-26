@@ -15,6 +15,12 @@ class RoutingTable<N: Node, R: Route>
 private constructor(val invalidRoute: R, private val routes: MutableMap<N, EntryData<R>> = HashMap()) {
 
     /**
+     * Collection containing all nieghbors that are disabled.
+     */
+    val disabledNeighbors: Collection<N> get() = mutableDisabledNeighbors
+    private val mutableDisabledNeighbors = HashSet<N>()
+
+    /**
      * Returns the number of entries in the table.
      */
     val size: Int get() = routes.size
@@ -75,17 +81,38 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<N, Entry
     }
 
     /**
-     * Sets invalid routes for all defined neighbors an enables all disabled neighbors.
+     * Clears all entries from the table.
      */
     fun clear() {
         routes.clear()
+        mutableDisabledNeighbors.clear()
     }
 
     /**
      * Sets the enable/disable flag for the given neighbor.
      */
     fun setEnabled(neighbor: N, enabled: Boolean) {
-        routes[neighbor]?.enabled = enabled
+
+        val entry = routes[neighbor] ?: return
+
+        if (!entry.enabled && enabled) {
+            // enabling
+            mutableDisabledNeighbors.remove(neighbor)
+        } else if (entry.enabled && !enabled) {
+            // disabling
+            mutableDisabledNeighbors.add(neighbor)
+        }
+
+        entry.enabled = enabled
+
+    }
+
+    /**
+     * Enables all neighbors that might have been disabled.
+     */
+    fun enableAll() {
+        for ((_, entry) in routes) entry.enabled = true
+        mutableDisabledNeighbors.clear()
     }
 
     /**
