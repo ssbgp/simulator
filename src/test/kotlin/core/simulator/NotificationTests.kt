@@ -62,8 +62,13 @@ object NotificationsTests : Spek({
                 assertThat(collector.selectNotifications.size, `is`(1))
             }
 
-            it("issues export notification once") {
-                assertThat(collector.exportNotifications.size, `is`(1))
+            it("issues export notification 2 times") {
+                // Although node 1 has no in-neighbors two export notifications are sent
+                // This is because the export notification indicates that node exports a route not that it actually
+                // sent any route to any neighbor
+                // Note that the sent notification coutn is only one indicating that only 1 message was sent from
+                // node 0 to node 1
+                assertThat(collector.exportNotifications.size, `is`(2))
             }
 
             it("issues a message sent notification once") {
