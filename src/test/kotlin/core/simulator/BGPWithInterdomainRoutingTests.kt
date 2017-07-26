@@ -130,4 +130,91 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
     }
 
+    given("loop topology with customer to destination and peer+ around the cycle") {
+
+        val topology = bgpTopology {
+            node { 0 using BGPProtocol() }
+            node { 1 using BGPProtocol() }
+            node { 2 using BGPProtocol() }
+            node { 3 using BGPProtocol() }
+
+            customerLink { 1 to 0 }
+            customerLink { 2 to 0 }
+            customerLink { 3 to 0 }
+            peerplusLink { 1 to 2 }
+            peerplusLink { 2 to 3 }
+            peerplusLink { 3 to 1 }
+        }
+
+        val node = topology.getNodes().sortedBy { it.id }
+
+        beforeEachTest {
+            Scheduler.reset()
+            topology.getNodes().forEach { it.reset() }
+        }
+
+        afterEachTest {
+            Scheduler.reset()
+        }
+
+        on("simulating with node 0 as the destination") {
+
+            val terminated = Engine.simulate(node[0], threshold = 1000)
+
+            it("does NOT terminate") {
+                assertThat(terminated, Is(false))
+            }
+        }
+    }
+
+    given("topology without cycles and with siblings") {
+
+        val topology = bgpTopology {
+            node { 0 using BGPProtocol() }
+            node { 1 using BGPProtocol() }
+            node { 2 using BGPProtocol() }
+            node { 3 using BGPProtocol() }
+
+            siblingLink{ 1 to 0 }
+            siblingLink{ 2 to 1 }
+            peerplusLink { 3 to 1 }
+            customerLink { 3 to 2 }
+        }
+
+        val node = topology.getNodes().sortedBy { it.id }
+
+        beforeEachTest {
+            Scheduler.reset()
+            topology.getNodes().forEach { it.reset() }
+        }
+
+        afterEachTest {
+            Scheduler.reset()
+        }
+
+        on("simulating with node 0 as the destination") {
+
+            val terminated = Engine.simulate(node[0], threshold = 1000)
+
+            it("terminates") {
+                assertThat(terminated, Is(true))
+            }
+
+            it("finishes with node 1 selecting customer route with 1 sibling hop via node 0") {
+                assertThat(node[1].routingTable.getSelectedRoute(),
+                        Is(customerRoute(siblingHops = 1, asPath = pathOf(0))))
+            }
+
+            it("finishes with node 2 selecting customer route with 2 sibling hops via node 1") {
+                assertThat(node[2].routingTable.getSelectedRoute(),
+                        Is(customerRoute(siblingHops = 2, asPath = pathOf(0, 1))))
+            }
+
+            it("finishes with node 3 selecting peer+ route with 0 sibling hops via node 1") {
+                assertThat(node[3].routingTable.getSelectedRoute(),
+                        Is(peerplusRoute(siblingHops = 0, asPath = pathOf(0, 1))))
+            }
+        }
+    }
+
 })

@@ -1,10 +1,7 @@
 package testing
 
 import bgp.*
-import bgp.policies.interdomain.CustomerExtender
-import bgp.policies.interdomain.PeerExtender
-import bgp.policies.interdomain.PeerplusExtender
-import bgp.policies.interdomain.ProviderExtender
+import bgp.policies.interdomain.*
 import bgp.policies.shortestpath.ShortestPathExtender
 import core.simulator.DelayGenerator
 import core.simulator.ZeroDelayGenerator
@@ -99,6 +96,11 @@ infix fun BGPTopologyBuilder.peerLink(createLink: () -> Link) {
 infix fun BGPTopologyBuilder.providerLink(createLink: () -> Link) {
     val link = createLink()
     this.addLink(link.tail, link.head, ProviderExtender)
+}
+
+infix fun BGPTopologyBuilder.siblingLink(createLink: () -> Link) {
+    val link = createLink()
+    this.addLink(link.tail, link.head, SiblingExtender)
 }
 
 //endregion
