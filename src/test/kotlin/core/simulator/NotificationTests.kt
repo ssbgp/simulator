@@ -1,7 +1,6 @@
 package core.simulator
 
 import bgp.BGPProtocol
-import core.simulator.notifications.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.jetbrains.spek.api.Spek
@@ -30,7 +29,7 @@ object NotificationsTests : Spek({
 
             val node = topology.getNodes().sortedBy { it.id }
 
-            val collector = NotificationCollector.collect {
+            val collector = collectNotificationsFom(Engine.notifier) {
                 Engine.simulate(node[0], threshold = 1000)
             }
 
@@ -46,40 +45,3 @@ object NotificationsTests : Spek({
 
 })
 
-/**
- * The NotificationCollector collects all notifications send by the notifier.
- */
-class NotificationCollector private constructor(): StartListener, EndListener {
-
-    companion object {
-
-        fun collect(notifier: BasicNotifier = Engine.notifier, body: () -> Unit): NotificationCollector {
-            val collector = NotificationCollector()
-
-            // Register the collector with the notifier
-            notifier.addStartListener(collector)
-            notifier.addEndListener(collector)
-
-            body()
-
-            // Unregister the collector with the notifier
-            notifier.removeStartListener(collector)
-            notifier.removeEndListener(collector)
-
-            return collector
-        }
-
-    }
-
-    val startNotifications = ArrayList<StartNotification>()
-    val endNotifications = ArrayList<EndNotification>()
-
-    override fun notify(notification: StartNotification) {
-        startNotifications.add(notification)
-    }
-
-    override fun notify(notification: EndNotification) {
-        endNotifications.add(notification)
-    }
-
-}
