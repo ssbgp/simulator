@@ -38,3 +38,15 @@ object PeerExtender : BGPExtender {
     }
 
 }
+
+object ProviderExtender : BGPExtender {
+
+    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+
+        return when {
+            route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
+            else                               -> providerRoute(route.asPath.append(sender))
+        }
+    }
+
+}
