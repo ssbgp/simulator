@@ -29,7 +29,7 @@ object NotificationsTests : Spek({
 
             val node = topology.getNodes().sortedBy { it.id }
 
-            val collector = collectBasicNotifications {
+            val collector = collectBGPNotifications {
                 Engine.simulate(node[0], threshold = 1000)
             }
 
@@ -39,6 +39,30 @@ object NotificationsTests : Spek({
 
             it("issues end notification once") {
                 assertThat(collector.endNotifications.size, `is`(1))
+            }
+
+            it("issues a message received notification once") {
+                assertThat(collector.messageReceivedNotifications.size, `is`(1))
+            }
+
+            it("issues import notification once") {
+                assertThat(collector.importNotifications.size, `is`(1))
+            }
+
+            it("issues learn notification once") {
+                assertThat(collector.learnNotifications.size, `is`(1))
+            }
+
+            it("issues select notification once") {
+                assertThat(collector.selectNotifications.size, `is`(1))
+            }
+
+            it("issues export notification once") {
+                assertThat(collector.exportNotifications.size, `is`(1))
+            }
+
+            it("issues a message sent notification once") {
+                assertThat(collector.messageSentNotifications.size, `is`(1))
             }
         }
     }
