@@ -4,10 +4,7 @@ import bgp.notifications.BGPNotifier
 import bgp.notifications.MessageReceivedNotification
 import bgp.notifications.MessageSentNotification
 import core.routing.*
-import core.simulator.DelayGenerator
-import core.simulator.Engine
-import core.simulator.Exporter
-import core.simulator.ZeroDelayGenerator
+import core.simulator.*
 
 typealias BGPRelationship = Relationship<BGPNode, BGPRoute>
 
@@ -53,7 +50,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
      * This method should be called when a message is received by the node.
      */
     fun onReceivingMessage(message: BGPMessage) {
-        BGPNotifier.notifyMessageReceived(MessageReceivedNotification(Engine.scheduler.time, message))
+        BGPNotifier.notifyMessageReceived(MessageReceivedNotification(currentTime(), message))
         protocol.process(message)
     }
 
@@ -68,7 +65,7 @@ class BGPNode private constructor(id: NodeID, val protocol: BaseBGPProtocol) : N
             val message = BGPMessage(sender = this, receiver = neighbor, extender = extender, route = route)
             exporter.export(message)
 
-            BGPNotifier.notifyMessageSent(MessageSentNotification(Engine.scheduler.time, message))
+            BGPNotifier.notifyMessageSent(MessageSentNotification(currentTime(), message))
         }
     }
 

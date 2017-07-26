@@ -32,7 +32,7 @@ object Engine {
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
-        BasicNotifier.notifyStart(StartNotification(scheduler.time, seed = 0))
+        BasicNotifier.notifyStart(StartNotification(currentTime(), seed = 0))
 
         // The simulation execution starts with the destination announcing itself
         destination.announceItSelf()
@@ -44,7 +44,7 @@ object Engine {
             // Check if the threshold was reached:
             // This verification needs to be performed after obtaining the next event because the scheduler's time is
             // updated when performing that action
-            if (scheduler.time >= threshold) {
+            if (currentTime() >= threshold) {
                 terminatedBeforeThreshold = false
                 break
             }
@@ -52,9 +52,15 @@ object Engine {
             event.processIt()
         }
 
-        BasicNotifier.notifyEnd(EndNotification(scheduler.time))
+        BasicNotifier.notifyEnd(EndNotification(currentTime()))
 
         return terminatedBeforeThreshold
     }
 
 }
+
+/**
+ * Cleaner way to access the simulation time.
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun currentTime(): Time = Engine.scheduler.time

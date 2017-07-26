@@ -1,9 +1,9 @@
 package bgp
 
 import bgp.notifications.*
-import core.simulator.Engine
 import core.simulator.Time
 import core.simulator.Timer
+import core.simulator.currentTime
 
 /**
  * Created on 21-07-2017
@@ -37,10 +37,10 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
         val previousSelectedRoute = node.routingTable.getSelectedRoute()
 
         val importedRoute = import(message.sender, message.route, message.extender)
-        BGPNotifier.notifyImport(ImportNotification(Engine.scheduler.time, node, importedRoute, message.sender))
+        BGPNotifier.notifyImport(ImportNotification(currentTime(), node, importedRoute, message.sender))
 
         val learnedRoute = learn(node, message.sender, importedRoute)
-        BGPNotifier.notifyLearn(LearnNotification(Engine.scheduler.time, node, learnedRoute, message.sender))
+        BGPNotifier.notifyLearn(LearnNotification(currentTime(), node, learnedRoute, message.sender))
 
         val updated = node.routingTable.update(message.sender, learnedRoute)
 
@@ -51,7 +51,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
 
             val selectedRoute = node.routingTable.getSelectedRoute()
             BGPNotifier.notifySelect(
-                    SelectNotification(Engine.scheduler.time, node, selectedRoute, previousSelectedRoute))
+                    SelectNotification(currentTime(), node, selectedRoute, previousSelectedRoute))
 
             export(node)
             wasSelectedRouteUpdated = false
@@ -105,7 +105,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
             val exportedRoute = node.routingTable.getSelectedRoute()
             node.export(exportedRoute)
 
-            BGPNotifier.notifyExport(ExportNotification(Engine.scheduler.time, node, exportedRoute))
+            BGPNotifier.notifyExport(ExportNotification(currentTime(), node, exportedRoute))
 
             if (mrai > 0) {
                 mraiTimer = Timer.enabled(mrai) {
