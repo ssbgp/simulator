@@ -179,7 +179,12 @@ abstract class BaseSSBGPProtocol(val reenableInterval: Time, mrai: Time = 0) : B
     }
 
     fun reenableNeighbors(node: BGPNode) {
+
+        // Make a copy of the disabled neighbors because they will be cleared when they are re-enabled
+        val reEnabledNeighbors = node.routingTable.disabledNeighbors.toList()
         val updatedSelectedRoute = node.routingTable.enableAll()
+
+        BGPNotifier.notifyReEnable(ReEnableNotification(node, reEnabledNeighbors))
 
         if (updatedSelectedRoute)
             export(node)
