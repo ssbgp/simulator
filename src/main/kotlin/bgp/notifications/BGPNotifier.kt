@@ -16,6 +16,7 @@ object BGPNotifier {
     private val selectListeners = mutableListOf<SelectListener>()
     private val exportListeners = mutableListOf<ExportListener>()
     private val messageSentListeners = mutableListOf<MessageSentListener>()
+    private val reEnableListeners = mutableListOf<ReEnableListener>()
 
     //endregion
 
@@ -232,6 +233,37 @@ object BGPNotifier {
      */
     fun notifyMessageSent(notification: MessageSentNotification) {
         messageSentListeners.forEach { it.notify(notification) }
+    }
+
+    //endregion
+
+    //region Re-enable notification
+
+    /**
+     * Registers a new re-enable listener.
+     *
+     * @param listener re-enable listener to register.
+     */
+    fun addReEnableListener(listener: ReEnableListener) {
+        reEnableListeners.add(listener)
+    }
+
+    /**
+     * Unregisters a new re-enable listener.
+     *
+     * @param listener re-enable listener to unregister.
+     */
+    fun removeReEnableListener(listener: ReEnableListener) {
+        reEnableListeners.remove(listener)
+    }
+
+    /**
+     * Sends a re-enable notification to each re-enable listener.
+     *
+     * @param notification the re-enable notification to send to each registered listener.
+     */
+    fun notifyReEnable(notification: ReEnableNotification) {
+        reEnableListeners.forEach { it.notify(notification) }
     }
 
     //endregion
