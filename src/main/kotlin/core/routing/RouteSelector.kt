@@ -1,8 +1,5 @@
 package core.routing
 
-import bgp.BGPNode
-import bgp.BGPRoute
-
 /**
  * Created on 21-07-2017
  *
@@ -65,7 +62,8 @@ class RouteSelector<N: Node, R: Route> private constructor
     /**
      * Keeps record of the neighbors that are disabled.
      */
-    private val disabledNeighbors = HashSet<N>()
+    private val mutableDisabledNeighbors = HashSet<N>()
+    val disabledNeighbors: Collection<N> get() = mutableDisabledNeighbors
 
     init {
         if (forceReselect) {
@@ -118,7 +116,7 @@ class RouteSelector<N: Node, R: Route> private constructor
     fun disable(neighbor: N): Boolean {
 
         table.setEnabled(neighbor, false)
-        disabledNeighbors.add(neighbor)
+        mutableDisabledNeighbors.add(neighbor)
 
         // Do not need to check if the node was added to the disabled neighbors set:
         // if it wasn't then the neighbor was already disabled and surely is not the selected neighbor
@@ -143,7 +141,7 @@ class RouteSelector<N: Node, R: Route> private constructor
         // Checking if the neighbor was really removed from the disabled set prevents making a table lookup
         // if the node was not disabled
 
-        if (disabledNeighbors.remove(neighbor)) {
+        if (mutableDisabledNeighbors.remove(neighbor)) {
 
 
             val route = table[neighbor]
@@ -167,7 +165,7 @@ class RouteSelector<N: Node, R: Route> private constructor
         var selectedRouteAmongDisabled = table.invalidRoute
         var selectedNeighborAmongDisabled: N? = null
 
-        for (neighbor in disabledNeighbors) {
+        for (neighbor in mutableDisabledNeighbors) {
             val route = table.setEnabled(neighbor, true)
 
             if (compare(route, selectedRouteAmongDisabled) > 0) {
@@ -177,7 +175,7 @@ class RouteSelector<N: Node, R: Route> private constructor
         }
 
         // If we are enabling all neighbors that this set can be cleared
-        disabledNeighbors.clear()
+        mutableDisabledNeighbors.clear()
 
         if (compare(selectedRouteAmongDisabled, selectedRoute) > 0) {
             selectedRoute = selectedRouteAmongDisabled
@@ -212,6 +210,7 @@ class RouteSelector<N: Node, R: Route> private constructor
         selectedRoute = table.invalidRoute
         selectedNeighbor = null
         table.clear()
+        mutableDisabledNeighbors.clear()
     }
 
     @Suppress("NOTHING_TO_INLINE")
