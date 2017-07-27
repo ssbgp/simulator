@@ -158,22 +158,27 @@ abstract class BaseSSBGPProtocol(val reenableInterval: Time, mrai: Time = 0) : B
 
     final override fun onLoopDetected(node: BGPNode, sender: BGPNode, route: BGPRoute) {
 
-        //Since a loop was detected, the route via the sender node is invalid
-        var updated = node.routingTable.update(sender, BGPRoute.invalid())
-        wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+        // Check if it is a routing loop if an only if the neighbor is enabled
+        if (node.routingTable.table.isEnabled(sender)) {
 
-        val alternativeRoute = node.routingTable.getSelectedRoute()
-
-        if (isRecurrentRoutingLoop(node, route, alternativeRoute)) {
-            updated = node.routingTable.disable(sender)
+            //Since a loop was detected, the route via the sender node is invalid
+            var updated = node.routingTable.update(sender, BGPRoute.invalid())
             wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
-            BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
+            val alternativeRoute = node.routingTable.getSelectedRoute()
 
-            if (reenableInterval > 0) {
-                reenableTimer.cancel()
-                reenableTimer = Timer.enabled(reenableInterval) { reenableNeighbors(node) }
-                reenableTimer.start()
+            if (isRecurrentRoutingLoop(node, route, alternativeRoute)) {
+
+                updated = node.routingTable.disable(sender)
+                wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
+
+                BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
+
+                if (reenableInterval > 0) {
+                    reenableTimer.cancel()
+                    reenableTimer = Timer.enabled(reenableInterval) { reenableNeighbors(node) }
+                    reenableTimer.start()
+                }
             }
         }
     }
