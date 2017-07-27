@@ -75,7 +75,7 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<N, Entry
     }
 
     /**
-     * Sets invalid routes for all defined neighbors an enables all disabled neighbors.
+     * Clears all entries from the table.
      */
     fun clear() {
         routes.clear()
@@ -83,16 +83,22 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<N, Entry
 
     /**
      * Sets the enable/disable flag for the given neighbor.
+     *
+     * @return the route via the specified neighbor or invalid route if the table contains no entry for that neighbor
      */
-    fun setEnabled(neighbor: N, enabled: Boolean) {
-        routes[neighbor]?.enabled = enabled
+    fun setEnabled(neighbor: N, enabled: Boolean): R {
+        val entry = routes[neighbor] ?: return invalidRoute
+        entry.enabled = enabled
+
+        return entry.route
     }
 
     /**
-     * Checks if a neighbor is enabled or not
+     * Checks if a neighbor is enabled or not. If the table contains no entry for the specified neighbor it indicates
+     * the neighbor is enabled.
      */
     fun isEnabled(neighbor: N): Boolean {
-        return routes[neighbor]?.enabled ?: false
+        return routes[neighbor]?.enabled ?: return true
     }
 
     /**
