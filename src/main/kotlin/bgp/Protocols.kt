@@ -122,6 +122,7 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
      * Resets the state of the protocol as if it was just created.
      */
     open fun reset() {
+        mraiTimer.cancel()
         mraiTimer = Timer.disabled()
         wasSelectedRouteUpdated = false
     }
@@ -197,6 +198,7 @@ abstract class BaseSSBGPProtocol(val reenableInterval: Time, mrai: Time = 0) : B
 
     override fun reset() {
         super.reset()
+        reenableTimer.cancel()
         reenableTimer = Timer.disabled()
     }
 }
