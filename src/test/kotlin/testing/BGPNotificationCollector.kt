@@ -1,15 +1,16 @@
 package testing
 
 import bgp.notifications.*
+import core.simulator.notifications.Notification
 
 /**
  * Created on 26-07-2017
  *
  * @author David Fialho
  */
-class BGPNotificationCollector : NotificationCollector(),
+class BGPNotificationCollector(val withOutput: Boolean) : NotificationCollector(),
         MessageReceivedListener, ImportListener, LearnListener, DetectListener, SelectListener, ExportListener,
-        MessageSentListener {
+        MessageSentListener, ReEnableListener {
 
     //region Lists containing all notifications
 
@@ -20,6 +21,7 @@ class BGPNotificationCollector : NotificationCollector(),
     val selectNotifications = ArrayList<SelectNotification>()
     val exportNotifications = ArrayList<ExportNotification>()
     val messageSentNotifications = ArrayList<MessageSentNotification>()
+    val reEnableNotifications = ArrayList<ReEnableNotification>()
 
     //endregion
 
@@ -34,6 +36,7 @@ class BGPNotificationCollector : NotificationCollector(),
         BGPNotifier.addSelectListener(this)
         BGPNotifier.addExportListener(this)
         BGPNotifier.addMessageSentListener(this)
+        BGPNotifier.addReEnableListener(this)
 
     }
 
@@ -46,6 +49,7 @@ class BGPNotificationCollector : NotificationCollector(),
         BGPNotifier.removeSelectListener(this)
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeMessageSentListener(this)
+        BGPNotifier.removeReEnableListener(this)
     }
 
     //endregion
@@ -54,39 +58,57 @@ class BGPNotificationCollector : NotificationCollector(),
 
     override fun notify(notification: MessageReceivedNotification) {
         messageReceivedNotifications.add(notification)
+        print(notification)
     }
 
     override fun notify(notification: ImportNotification) {
         importNotifications.add(notification)
+        print(notification)
     }
 
     override fun notify(notification: LearnNotification) {
         learnNotifications.add(notification)
+        print(notification)
     }
 
     override fun notify(notification: DetectNotification) {
         detectNotifications.add(notification)
+        print(notification)
     }
 
     override fun notify(notification: SelectNotification) {
         selectNotifications.add(notification)
+        print(notification)
     }
 
     override fun notify(notification: ExportNotification) {
         exportNotifications.add(notification)
+        print(notification)
     }
 
     override fun notify(notification: MessageSentNotification) {
         messageSentNotifications.add(notification)
+        print(notification)
+    }
+
+    override fun notify(notification: ReEnableNotification) {
+        reEnableNotifications.add(notification)
+        print(notification)
+    }
+
+    private fun print(notification: Notification) {
+        if (withOutput) {
+            println("time=${notification.time}: $notification")
+        }
     }
 
     //endregion
 
 }
 
-fun collectBGPNotifications(body: () -> Unit): BGPNotificationCollector {
+fun collectBGPNotifications(withOutput: Boolean = false, body: () -> Unit): BGPNotificationCollector {
 
-    val collector = BGPNotificationCollector()
+    val collector = BGPNotificationCollector(withOutput)
     collector.register()
     body()
     collector.unregister()
