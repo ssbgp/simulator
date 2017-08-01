@@ -22,6 +22,8 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
     var wasSelectedRouteUpdated: Boolean = false
         protected set
 
+    private var lastExportedRoute: BGPRoute = BGPRoute.invalid()
+
     /**
      * Processes a BGP message received by a node.
      * May updated the routing table and the selected route/neighbor.
@@ -99,21 +101,31 @@ sealed class BaseBGPProtocol(private val mrai: Time) {
      */
     fun export(node: BGPNode) {
 
-        if (mraiTimer.expired) {
+        val selectedRoute = node.routingTable.getSelectedRoute()
 
-            val exportedRoute = node.routingTable.getSelectedRoute()
-            node.export(exportedRoute)
+        if (!mraiTimer.expired) {
+            // The MRAI timer is still running: no route is exported while the MRAI timer is running
+            return
+        }
 
-            BGPNotifier.notifyExport(ExportNotification(node, exportedRoute))
+        if (lastExportedRoute == selectedRoute) {
+            // There is no new route to export
+            return
+        }
 
-            if (mrai > 0) {
-                mraiTimer = Timer.enabled(mrai) {
-                    // this will only be executed when the timer expires!
-                    export(node)
-                }
-                mraiTimer.start()
-            }
+        // Export the route currently selected
+        node.export(selectedRoute)
+        BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
 
+        // Update the last exported route
+        lastExportedRoute = selectedRoute
+
+        // Check if the MRAI feature is enabled: it is enabled only if the MRAI is greater than 0
+        if (mrai > 0) {
+
+            // Restart the MRAI timer
+            mraiTimer = Timer.enabled(mrai) { export(node) } // when the timer expires
+            mraiTimer.start()
         }
 
     }
