@@ -139,6 +139,65 @@ object BGPProtocolTests : Spek({
                 }
             }
         }
+
+        given("a node that exported a route and its MRAI timer has already expired") {
+
+            val node: BGPNode = mock()
+            val protocol = BGPProtocol(mrai = 10)
+            val newlySelectedRoute = route(localPref = 200, asPath = emptyPath())
+
+            beforeEachTest {
+                val selectedRoute = route(localPref = 100, asPath = emptyPath())
+
+                // Node selects some route
+                node.setSelectedRoute(selectedRoute)
+                // And exports it
+                protocol.export(node)
+                // Then the MRAI timer expires
+                protocol.mraiTimer.onExpired()
+
+                // Reset the counts
+                reset(node)
+
+                // After calling reset we need to set the selected route again
+                node.setSelectedRoute(selectedRoute)
+            }
+
+            afterEachTest {
+                Engine.scheduler.reset()
+                protocol.mraiTimer.onExpired()
+            }
+
+            on("calling export before the node has selected a new route") {
+
+                protocol.export(node)
+
+                it("does NOT export any route") {
+                    verify(node, never()).export(any())
+                }
+            }
+
+            on("calling export after the node has selected a new route") {
+
+                node.setSelectedRoute(newlySelectedRoute)
+                protocol.export(node)
+
+                it("exports the newly selected route") {
+                    verify(node, times(1)).export(newlySelectedRoute)
+                }
+            }
+
+            on("calling export after the node selects the same route but different instance") {
+
+                node.setSelectedRoute(route(localPref = 100, asPath = emptyPath()))
+                protocol.export(node)
+
+                it("does NOT export any route") {
+                    verify(node, never()).export(any())
+                }
+            }
+        }
+
     }
 
 })
