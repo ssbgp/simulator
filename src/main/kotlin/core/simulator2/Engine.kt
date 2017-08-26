@@ -1,11 +1,12 @@
 package core.simulator2
 
-import core.routing.Destination
+import core.routing2.Node
+import core.routing2.Route
 import core.simulator.Scheduler
 import core.simulator.Time
 import core.simulator.ZeroDelayGenerator
-import core.simulator.notifications.EndNotification
 import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.EndNotification
 import core.simulator.notifications.StartNotification
 
 /**
@@ -37,15 +38,15 @@ object Engine {
      * @param threshold   a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
-    fun simulate(destination: Destination, threshold: Time = Int.MAX_VALUE): Boolean {
+    fun <R: Route> simulate(destination: Node<R>, threshold: Time = Int.MAX_VALUE): Boolean {
 
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
         BasicNotifier.notifyStart(StartNotification(seed = 0))
 
-        // The simulation execution starts with the destination announcing itself
-        destination.announceItSelf()
+        // The simulation execution starts when the protocol of the destination is started
+        destination.protocol.start()
 
         var terminatedBeforeThreshold = true
         while (scheduler.hasEvents()) {
