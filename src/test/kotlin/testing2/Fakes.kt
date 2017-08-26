@@ -40,6 +40,17 @@ object FakeProtocol: Protocol<Route> {
     }
 }
 
+/**
+ * Created on 25-07-2017
+ *
+ * @author David Fialho
+ *
+ * Fake extender used for testing purposes.
+ */
+object FakeExtender: Extender<Route> {
+    override fun extend(route: Route, sender: Node<Route>): Route = invalidRoute()
+}
+
 //region Factory methods
 
 /**
@@ -58,5 +69,12 @@ fun route(preference: Int): Route = FakeRoute.ValidFakeRoute(preference)
  * Returns an invalid route.
  */
 fun invalidRoute(): Route = FakeRoute.InvalidFakeRoute
+
+/**
+ * Returns an extender when it is needed one but it is not important which one.
+ */
+fun someExtender(): Extender<Route> {
+    return FakeExtender
+}
 
 //endregion
