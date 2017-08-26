@@ -2,6 +2,7 @@ package core.simulator2
 
 import core.routing2.Node
 import core.routing2.Route
+import core.simulator.DelayGenerator
 import core.simulator.Scheduler
 import core.simulator.Time
 import core.simulator.ZeroDelayGenerator
@@ -26,7 +27,7 @@ object Engine {
      * By default, it uses a ZeroDelayGenerator
      * This should be changed to a different generator to obtain different behavior.
      */
-    var messageDelayGenerator = ZeroDelayGenerator
+    var messageDelayGenerator: DelayGenerator = ZeroDelayGenerator
 
     /**
      * Runs the simulation for the given destination.
