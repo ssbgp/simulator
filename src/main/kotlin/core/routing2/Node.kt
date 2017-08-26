@@ -33,7 +33,7 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * @param extender the extender used to map routes from this node to the in-neighbor
      */
     fun addInNeighbor(neighbor: Node<R>, extender: Extender<R>) {
-        TODO("implement this")
+        mutableInNeighbors.add(Neighbor(neighbor, extender))
     }
 
     /**
@@ -42,7 +42,9 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * @param route the route to be sent
      */
     fun send(route: R) {
-        TODO("implement this")
+        for ((neighbor, extender, exporter) in inNeighbors) {
+            exporter.export(Message(this, neighbor, route, extender))
+        }
     }
 
     /**
@@ -50,7 +52,7 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * This method should be invoked when a new message is expected to arrive to this node and be processed by it.
      */
     fun receive(message: Message<R>) {
-        TODO("implement this")
+        protocol.processIt(message)
     }
 
     /**

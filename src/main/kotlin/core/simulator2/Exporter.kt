@@ -1,7 +1,7 @@
 package core.simulator2
 
-import core.routing.Message
-import core.simulator.ExportEvent
+import core.routing2.Message
+import core.routing2.Route
 import core.simulator.Time
 
 /**
@@ -9,7 +9,7 @@ import core.simulator.Time
  *
  * @author David Fialho
  */
-class Exporter {
+class Exporter<R: Route> {
 
     /**
      * Stores the timestamp of the time at which the last message exported using this exporter was delivered to its
@@ -22,7 +22,7 @@ class Exporter {
      *
      * @return the deliver time of the exported message
      */
-    fun export(message: Message): Time {
+    fun export(message: Message<R>): Time {
 
         val delay = Engine.messageDelayGenerator.nextDelay()
         val deliverTime = maxOf(Engine.scheduler.time + delay, lastDeliverTime) + 1
