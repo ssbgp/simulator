@@ -52,7 +52,7 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * This method should be invoked when a new message is expected to arrive to this node and be processed by it.
      */
     fun receive(message: Message<R>) {
-        protocol.processIt(message)
+        protocol.process(message)
     }
 
     /**

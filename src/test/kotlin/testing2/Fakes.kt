@@ -35,7 +35,7 @@ object FakeProtocol: Protocol<Route> {
         TODO("not implemented")
     }
 
-    override fun processIt(message: Message<Route>) {
+    override fun process(message: Message<Route>) {
         TODO("not implemented")
     }
 }

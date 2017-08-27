@@ -16,6 +16,6 @@ interface Protocol<R: Route> {
      * This method is invoked by the node using this protocol when it receives a new routing message that must be
      * processed.
      */
-    fun processIt(message: Message<R>)
+    fun process(message: Message<R>)
 
 }
