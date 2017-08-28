@@ -29,8 +29,13 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : P
      */
     protected var wasSelectedRouteUpdated: Boolean = false
 
-    override fun start() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    /**
+     * Announces [node] as the destination.
+     */
+    override fun start(node: Node<BGPRoute>) {
+        val selfRoute = BGPRoute.self()
+        routingTable.update(node, selfRoute)
+        export(node)
     }
 
     /**

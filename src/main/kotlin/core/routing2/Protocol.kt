@@ -8,7 +8,7 @@ interface Protocol<R: Route> {
     /**
      * Starts this protocol.
      */
-    fun start()
+    fun start(node: Node<R>)
 
     /**
      * Processes an incoming routing message.

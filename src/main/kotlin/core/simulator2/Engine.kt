@@ -47,7 +47,7 @@ object Engine {
         BasicNotifier.notifyStart(StartNotification(seed = 0))
 
         // The simulation execution starts when the protocol of the destination is started
-        destination.protocol.start()
+        destination.start()
 
         var terminatedBeforeThreshold = true
         while (scheduler.hasEvents()) {

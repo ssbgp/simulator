@@ -37,6 +37,13 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
     }
 
     /**
+     * Starts the protocol deployed by this node.
+     */
+    fun start() {
+        protocol.start(this)
+    }
+
+    /**
      * Sends a message containing the route [route] to all in-neighbors of this node.
      *
      * @param route the route to be sent

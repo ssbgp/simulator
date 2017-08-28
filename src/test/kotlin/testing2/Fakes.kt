@@ -31,12 +31,16 @@ fun fakeCompare(route1: Route, route2: Route): Int {
 
 object FakeProtocol: Protocol<Route> {
 
-    override fun start() {
+    override fun start(node: Node<Route>) {
         TODO("not implemented")
     }
 
     override fun process(message: Message<Route>) {
         TODO("not implemented")
+    }
+
+    override fun reset() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
 
