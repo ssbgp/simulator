@@ -1,9 +1,8 @@
 package bgp2
 
 import com.nhaarman.mockito_kotlin.*
-import core.routing2.Node
-import core.routing2.RoutingTable
-import core.routing2.pathOf
+import core.routing2.*
+import core.simulator.Time
 import core.simulator2.Engine
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.spek.api.Spek
@@ -21,7 +20,7 @@ import org.hamcrest.Matchers.`is` as Is
  */
 object BGPTests : Spek({
 
-    context("node with ID 1 imports a new route from neighbor with ID 2") {
+    context("node with ID 1 imports a new route from neighbor with ID 2 with MRAI disabled") {
 
         val protocol = BGP(routingTable = spy(RoutingTable.empty(BGPRoute.invalid())))
         val node = spy(Node(1, protocol))
@@ -466,6 +465,94 @@ object BGPTests : Spek({
             }
         }
 
+    }
+
+    fun BGP(mrai: Time = 0) = BGP(mrai, routingTable = spy(RoutingTable.empty(BGPRoute.invalid())))
+    fun SpyBGPNode(protocol: Protocol<BGPRoute>) = spy(Node(1, protocol))
+
+    context("node exports a new route with MRAI timer enabled") {
+
+        val neighbor = BGPNode(2)
+        val exportedRoute = BGPRoute.with(localPref = 10, asPath = pathOf(BGPNode(0), neighbor))
+
+        // Make sure the scheduler is kept clean for the next tests
+        afterGroup { Engine.scheduler.reset() }
+
+        given("node never exported a route") {
+
+            val protocol = BGP(mrai = 10)
+            val node = SpyBGPNode(protocol)
+
+            protocol.process(node, neighbor, exportedRoute)
+
+            it("sends the route to neighbors immediately") {
+                verify(node, times(1)).send(exportedRoute)
+            }
+
+            it("starts a new MRAI timer") {
+                assertThat(protocol.mraiTimer.expired,
+                        Is(false))
+            }
+        }
+
+        given("the MRAI timer has expired after previous export") {
+
+            val protocol = BGP(mrai = 10)
+            val node = SpyBGPNode(protocol)
+
+            // Node exports some route that starts the MRAI timer
+            protocol.process(node, neighbor, BGPRoute.with(localPref = 10, asPath = emptyPath()))
+            // MRAI Timer expires
+            protocol.mraiTimer.onExpired()
+
+            // Ensure the node call count is clean
+            reset(node)
+
+            // Node has a new route to export
+            protocol.process(node, neighbor, exportedRoute)
+
+            it("sends the route to neighbors immediately") {
+                verify(node, times(1)).send(exportedRoute)
+            }
+
+            it("starts a new MRAI timer") {
+                assertThat(protocol.mraiTimer.expired,
+                        Is(false))
+            }
+        }
+
+        given("the MRAI timer is running") {
+
+            val protocol = BGP(mrai = 10)
+            val node = SpyBGPNode(protocol)
+
+            // Node exports some route that starts the MRAI timer
+            protocol.process(node, neighbor, BGPRoute.with(localPref = 10, asPath = emptyPath()))
+
+            // Ensure the node call count is clean
+            reset(node)
+
+            // Node has a new route to export
+            protocol.process(node, neighbor, exportedRoute)
+
+            it("does NOT send route to neighbors") {
+                verify(node, never()).send(any())
+            }
+
+            `when`("the MRAI timer expires") {
+
+                protocol.mraiTimer.onExpired()
+
+                it("sends the newly exported route") {
+                    verify(node, times(1)).send(exportedRoute)
+                }
+
+                it("does NOT start a new MRAI timer") {
+                    assertThat(protocol.mraiTimer.expired,
+                            Is(true))
+                }
+            }
+        }
     }
 
 })

@@ -2,13 +2,15 @@ package bgp2
 
 import bgp2.notifications.*
 import core.routing2.*
+import core.simulator.Time
+import core.simulator.Timer
 
 /**
  * Created on 21-07-2017
  *
  * @author David Fialho
  */
-abstract class BaseBGP(routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute> {
+abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute> {
 
     /**
      * Routing table containing the candidate routes.
@@ -17,13 +19,15 @@ abstract class BaseBGP(routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute
      */
     val routingTable = RouteSelector.wrap(routingTable, ::bgpRouteCompare)
 
+    var mraiTimer = Timer.disabled()
+        protected set
+
     /**
      * Flag that indicates if a new route was selected as a result of processing a new incoming message. This flag is
      * always set to false when a new message arrives and should only be set to true if a new route is selected when
      * the message is being processed.
      */
-    var wasSelectedRouteUpdated: Boolean = false
-        protected set
+    protected var wasSelectedRouteUpdated: Boolean = false
 
     override fun start() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -114,13 +118,26 @@ abstract class BaseBGP(routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute
      *
      * @param node  the node exporting the node
      */
-    protected fun export(node: Node<BGPRoute>) {
+    protected fun export(node: Node<BGPRoute>, restartMRAITimer : Boolean = true) {
+
+        if (!mraiTimer.expired) {
+            // The MRAI timer is still running: no route is exported while the MRAI timer is running
+            return
+        }
 
         val selectedRoute = routingTable.getSelectedRoute()
 
         // Export the route currently selected
         node.send(selectedRoute)
         BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
+
+        if (restartMRAITimer && mrai > 0) {
+            // Restart the MRAI timer
+            mraiTimer = Timer.enabled(mrai) {
+                export(node, restartMRAITimer = false)
+            } // when the timer expires
+            mraiTimer.start()
+        }
     }
 
     /**
@@ -129,6 +146,8 @@ abstract class BaseBGP(routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute
     open fun reset() {
         routingTable.clear()
         wasSelectedRouteUpdated = false
+        mraiTimer.cancel()
+        mraiTimer = Timer.disabled()
     }
 
     /**
@@ -141,8 +160,8 @@ abstract class BaseBGP(routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute
 /**
  * BGP: when a loop is detected it does nothing extra.
  */
-class BGP(routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
-    : BaseBGP(routingTable) {
+class BGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
+    : BaseBGP(mrai, routingTable) {
 
     override fun onLoopDetected(node: Node<BGPRoute>, sender: Node<BGPRoute>, route: BGPRoute) = Unit
 }
