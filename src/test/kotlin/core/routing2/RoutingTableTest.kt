@@ -31,6 +31,17 @@ object RoutingTableTest: Spek({
             }
         }
 
+        on("disabling neighbor with ID 1") {
+
+            val neighbor = node(1)
+            table.setEnabled(neighbor, false)
+
+            it("indicates neighbor 1 is disabled") {
+                assertThat(table.isEnabled(neighbor),
+                        Is(false))
+            }
+        }
+
     }
 
     given("a routing table with invalid route via neighbor with ID 1") {

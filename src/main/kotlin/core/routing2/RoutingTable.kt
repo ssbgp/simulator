@@ -87,10 +87,16 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<Node<R>,
      * @return the route via the specified neighbor or invalid route if the table contains no entry for that neighbor
      */
     fun setEnabled(neighbor: Node<R>, enabled: Boolean): R {
-        val entry = routes[neighbor] ?: return invalidRoute
-        entry.enabled = enabled
+        val entry = routes[neighbor]
 
-        return entry.route
+        return if (entry == null) {
+            routes[neighbor] = EntryData(invalidRoute, enabled = false)
+            invalidRoute
+
+        } else {
+            entry.enabled = enabled
+            entry.route
+        }
     }
 
     /**
