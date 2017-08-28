@@ -1,8 +1,9 @@
 package core.routing2
 
 import testing2.node
-import org.hamcrest.MatcherAssert
-import org.hamcrest.Matchers
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.`is` as Is
+import org.hamcrest.Matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.given
@@ -22,15 +23,18 @@ object PathTests : Spek({
         val path = pathOf(node(1), node(2))
 
         it("contains node 1") {
-            MatcherAssert.assertThat(path.contains(node(1)), Matchers.`is`(true))
+            assertThat(node(1) in path,
+                    Is(true))
         }
 
         it("contains node 2") {
-            MatcherAssert.assertThat(path.contains(node(2)), Matchers.`is`(true))
+            assertThat(node(2) in path,
+                    Is(true))
         }
 
         it("does not contain node 3") {
-            MatcherAssert.assertThat(path.contains(node(3)), Matchers.`is`(false))
+            assertThat(node(3) in path,
+                    Is(false))
         }
 
     }
@@ -40,7 +44,7 @@ object PathTests : Spek({
         val emptyPath = emptyPath()
 
         it("has size 0") {
-            MatcherAssert.assertThat(emptyPath.size, Matchers.equalTo(0))
+            assertThat(emptyPath.size, equalTo(0))
         }
 
         on("appending a new node") {
@@ -48,15 +52,16 @@ object PathTests : Spek({
             val appendedPath = emptyPath.append(node(1))
 
             it("returns a path of size 1") {
-                MatcherAssert.assertThat(appendedPath.size, Matchers.equalTo(1))
+                assertThat(appendedPath.size, equalTo(1))
             }
 
             it("returns a path containing that new node") {
-                MatcherAssert.assertThat(node(1) in appendedPath, Matchers.`is`(true))
+                assertThat(node(1) in appendedPath,
+                        Is(true))
             }
 
             it("keeps the original path empty") {
-                MatcherAssert.assertThat(emptyPath.size, Matchers.equalTo(0))
+                assertThat(emptyPath.size, equalTo(0))
             }
 
         }
@@ -68,7 +73,7 @@ object PathTests : Spek({
         val path = pathOf(node(1))
 
         it("has size 1") {
-            MatcherAssert.assertThat(path.size, Matchers.equalTo(1))
+            assertThat(path.size, equalTo(1))
         }
 
         on("appending a new node") {
@@ -76,16 +81,18 @@ object PathTests : Spek({
             val appendedPath = path.append(node(2))
 
             it("returns a path of size 2") {
-                MatcherAssert.assertThat(appendedPath.size, Matchers.equalTo(2))
+                assertThat(appendedPath.size, equalTo(2))
             }
 
             it("returns a path containing that previous node and the new node") {
-                MatcherAssert.assertThat(node(1) in appendedPath, Matchers.`is`(true))
-                MatcherAssert.assertThat(node(2) in appendedPath, Matchers.`is`(true))
+                assertThat(node(1) in appendedPath,
+                        Is(true))
+                assertThat(node(2) in appendedPath,
+                        Is(true))
             }
 
             it("keeps the original path with size 1") {
-                MatcherAssert.assertThat(path.size, Matchers.equalTo(1))
+                assertThat(path.size, equalTo(1))
             }
         }
 
@@ -94,15 +101,16 @@ object PathTests : Spek({
             val pathCopy = path.copy()
 
             it("returns a new path instance") {
-                MatcherAssert.assertThat(path !== pathCopy, Matchers.`is`(true))
+                assertThat(path !== pathCopy,
+                        Is(true))
             }
 
             it("returns a path equal to the initial path") {
-                MatcherAssert.assertThat(pathCopy, Matchers.equalTo(path))
+                assertThat(pathCopy, equalTo(path))
             }
 
             it("returns a path equal to the initial path") {
-                MatcherAssert.assertThat(pathCopy, Matchers.equalTo(path))
+                assertThat(pathCopy, equalTo(path))
             }
         }
 
@@ -114,7 +122,7 @@ object PathTests : Spek({
         val path2 = pathOf(node(1), node(2))
 
         it("is true that the two are equal") {
-            MatcherAssert.assertThat(path1, Matchers.equalTo(path2))
+            assertThat(path1, equalTo(path2))
         }
 
     }
@@ -125,7 +133,7 @@ object PathTests : Spek({
         val path2 = pathOf(node(1), node(2))
 
         it("is true that the two are different") {
-            MatcherAssert.assertThat(path1, Matchers.not(Matchers.equalTo(path2)))
+            assertThat(path1, not(equalTo(path2)))
         }
 
     }
@@ -136,7 +144,7 @@ object PathTests : Spek({
         val path2 = pathOf(node(2), node(3))
 
         it("is true that the two are different") {
-            MatcherAssert.assertThat(path1, Matchers.not(Matchers.equalTo(path2)))
+            assertThat(path1, not(equalTo(path2)))
         }
 
     }
@@ -147,7 +155,7 @@ object PathTests : Spek({
         val path2 = pathOf(node(2), node(1))
 
         it("is true that the two are different") {
-            MatcherAssert.assertThat(path1, Matchers.not(Matchers.equalTo(path2)))
+            assertThat(path1, not(equalTo(path2)))
         }
 
     }
@@ -163,7 +171,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(1))
 
                 it("returns empty path") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(emptyPath()))
+                    assertThat(subPath,
+                            Is(emptyPath()))
                 }
             }
         }
@@ -177,7 +186,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(1))
 
                 it("returns empty path") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(emptyPath()))
+                    assertThat(subPath,
+                            Is(emptyPath()))
                 }
             }
 
@@ -186,7 +196,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(2))
 
                 it("returns original path with node 1") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(path))
+                    assertThat(subPath,
+                            Is(path))
                 }
             }
         }
@@ -200,7 +211,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(1))
 
                 it("returns empty path") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(emptyPath()))
+                    assertThat(subPath,
+                            Is(emptyPath()))
                 }
             }
 
@@ -209,7 +221,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(2))
 
                 it("returns path with node 1") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(pathOf(node(1))))
+                    assertThat(subPath,
+                            Is(pathOf(node(1))))
                 }
             }
 
@@ -218,7 +231,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(3))
 
                 it("returns path with nodes 1 and 2") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(pathOf(node(1), node(2))))
+                    assertThat(subPath,
+                            Is(pathOf(node(1), node(2))))
                 }
             }
 
@@ -227,7 +241,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(4))
 
                 it("returns path with nodes 1, 2, and 3") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(pathOf(node(1), node(2), node(3))))
+                    assertThat(subPath,
+                            Is(pathOf(node(1), node(2), node(3))))
                 }
             }
 
@@ -236,7 +251,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(5))
 
                 it("returns path with nodes 1, 2, 3, and 4") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(pathOf(node(1), node(2), node(3), node(4))))
+                    assertThat(subPath,
+                            Is(pathOf(node(1), node(2), node(3), node(4))))
                 }
             }
 
@@ -245,7 +261,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(6))
 
                 it("returns original path with nodes 1, 2, 3, 4, and 5") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(pathOf(node(1), node(2), node(3), node(4), node(5))))
+                    assertThat(subPath,
+                            Is(pathOf(node(1), node(2), node(3), node(4), node(5))))
                 }
             }
         }
@@ -259,7 +276,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(1))
 
                 it("returns empty path") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(emptyPath()))
+                    assertThat(subPath,
+                            Is(emptyPath()))
                 }
             }
         }
@@ -273,7 +291,8 @@ object PathTests : Spek({
                 val subPath = path.subPathBefore(node(1))
 
                 it("returns path with node 2") {
-                    MatcherAssert.assertThat(subPath, Matchers.`is`(pathOf(node(2))))
+                    assertThat(subPath,
+                            Is(pathOf(node(2))))
                 }
             }
         }
