@@ -30,6 +30,14 @@ object Engine {
     var messageDelayGenerator: DelayGenerator = ZeroDelayGenerator
 
     /**
+     * Resets the engine to the defaults.
+     */
+    fun resetToDefaults() {
+        scheduler = Scheduler
+        messageDelayGenerator = ZeroDelayGenerator
+    }
+
+    /**
      * Runs the simulation for the given destination.
      * The threshold value determines the number of units of time the simulation should have terminated on. If this
      * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the

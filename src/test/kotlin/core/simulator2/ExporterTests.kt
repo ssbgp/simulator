@@ -29,11 +29,11 @@ object ExporterTests : Spek({
     given("an exporter using a random delay generator") {
 
         // Change message delay generator to random generator
-        val prevMessageDelayGenerator = Engine.messageDelayGenerator
         Engine.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
 
-        // Ensure the previous generator is replaced after running the tests
-        afterGroup { Engine.messageDelayGenerator = prevMessageDelayGenerator }
+        afterGroup {
+            Engine.resetToDefaults()
+        }
 
         val exporter = Exporter<Route>()
 
