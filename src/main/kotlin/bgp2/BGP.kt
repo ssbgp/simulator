@@ -1,25 +1,21 @@
 package bgp2
 
 import bgp2.notifications.*
-
 import core.routing2.*
-import core.simulator.Time
-import core.simulator.Timer
 
 /**
  * Created on 21-07-2017
  *
  * @author David Fialho
  */
-abstract class BaseBGP(private val mrai: Time): Protocol<BGPRoute> {
+abstract class BaseBGP(routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute> {
 
     /**
      * Routing table containing the candidate routes.
+     * Uses a route selector to perform the route selection.
+     * The route selector wraps the provided routing table if one is provided. Otherwise, it wraps a new routing table.
      */
-    val routingTable = RouteSelector.wrapNewTable(BGPRoute.invalid(), ::bgpRouteCompare)
-
-    var mraiTimer = Timer.disabled()
-        private set
+    val routingTable = RouteSelector.wrap(routingTable, ::bgpRouteCompare)
 
     /**
      * Flag that indicates if a new route was selected as a result of processing a new incoming message. This flag is
@@ -29,32 +25,41 @@ abstract class BaseBGP(private val mrai: Time): Protocol<BGPRoute> {
     var wasSelectedRouteUpdated: Boolean = false
         protected set
 
-    private var lastExportedRoute: BGPRoute = BGPRoute.invalid()
-
     override fun start() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     /**
      * Processes a BGP message received by a node.
-     * May updated the routing table and the selected route/neighbor.
+     * May update the routing table and the selected route/neighbor.
      *
      * @param message the message to be processed
      */
     override fun process(message: Message<BGPRoute>) {
 
-        val node = message.receiver
+        val importedRoute = import(message.sender, message.route, message.extender)
+        BGPNotifier.notifyImport(ImportNotification(message.receiver, importedRoute, message.sender))
+
+        process(message.receiver, message.sender, importedRoute)
+    }
+
+    /**
+     * Processes a BGP route imported by a node.
+     * May update the routing table and the selected route/neighbor.
+     *
+     * @param node          the node that imported the route
+     * @param neighbor      the neighbor that exported the route
+     * @param importedRoute the route imported by [node]
+     */
+    fun process(node: Node<BGPRoute>, neighbor: Node<BGPRoute>, importedRoute: BGPRoute) {
 
         // Store the route the node was selecting before processing this message
         val previousSelectedRoute = routingTable.getSelectedRoute()
 
-        val importedRoute = import(message.sender, message.route, message.extender)
-        BGPNotifier.notifyImport(ImportNotification(node, importedRoute, message.sender))
+        val learnedRoute = learn(node, neighbor, importedRoute)
+        BGPNotifier.notifyLearn(LearnNotification(node, learnedRoute, neighbor))
 
-        val learnedRoute = learn(node, message.sender, importedRoute)
-        BGPNotifier.notifyLearn(LearnNotification(node, learnedRoute, message.sender))
-
-        val updated = routingTable.update(message.sender, learnedRoute)
+        val updated = routingTable.update(neighbor, learnedRoute)
 
         // Set updated flag to true if 'updated' is true or keep its current state
         wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
@@ -68,7 +73,6 @@ abstract class BaseBGP(private val mrai: Time): Protocol<BGPRoute> {
             export(node)
             wasSelectedRouteUpdated = false
         }
-
     }
 
     /**
@@ -79,7 +83,7 @@ abstract class BaseBGP(private val mrai: Time): Protocol<BGPRoute> {
      * @param route    the route received by the node (route obtained directly from the message)
      * @param extender the extender used to import the route (extender included in the message)
      */
-    fun import(sender: Node<BGPRoute>, route: BGPRoute, extender: Extender<BGPRoute>): BGPRoute {
+    protected fun import(sender: Node<BGPRoute>, route: BGPRoute, extender: Extender<BGPRoute>): BGPRoute {
         return extender.extend(route, sender)
     }
 
@@ -93,7 +97,7 @@ abstract class BaseBGP(private val mrai: Time): Protocol<BGPRoute> {
      * an invalid if the route's AS-PATH includes the learning node. Note that it may also return an invalid route if
      * the imported route is invalid.
      */
-    fun learn(node: Node<BGPRoute>, sender: Node<BGPRoute>, route: BGPRoute): BGPRoute {
+    protected fun learn(node: Node<BGPRoute>, sender: Node<BGPRoute>, route: BGPRoute): BGPRoute {
 
         if (node in route.asPath) {
             // Notify the implementations that a loop was detected
@@ -110,56 +114,35 @@ abstract class BaseBGP(private val mrai: Time): Protocol<BGPRoute> {
      *
      * @param node  the node exporting the node
      */
-    fun export(node: Node<BGPRoute>) {
+    protected fun export(node: Node<BGPRoute>) {
 
         val selectedRoute = routingTable.getSelectedRoute()
-
-        if (!mraiTimer.expired) {
-            // The MRAI timer is still running: no route is exported while the MRAI timer is running
-            return
-        }
-
-        if (lastExportedRoute == selectedRoute) {
-            // There is no new route to export
-            return
-        }
 
         // Export the route currently selected
         node.send(selectedRoute)
         BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
-
-        // Update the last exported route
-        lastExportedRoute = selectedRoute
-
-        // Check if the MRAI feature is enabled: it is enabled only if the MRAI is greater than 0
-        if (mrai > 0) {
-
-            // Restart the MRAI timer
-            mraiTimer = Timer.enabled(mrai) { export(node) } // when the timer expires
-            mraiTimer.start()
-        }
-
     }
 
     /**
      * Resets the state of the protocol as if it was just created.
      */
     open fun reset() {
-        mraiTimer.cancel()
-        mraiTimer = Timer.disabled()
+        routingTable.clear()
         wasSelectedRouteUpdated = false
     }
 
     /**
      * Called by the protocol when it detects a routing loop.
      */
-    abstract fun onLoopDetected(node: Node<BGPRoute>, sender: Node<BGPRoute>, route: BGPRoute)
+    abstract protected fun onLoopDetected(node: Node<BGPRoute>, sender: Node<BGPRoute>, route: BGPRoute)
 
 }
 
 /**
  * BGP: when a loop is detected it does nothing extra.
  */
-class BGP(mrai: Time = 0) : BaseBGP(mrai) {
+class BGP(routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
+    : BaseBGP(routingTable) {
+
     override fun onLoopDetected(node: Node<BGPRoute>, sender: Node<BGPRoute>, route: BGPRoute) = Unit
 }
