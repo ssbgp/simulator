@@ -18,4 +18,9 @@ interface Protocol<R: Route> {
      */
     fun process(message: Message<R>)
 
+    /**
+     * Resets the state of the protocol to its initial state.
+     */
+    fun reset()
+
 }

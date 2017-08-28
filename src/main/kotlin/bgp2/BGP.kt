@@ -143,7 +143,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : P
     /**
      * Resets the state of the protocol as if it was just created.
      */
-    open fun reset() {
+    override fun reset() {
         routingTable.clear()
         wasSelectedRouteUpdated = false
         mraiTimer.cancel()
