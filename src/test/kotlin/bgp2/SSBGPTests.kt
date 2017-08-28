@@ -263,4 +263,90 @@ object SSBGPTests : Spek({
         }
     }
 
+    context("node with ID 1 disables/enables neighbor with ID 2") {
+
+        val neighbor2 = BGPNode(id = 2)
+        val neighbor3 = BGPNode(id = 3)
+
+        // Make sure the scheduler is kept clean for the next tests
+        afterGroup { Engine.scheduler.reset() }
+
+        given("node selects route (10, [0, 3]) via node 3 and with alternative route (5, [0, 2]) via node 2") {
+
+            val protocol = SSBGP()
+
+            protocol.routingTable.update(neighbor3, BGPRoute.with(10, pathOf(BGPNode(0), neighbor3)))
+            protocol.routingTable.update(neighbor2, BGPRoute.with(5, pathOf(BGPNode(0), neighbor2)))
+
+            `when`("it disables neighbor 2") {
+
+                protocol.disableNeighbor(neighbor2)
+
+                it("selects route (10, [0, 3])") {
+                    assertThat(protocol.routingTable.getSelectedRoute(),
+                            Is(BGPRoute.with(localPref = 10, asPath = pathOf(BGPNode(0), neighbor3))))
+                }
+
+                it("still indicates neighbor 2 is disabled") {
+                    assertThat(protocol.routingTable.table.isEnabled(neighbor2),
+                            Is(false))
+                }
+            }
+
+            `when`("it enables back neighbor 2") {
+
+                protocol.enableNeighbor(neighbor2)
+
+                it("selects route (10, [0, 3])") {
+                    assertThat(protocol.routingTable.getSelectedRoute(),
+                            Is(BGPRoute.with(localPref = 10, asPath = pathOf(BGPNode(0), neighbor3))))
+                }
+
+                it("enabled neighbor 2") {
+                    assertThat(protocol.routingTable.table.isEnabled(neighbor2),
+                            Is(true))
+                }
+            }
+        }
+
+        given("node selects route (10, [0, 2]) via node 2 and with alternative route (5, [0, 3]) via node 3") {
+
+            val protocol = SSBGP()
+
+            protocol.routingTable.update(neighbor2, BGPRoute.with(10, pathOf(BGPNode(0), neighbor2)))
+            protocol.routingTable.update(neighbor3, BGPRoute.with(5, pathOf(BGPNode(0), neighbor3)))
+
+            protocol.disableNeighbor(neighbor2)
+
+            `when`("it disables neighbor 2") {
+
+                protocol.disableNeighbor(neighbor2)
+
+                it("selects route (5, [0, 3])") {
+                    assertThat(protocol.routingTable.getSelectedRoute(),
+                            Is(BGPRoute.with(localPref = 5, asPath = pathOf(BGPNode(0), neighbor3))))
+                }
+
+                it("still indicates neighbor 2 is disabled") {
+                    assertThat(protocol.routingTable.table.isEnabled(neighbor2),
+                            Is(false))
+                }
+            }
+
+            `when`("it enables back neighbor 2") {
+
+                protocol.enableNeighbor(neighbor2)
+
+                it("selects route (10, [0, 2])") {
+                    assertThat(protocol.routingTable.getSelectedRoute(),
+                            Is(BGPRoute.with(localPref = 10, asPath = pathOf(BGPNode(0), neighbor2))))
+                }
+
+                it("enabled neighbor 2") {
+                    assertThat(protocol.routingTable.table.isEnabled(neighbor2),
+                            Is(true))
+                }
+            }
+        }
+    }
 })
