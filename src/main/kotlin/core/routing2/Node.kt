@@ -49,8 +49,10 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * @param route the route to be sent
      */
     fun send(route: R) {
+
         for ((neighbor, extender, exporter) in inNeighbors) {
-            exporter.export(Message(this, neighbor, route, extender))
+            val message = Message(this, neighbor, route, extender)
+            exporter.export(message)
         }
     }
 

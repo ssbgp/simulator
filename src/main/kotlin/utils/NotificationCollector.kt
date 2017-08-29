@@ -1,6 +1,6 @@
-package testing
+package utils
 
-import core.simulator.notifications.*
+import core.simulator2.notifications.*
 
 /**
  * Created on 26-07-2017
@@ -9,7 +9,7 @@ import core.simulator.notifications.*
  *
  * The NotificationCollector collects all notifications send by the notifier.
  */
-open class NotificationCollector : StartListener, EndListener {
+open class NotificationCollector: StartListener, EndListener {
 
     val startNotifications = ArrayList<StartNotification>()
     val endNotifications = ArrayList<EndNotification>()
@@ -31,7 +31,6 @@ open class NotificationCollector : StartListener, EndListener {
     final override fun notify(notification: EndNotification) {
         endNotifications.add(notification)
     }
-
 }
 
 fun collectBasicNotifications(body: () -> Unit): NotificationCollector {

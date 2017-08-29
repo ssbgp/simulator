@@ -6,9 +6,9 @@ import core.simulator.DelayGenerator
 import core.simulator.Scheduler
 import core.simulator.Time
 import core.simulator.ZeroDelayGenerator
-import core.simulator.notifications.BasicNotifier
-import core.simulator.notifications.EndNotification
-import core.simulator.notifications.StartNotification
+import core.simulator2.notifications.BasicNotifier
+import core.simulator2.notifications.EndNotification
+import core.simulator2.notifications.StartNotification
 
 /**
  * Created on 23-07-2017
