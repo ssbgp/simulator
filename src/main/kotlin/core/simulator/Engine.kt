@@ -1,9 +1,7 @@
 package core.simulator
 
-import core.routing.Destination
-import core.simulator.notifications.EndNotification
-import core.simulator.notifications.BasicNotifier
-import core.simulator.notifications.StartNotification
+import core.routing.Node
+import core.routing.Route
 
 /**
  * Created on 23-07-2017
@@ -18,6 +16,21 @@ object Engine {
     var scheduler = Scheduler
 
     /**
+     * This is the delay generator used to generate the delays for the messages.
+     * By default, it uses a ZeroDelayGenerator
+     * This should be changed to a different generator to obtain different behavior.
+     */
+    var messageDelayGenerator: DelayGenerator = ZeroDelayGenerator
+
+    /**
+     * Resets the engine to the defaults.
+     */
+    fun resetToDefaults() {
+        scheduler = Scheduler
+        messageDelayGenerator = ZeroDelayGenerator
+    }
+
+    /**
      * Runs the simulation for the given destination.
      * The threshold value determines the number of units of time the simulation should have terminated on. If this
      * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the
@@ -27,15 +40,15 @@ object Engine {
      * @param threshold   a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
-    fun simulate(destination: Destination, threshold: Time = Int.MAX_VALUE): Boolean {
+    fun <R: Route> simulate(destination: Node<R>, threshold: Time = Int.MAX_VALUE): Boolean {
 
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
         BasicNotifier.notifyStart(StartNotification(seed = 0))
 
-        // The simulation execution starts with the destination announcing itself
-        destination.announceItSelf()
+        // The simulation execution starts when the protocol of the destination is started
+        destination.start()
 
         var terminatedBeforeThreshold = true
         while (scheduler.hasEvents()) {

@@ -5,7 +5,7 @@ package core.simulator
  *
  * @author David Fialho
  */
-class TimerExpiredEvent(val timer: Timer) : Event {
+class TimerExpiredEvent(private val timer: Timer) : Event {
 
     /**
      * Calls the onExpired() method of the timer that expired.

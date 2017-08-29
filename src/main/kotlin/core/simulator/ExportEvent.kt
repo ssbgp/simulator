@@ -1,5 +1,6 @@
 package core.simulator
 
+import core.routing.Route
 import core.routing.Message
 
 
@@ -8,13 +9,13 @@ import core.routing.Message
  *
  * @author David Fialho
  */
-class ExportEvent(private val message: Message) : Event {
+class ExportEvent<R: Route>(private val message: Message<R>) : Event {
 
     /**
-     * Sends the message to the destination.
+     * Sends the message to the receiver node.
      */
     override fun processIt() {
-        message.send()
+        message.receiver.receive(message)
     }
 
 }

@@ -24,8 +24,8 @@ package core.routing
  * @param forceReselect if set to true the selector will perform a reselect operation in the initializer
  * @param compare       the method used by the selector to compare the routes
  */
-class RouteSelector<N: Node, R: Route> private constructor
-(val table: RoutingTable<N, R>, private val compare: (R, R) -> Int, forceReselect: Boolean = true) {
+class RouteSelector<R: Route> private constructor
+(val table: RoutingTable<R>, private val compare: (R, R) -> Int, forceReselect: Boolean = true) {
 
     companion object Factory {
 
@@ -35,7 +35,7 @@ class RouteSelector<N: Node, R: Route> private constructor
          * @param invalid the invalid route
          * @param compare the compare method used to compare route preferences
          */
-        fun <N: Node, R: Route> wrapNewTable(invalid: R, compare: (R, R) -> Int): RouteSelector<N, R> {
+        fun <R: Route> wrapNewTable(invalid: R, compare: (R, R) -> Int): RouteSelector<R> {
             return RouteSelector(
                     table = RoutingTable.empty(invalid),
                     compare = compare,
@@ -48,7 +48,7 @@ class RouteSelector<N: Node, R: Route> private constructor
          * @param table   the table to be wrapped by the selector
          * @param compare the compare method used to compare route preferences
          */
-        fun <N: Node, R: Route> wrap(table: RoutingTable<N, R>, compare: (R, R) -> Int): RouteSelector<N, R> {
+        fun <R: Route> wrap(table: RoutingTable<R>, compare: (R, R) -> Int): RouteSelector<R> {
             return RouteSelector(table, compare)
         }
 
@@ -57,13 +57,13 @@ class RouteSelector<N: Node, R: Route> private constructor
     // Stores the currently selected route
     private var selectedRoute: R = table.invalidRoute
     // Stores the currently selected neighbor
-    private var selectedNeighbor: N? = null
+    private var selectedNeighbor: Node<R>? = null
 
     /**
      * Keeps record of the neighbors that are disabled.
      */
-    private val mutableDisabledNeighbors = HashSet<N>()
-    val disabledNeighbors: Collection<N> get() = mutableDisabledNeighbors
+    private val mutableDisabledNeighbors = HashSet<Node<R>>()
+    val disabledNeighbors: Collection<Node<R>> get() = mutableDisabledNeighbors
 
     init {
         if (forceReselect) {
@@ -79,7 +79,7 @@ class RouteSelector<N: Node, R: Route> private constructor
     /**
      * Returns the currently selected neighbor.
      */
-    fun getSelectedNeighbor(): N? = selectedNeighbor
+    fun getSelectedNeighbor(): Node<R>? = selectedNeighbor
 
     /**
      * This method should always be used to update the routing table when a selector is being used.
@@ -89,21 +89,21 @@ class RouteSelector<N: Node, R: Route> private constructor
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
-    fun update(neighbor: N, route: R): Boolean {
+    fun update(neighbor: Node<R>, route: R): Boolean {
 
         table[neighbor] = route
 
-        if (table.isEnabled(neighbor) && compare(route, selectedRoute) > 0) {
+        return if (table.isEnabled(neighbor) && compare(route, selectedRoute) > 0) {
             updateSelectedTo(route, neighbor)
-            return true
+            true
 
         } else if (neighbor == selectedNeighbor && compare(route, selectedRoute) != 0) {
             reselect()
-            return true
+            true
 
         } else {
             // do nothing
-            return false
+            false
         }
     }
 
@@ -113,7 +113,7 @@ class RouteSelector<N: Node, R: Route> private constructor
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
-    fun disable(neighbor: N): Boolean {
+    fun disable(neighbor: Node<R>): Boolean {
 
         table.setEnabled(neighbor, false)
         mutableDisabledNeighbors.add(neighbor)
@@ -134,7 +134,7 @@ class RouteSelector<N: Node, R: Route> private constructor
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
-    fun enable(neighbor: N): Boolean {
+    fun enable(neighbor: Node<R>): Boolean {
 
         table.setEnabled(neighbor, true)
 
@@ -163,7 +163,7 @@ class RouteSelector<N: Node, R: Route> private constructor
     fun enableAll(): Boolean {
 
         var selectedRouteAmongDisabled = table.invalidRoute
-        var selectedNeighborAmongDisabled: N? = null
+        var selectedNeighborAmongDisabled: Node<R>? = null
 
         for (neighbor in mutableDisabledNeighbors) {
             val route = table.setEnabled(neighbor, true)
@@ -214,7 +214,7 @@ class RouteSelector<N: Node, R: Route> private constructor
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    inline private fun updateSelectedTo(route: R, neighbor: N?) {
+    inline private fun updateSelectedTo(route: R, neighbor: Node<R>?) {
         selectedRoute = route
         selectedNeighbor = neighbor
     }

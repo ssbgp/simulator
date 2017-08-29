@@ -1,9 +1,8 @@
 package bgp.notifications
 
-import bgp.BGPNode
 import bgp.BGPRoute
-import core.simulator.Time
-import core.simulator.notifications.Notification
+import core.routing.Node
+import core.simulator.Notification
 
 /**
  * Created on 26-07-2017
@@ -18,4 +17,4 @@ import core.simulator.notifications.Notification
  * @property node  the node that exported a route
  * @property route the route that was exported
  */
-data class ExportNotification(val node: BGPNode, val route: BGPRoute) : Notification()
+data class ExportNotification(val node: Node<BGPRoute>, val route: BGPRoute) : Notification()

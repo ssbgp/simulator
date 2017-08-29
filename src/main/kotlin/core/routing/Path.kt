@@ -12,7 +12,7 @@ package core.routing
  *
  * @property size expresses the number of nodes in the path
  */
-class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N> {
+class Path internal constructor(private val nodes: List<Node<*>>) : Iterable<Node<*>> {
 
     val size: Int = nodes.size
 
@@ -20,7 +20,7 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N
      * Returns a new path instance containing the nodes in the same order as this path and with the given node
      * appended to it.
      */
-    fun append(node: N): Path<N> {
+    fun append(node: Node<*>): Path {
         val nodesCopy = ArrayList(nodes)
         nodesCopy.add(node)
 
@@ -30,25 +30,25 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N
     /**
      * Returns the next-hop node of the path.
      */
-    fun nextHop(): N? {
+    fun nextHop(): Node<*>? {
         return nodes.lastOrNull()
     }
 
     /**
      * Checks if this path contains the given node.
      */
-    operator fun contains(node: N) = node in nodes
+    operator fun contains(node: Node<*>) = node in nodes
 
     /**
      * Returns a path instance containing exactly the same nodes as this path and exactly in the same order.
      */
-    fun copy(): Path<N> = Path(nodes)
+    fun copy(): Path = Path(nodes)
 
     /**
      * Returns a path corresponding to the sub-path from the beginning of the path until the fir node equal to the
      * specified node.
      */
-    fun subPathBefore(node: N): Path<N> {
+    fun subPathBefore(node: Node<*>): Path {
 
         val nodeIndex = nodes.indexOf(node)
         return if (nodeIndex >= 0) Path(nodes.subList(0, nodeIndex)) else this
@@ -57,7 +57,7 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N
     /**
      * Returns an iterator over the nodes of the path. The iterator starts at first node in the path.
      */
-    override fun iterator(): Iterator<N> {
+    override fun iterator(): Iterator<Node<*>> {
         return nodes.iterator()
     }
 
@@ -68,7 +68,7 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N
         if (this === other) return true
         if (other?.javaClass != javaClass) return false
 
-        other as Path<*>
+        other as Path
 
         if (nodes != other.nodes) return false
 
@@ -85,19 +85,17 @@ class Path<N: Node>internal constructor(private val nodes: List<N>) : Iterable<N
 
 }
 
-//region Factory methods
-
 /**
  * Returns a path with no nodes.
  */
-fun <N: Node> emptyPath(): Path<N> {
+fun emptyPath(): Path {
     return Path(emptyList())
 }
 
 /**
  * Returns a path containing the given nodes in the same order as they are given.
  */
-fun <N: Node> pathOf(vararg nodes: N): Path<N> {
+fun pathOf(vararg nodes: Node<*>): Path {
     return Path(listOf(*nodes))
 }
 
@@ -105,8 +103,6 @@ fun <N: Node> pathOf(vararg nodes: N): Path<N> {
  * Returns an empty path.
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun <N: Node> pathOf(): Path<N> {
+inline fun pathOf(): Path {
     return emptyPath()
 }
-
-//endregion

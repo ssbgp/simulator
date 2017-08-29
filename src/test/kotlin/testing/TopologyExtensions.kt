@@ -1,106 +1,106 @@
 package testing
 
-import bgp.*
+import bgp.BGPRoute
+import bgp.BaseBGP
 import bgp.policies.interdomain.*
 import bgp.policies.shortestpath.ShortestPathExtender
-import core.simulator.DelayGenerator
-import core.simulator.ZeroDelayGenerator
+import core.routing.*
+
+object DummyBGPExtender : Extender<BGPRoute> {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute = route
+}
 
 /**
- * Created on 24-07-2017.
- *
- * @author David Fialho
+ * Entry point to start creating a topology that uses a BGP like protocol.
  */
+fun bgpTopology(body: TopologyBuilder<BGPRoute>.() -> Unit): Topology<BGPRoute> {
 
-/**
- *
- */
-object DummyBGPExtender : BGPExtender { override fun extend(route: BGPRoute, sender: BGPNode) = route }
-
-/**
- *
- */
-data class Link(val tail: Int, val head: Int, var extender: BGPExtender = DummyBGPExtender,
-                var delayGenerator: DelayGenerator = ZeroDelayGenerator)
-
-/**
- *
- */
-fun bgpTopology(body: BGPTopologyBuilder.() -> Unit): BGPTopology {
-
-    val builder = BGPTopologyBuilder()
+    val builder = TopologyBuilder<BGPRoute>()
     body(builder)
     return builder.build()
 }
 
 /**
- *
+ * Entry point to declare a node in the topology.
  */
-fun ssbgpTopology(body: BGPTopologyBuilder.() -> Unit): BGPTopology {
-
-    val builder = BGPTopologyBuilder()
-    body(builder)
-    return builder.build()
-}
-
-infix fun Int.to(head: Int) = Link(tail = this, head = head)
-
-infix fun Link.using(extender: BGPExtender): Link {
-    this.extender = extender
-    return this
-}
-
-infix fun Link.delaysFrom(delayGenerator: DelayGenerator): Link {
-    this.delayGenerator = delayGenerator
-    return this
-}
-
-infix fun Int.using(protocol: BaseBGPProtocol): Pair<Int, BaseBGPProtocol> {
-    return Pair(this, protocol)
-}
-
-fun BGPTopologyBuilder.node(nodePair: () -> Pair<Int, BaseBGPProtocol>) {
+fun TopologyBuilder<BGPRoute>.node(nodePair: () -> Pair<Int, BaseBGP>) {
 
     val pair = nodePair()
     this.addNode(id = pair.first, protocol = pair.second)
 }
 
-fun BGPTopologyBuilder.link(createLink: () -> Link) {
-
-    val link = createLink()
-    this.addLink(link.tail, link.head, link.extender)
+/**
+ * Set that a node is deploying the specified protocol.
+ */
+infix fun Int.deploying(protocol: BaseBGP): Pair<Int, BaseBGP> {
+    return Pair(this, protocol)
 }
 
-//region Extension functions specific to shortest-path routing
+/**
+ * Entry point to declare a link in the topology.
+ */
+fun TopologyBuilder<BGPRoute>.link(createLink: () -> TemporaryLink) {
 
-infix fun Link.withCost(cost: Int): Link {
+    val link = createLink()
+    this.link(link.tail, link.head, link.extender)
+}
+
+/**
+ * Data structure characterizing a link.
+ */
+data class TemporaryLink(val tail: NodeID, val head: NodeID, var extender: Extender<BGPRoute> = DummyBGPExtender)
+
+/**
+ * Connector used to indicate the head of the link.
+ */
+infix fun Int.to(head: Int) = TemporaryLink(tail = this, head = head)
+
+/**
+ * Connector used to specify the extender of the link
+ */
+infix fun TemporaryLink.using(extender: Extender<BGPRoute>): TemporaryLink {
+    this.extender = extender
+    return this
+}
+
+//region Shortest Path Routing
+
+/**
+ * Connector used to specify the cost of a link.
+ * Can only be used for shortest path routing.
+ */
+infix fun TemporaryLink.withCost(cost: Int): TemporaryLink {
     this.extender = ShortestPathExtender(cost)
     return this
 }
 
-infix fun BGPTopologyBuilder.peerplusLink(createLink: () -> Link) {
+//endregion
+
+//region Interdomain Routing
+
+infix fun TopologyBuilder<BGPRoute>.peerplusLink(createLink: () -> TemporaryLink) {
     val link = createLink()
-    this.addLink(link.tail, link.head, PeerplusExtender)
+    this.link(link.tail, link.head, PeerplusExtender)
 }
 
-infix fun BGPTopologyBuilder.customerLink(createLink: () -> Link) {
+infix fun TopologyBuilder<BGPRoute>.customerLink(createLink: () -> TemporaryLink) {
     val link = createLink()
-    this.addLink(link.tail, link.head, CustomerExtender)
+    this.link(link.tail, link.head, CustomerExtender)
 }
 
-infix fun BGPTopologyBuilder.peerLink(createLink: () -> Link) {
+infix fun TopologyBuilder<BGPRoute>.peerLink(createLink: () -> TemporaryLink) {
     val link = createLink()
-    this.addLink(link.tail, link.head, PeerExtender)
+    this.link(link.tail, link.head, PeerExtender)
 }
 
-infix fun BGPTopologyBuilder.providerLink(createLink: () -> Link) {
+infix fun TopologyBuilder<BGPRoute>.providerLink(createLink: () -> TemporaryLink) {
     val link = createLink()
-    this.addLink(link.tail, link.head, ProviderExtender)
+    this.link(link.tail, link.head, ProviderExtender)
 }
 
-infix fun BGPTopologyBuilder.siblingLink(createLink: () -> Link) {
+infix fun TopologyBuilder<BGPRoute>.siblingLink(createLink: () -> TemporaryLink) {
     val link = createLink()
-    this.addLink(link.tail, link.head, SiblingExtender)
+    this.link(link.tail, link.head, SiblingExtender)
 }
 
 //endregion

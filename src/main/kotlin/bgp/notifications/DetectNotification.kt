@@ -1,9 +1,8 @@
 package bgp.notifications
 
-import bgp.BGPNode
 import bgp.BGPRoute
-import core.simulator.Time
-import core.simulator.notifications.Notification
+import core.routing.Node
+import core.simulator.Notification
 
 /**
  * Created on 26-07-2017
@@ -17,5 +16,5 @@ import core.simulator.notifications.Notification
  * @property alternativeRoute the alternative route
  * @property neighbor         the neighbor from which the route was learned
  */
-data class DetectNotification
-(val node: BGPNode, val learnedRoute: BGPRoute, val alternativeRoute: BGPRoute, val neighbor: BGPNode) : Notification()
+data class DetectNotification(val node: Node<BGPRoute>, val learnedRoute: BGPRoute, val alternativeRoute: BGPRoute,
+                              val neighbor: Node<BGPRoute>) : Notification()

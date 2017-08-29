@@ -18,14 +18,14 @@ import core.routing.emptyPath
 sealed class BGPRoute : Route {
 
     abstract val localPref: Int
-    abstract val asPath: Path<BGPNode>
+    abstract val asPath: Path
 
     companion object Factory {
 
         /**
          * Returns a BGP route with the specified LOCAL-PREF and AS-PATH.
          */
-        fun with(localPref: Int, asPath: Path<BGPNode>): BGPRoute = ValidBGPRoute(localPref, asPath)
+        fun with(localPref: Int, asPath: Path): BGPRoute = ValidBGPRoute(localPref, asPath)
 
         /**
          * Returns an invalid BGP route.
@@ -42,7 +42,7 @@ sealed class BGPRoute : Route {
     /**
      * An implementation for a valid BGP route.
      */
-    private data class ValidBGPRoute(override val localPref: Int, override val asPath: Path<BGPNode>) : BGPRoute() {
+    private data class ValidBGPRoute(override val localPref: Int, override val asPath: Path) : BGPRoute() {
         override fun isValid(): Boolean = true
     }
 
@@ -51,7 +51,7 @@ sealed class BGPRoute : Route {
      */
     private object InvalidBGPRoute : BGPRoute() {
         override val localPref: Int = Int.MIN_VALUE
-        override val asPath: Path<BGPNode> = emptyPath()
+        override val asPath: Path = emptyPath()
         override fun isValid(): Boolean = false
         override fun toString(): String = "•"
     }
@@ -61,7 +61,7 @@ sealed class BGPRoute : Route {
      */
     private object SelfBGPRoute : BGPRoute() {
         override val localPref: Int = Int.MAX_VALUE
-        override val asPath: Path<BGPNode> = emptyPath()
+        override val asPath: Path = emptyPath()
         override fun isValid(): Boolean = true
         override fun toString(): String = "◦"
     }
@@ -69,7 +69,6 @@ sealed class BGPRoute : Route {
     override fun toString(): String {
         return "BGPRoute(localPref=$localPref, asPath=$asPath)"
     }
-
 }
 
 /**
