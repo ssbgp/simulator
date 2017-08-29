@@ -1,9 +1,8 @@
 package bgp.notifications
 
-import bgp.BGPNode
 import bgp.BGPRoute
-import core.simulator.Time
-import core.simulator.notifications.Notification
+import core.routing.Node
+import core.simulator.Notification
 
 /**
  * Created on 26-07-2017
@@ -17,4 +16,4 @@ import core.simulator.notifications.Notification
  * @property previousRoute the route being selected before
  */
 data class SelectNotification
-(val node: BGPNode, val selectedRoute: BGPRoute, val previousRoute: BGPRoute) : Notification()
+(val node: Node<BGPRoute>, val selectedRoute: BGPRoute, val previousRoute: BGPRoute) : Notification()

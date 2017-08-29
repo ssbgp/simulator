@@ -1,7 +1,5 @@
 package core.routing
 
-import bgp.BGPNode
-
 /**
  * Created on 16-07-2017.
  *
@@ -21,17 +19,41 @@ import bgp.BGPNode
  *
  * @property size the number of nodes in the topology
  */
-interface Topology<N: Node, R: Route> {
+class Topology<R: Route>(private val idToNode: Map<NodeID, Node<R>>) {
 
     /**
-     * Returns the number of nodes in the topology.
+     * Number of nodes in the topology.
      */
-    val size: Int
+    val size: Int = idToNode.size
 
     /**
-     * Returns the number of links in the topology.
+     * Number of links in the topology.
      */
     val linkCount: Int
+        get() = idToNode.flatMap { it.value.inNeighbors }.count()
+
+    /**
+     * Collection containing all nodes in the topology in no particular order.
+     */
+    val nodes: Collection<Node<R>> = idToNode.values
+
+    /**
+     * Collection containing all links in the topology in no particular order.
+     */
+    val links: Collection<Link<R>>
+        get() {
+
+            val links = ArrayList<Link<R>>()
+
+            for (node in nodes) {
+                for ((neighbor, extender, _) in node.inNeighbors) {
+                    links.add(Link(neighbor, node, extender))
+                }
+            }
+
+            return links
+        }
+
 
     /**
      * Returns the node associated with the given ID.
@@ -39,25 +61,6 @@ interface Topology<N: Node, R: Route> {
      * @param id the ID of the node to get from the network.
      * @return the node associated with the given ID or null if the topology does not contain a node with such an ID.
      */
-    operator fun get(id: Int): BGPNode?
-
-    /**
-     * Returns a collection with all nodes contained in the topology in no particular order.
-     *
-     * @return a collection with all nodes contained in the topology in no particular order.
-     */
-    fun getNodes(): Collection<N>
-
-    /**
-     * Returns a collection with all links contained in the topology in no particular order.
-     *
-     * @return a collection with all links contained in the topology in no particular order.
-     */
-    fun getLinks(): Collection<Link<N, R>>
+    operator fun get(id: Int): Node<R>? = idToNode[id]
 
 }
-
-/**
- * Represents a link in the topology.
- */
-data class Link<N: Node, R: Route>(val tail: N, val head: N, val extender: Extender<N, R>)

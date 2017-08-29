@@ -11,7 +11,7 @@ package core.routing
  *
  * TODO improve the documentation for extender
  */
-interface Extender<in N: Node, R: Route> {
+interface Extender<R: Route> {
 
     /**
      * Takes a route and returns a new route with the attributes defined according to the implementation of the
@@ -21,6 +21,6 @@ interface Extender<in N: Node, R: Route> {
      * @param sender the node that sends the route
      * @return the extended route
      */
-    fun extend(route: R, sender: N): R
+    fun extend(route: R, sender: Node<R>): R
 
 }

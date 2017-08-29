@@ -1,26 +1,24 @@
-package testing
+package utils
 
 import bgp.notifications.*
-import core.simulator.notifications.Notification
+import core.simulator.Notification
 
 /**
  * Created on 26-07-2017
  *
  * @author David Fialho
  */
-class BGPNotificationCollector(val withOutput: Boolean) : NotificationCollector(),
-        MessageReceivedListener, ImportListener, LearnListener, DetectListener, SelectListener, ExportListener,
-        MessageSentListener, ReEnableListener {
+class BGPNotificationCollector(val withOutput: Boolean): NotificationCollector(),
+        ImportListener, LearnListener, DetectListener, SelectListener, ExportListener,
+        ReEnableListener {
 
     //region Lists containing all notifications
 
-    val messageReceivedNotifications = ArrayList<MessageReceivedNotification>()
     val importNotifications = ArrayList<ImportNotification>()
     val learnNotifications = ArrayList<LearnNotification>()
     val detectNotifications = ArrayList<DetectNotification>()
     val selectNotifications = ArrayList<SelectNotification>()
     val exportNotifications = ArrayList<ExportNotification>()
-    val messageSentNotifications = ArrayList<MessageSentNotification>()
     val reEnableNotifications = ArrayList<ReEnableNotification>()
 
     //endregion
@@ -29,37 +27,28 @@ class BGPNotificationCollector(val withOutput: Boolean) : NotificationCollector(
 
     override fun register() {
         super.register()
-        BGPNotifier.addMessageReceivedListener(this)
         BGPNotifier.addImportListener(this)
         BGPNotifier.addLearnListener(this)
         BGPNotifier.addDetectListener(this)
         BGPNotifier.addSelectListener(this)
         BGPNotifier.addExportListener(this)
-        BGPNotifier.addMessageSentListener(this)
         BGPNotifier.addReEnableListener(this)
 
     }
 
     override fun unregister() {
         super.unregister()
-        BGPNotifier.removeMessageReceivedListener(this)
         BGPNotifier.removeImportListener(this)
         BGPNotifier.removeLearnListener(this)
         BGPNotifier.removeDetectListener(this)
         BGPNotifier.removeSelectListener(this)
         BGPNotifier.removeExportListener(this)
-        BGPNotifier.removeMessageSentListener(this)
         BGPNotifier.removeReEnableListener(this)
     }
 
     //endregion
 
     //region Notify methods
-
-    override fun notify(notification: MessageReceivedNotification) {
-        messageReceivedNotifications.add(notification)
-        print(notification)
-    }
 
     override fun notify(notification: ImportNotification) {
         importNotifications.add(notification)
@@ -83,11 +72,6 @@ class BGPNotificationCollector(val withOutput: Boolean) : NotificationCollector(
 
     override fun notify(notification: ExportNotification) {
         exportNotifications.add(notification)
-        print(notification)
-    }
-
-    override fun notify(notification: MessageSentNotification) {
-        messageSentNotifications.add(notification)
         print(notification)
     }
 

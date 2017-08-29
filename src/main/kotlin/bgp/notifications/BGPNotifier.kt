@@ -9,45 +9,12 @@ object BGPNotifier {
 
     //region Lists containing the registered listeners
 
-    private val messageReceivedListeners = mutableListOf<MessageReceivedListener>()
     private val importListeners = mutableListOf<ImportListener>()
     private val learnListeners = mutableListOf<LearnListener>()
     private val detectListeners = mutableListOf<DetectListener>()
     private val selectListeners = mutableListOf<SelectListener>()
     private val exportListeners = mutableListOf<ExportListener>()
-    private val messageSentListeners = mutableListOf<MessageSentListener>()
     private val reEnableListeners = mutableListOf<ReEnableListener>()
-
-    //endregion
-
-    //region Message received notification
-
-    /**
-     * Registers a new message received listener.
-     *
-     * @param listener message received listener to register.
-     */
-    fun addMessageReceivedListener(listener: MessageReceivedListener) {
-        messageReceivedListeners.add(listener)
-    }
-
-    /**
-     * Unregisters a new message received listener.
-     *
-     * @param listener message received listener to unregister.
-     */
-    fun removeMessageReceivedListener(listener: MessageReceivedListener) {
-        messageReceivedListeners.remove(listener)
-    }
-
-    /**
-     * Sends a message received notification to each message received listener.
-     *
-     * @param notification the message received notification to send to each registered listener.
-     */
-    fun notifyMessageReceived(notification: MessageReceivedNotification) {
-        messageReceivedListeners.forEach { it.notify(notification) }
-    }
 
     //endregion
 
@@ -202,37 +169,6 @@ object BGPNotifier {
      */
     fun notifyExport(notification: ExportNotification) {
         exportListeners.forEach { it.notify(notification) }
-    }
-
-    //endregion
-
-    //region Message sent notification
-
-    /**
-     * Registers a new message sent listener.
-     *
-     * @param listener message sent listener to register.
-     */
-    fun addMessageSentListener(listener: MessageSentListener) {
-        messageSentListeners.add(listener)
-    }
-
-    /**
-     * Unregisters a new message sent listener.
-     *
-     * @param listener message sent listener to unregister.
-     */
-    fun removeMessageSentListener(listener: MessageSentListener) {
-        messageSentListeners.remove(listener)
-    }
-
-    /**
-     * Sends a message sent notification to each message sent listener.
-     *
-     * @param notification the message sent notification to send to each registered listener.
-     */
-    fun notifyMessageSent(notification: MessageSentNotification) {
-        messageSentListeners.forEach { it.notify(notification) }
     }
 
     //endregion

@@ -1,6 +1,4 @@
-package core.simulator.notifications
-
-import core.simulator.Time
+package core.simulator
 
 /**
  * Created on 25-07-2017.

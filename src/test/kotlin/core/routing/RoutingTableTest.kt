@@ -1,26 +1,26 @@
 package core.routing
 
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.`is` as Is
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is` as Is
 import testing.invalidRoute
-import testing.node
-import testing.route
 import testing.via
+import testing.route
+import testing.node
 
 /**
  * Created on 21-07-2017
 
  * @author David Fialho
  */
-object RoutingTableTest : Spek({
+object RoutingTableTest: Spek({
 
     given("an empty routing table") {
 
-        val table = RoutingTable.empty<Node, Route>(invalidRoute())
+        val table = RoutingTable.empty(invalidRoute())
 
         on("getting the route for any neighbor") {
 
@@ -28,6 +28,17 @@ object RoutingTableTest : Spek({
 
             it("returns an invalid route") {
                 assertThat(neighborRoute, Is(invalidRoute()))
+            }
+        }
+
+        on("disabling neighbor with ID 1") {
+
+            val neighbor = node(1)
+            table.setEnabled(neighbor, false)
+
+            it("indicates neighbor 1 is disabled") {
+                assertThat(table.isEnabled(neighbor),
+                        Is(false))
             }
         }
 
@@ -186,4 +197,3 @@ object RoutingTableTest : Spek({
     }
 
 })
-

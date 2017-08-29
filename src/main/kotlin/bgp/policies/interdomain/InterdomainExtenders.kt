@@ -1,8 +1,8 @@
 package bgp.policies.interdomain
 
-import bgp.BGPExtender
-import bgp.BGPNode
 import bgp.BGPRoute
+import core.routing.Extender
+import core.routing.Node
 
 /**
  * Created on 26-07-2017
@@ -15,9 +15,9 @@ const val LOCAL_PREF_CUSTOMER: Int = 300000
 const val LOCAL_PREF_PEER: Int = 200000
 const val LOCAL_PREF_PROVIDER: Int = 100000
 
-object CustomerExtender : BGPExtender {
+object CustomerExtender : Extender<BGPRoute> {
 
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute {
 
         return when {
             route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
@@ -27,9 +27,9 @@ object CustomerExtender : BGPExtender {
 
 }
 
-object PeerExtender : BGPExtender {
+object PeerExtender : Extender<BGPRoute> {
 
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute {
 
         return when {
             route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
@@ -39,9 +39,9 @@ object PeerExtender : BGPExtender {
 
 }
 
-object ProviderExtender : BGPExtender {
+object ProviderExtender : Extender<BGPRoute> {
 
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute {
 
         return when {
             !route.isValid() -> BGPRoute.invalid()
@@ -51,9 +51,9 @@ object ProviderExtender : BGPExtender {
 
 }
 
-object PeerplusExtender : BGPExtender {
+object PeerplusExtender : Extender<BGPRoute> {
 
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute {
 
         return when {
             route.localPref <= LOCAL_PREF_PEER -> BGPRoute.invalid()
@@ -63,9 +63,9 @@ object PeerplusExtender : BGPExtender {
 
 }
 
-object SiblingExtender : BGPExtender {
+object SiblingExtender : Extender<BGPRoute> {
 
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute {
 
         return when {
             !route.isValid()          -> BGPRoute.invalid()

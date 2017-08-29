@@ -15,7 +15,7 @@ import org.hamcrest.Matchers.`is` as Is
  *
  * @author David Fialho
  */
-object CompareInterdomainRoutesTests : Spek({
+object InterdomainCompareRoutesTests: Spek({
 
     context("AS-PATHs are always empty") {
 

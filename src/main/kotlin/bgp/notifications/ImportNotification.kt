@@ -1,9 +1,8 @@
 package bgp.notifications
 
-import bgp.BGPNode
 import bgp.BGPRoute
-import core.simulator.Time
-import core.simulator.notifications.Notification
+import core.routing.Node
+import core.simulator.Notification
 
 /**
  * Created on 26-07-2017
@@ -17,4 +16,4 @@ import core.simulator.notifications.Notification
  * @property neighbor the neighbor from which the route was imported
  */
 data class ImportNotification
-(val node: BGPNode, val route: BGPRoute, val neighbor: BGPNode) : Notification()
+(val node: Node<BGPRoute>, val route: BGPRoute, val neighbor: Node<BGPRoute>) : Notification()

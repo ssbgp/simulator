@@ -1,6 +1,5 @@
 package bgp.policies.shortestpath
 
-import bgp.BGPNode
 import bgp.BGPRoute
 import core.routing.emptyPath
 import core.routing.pathOf
@@ -10,6 +9,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.assertThat
+import testing.bgp.BGPNode
 
 /**
  * Created on 24-07-2017.
@@ -21,7 +21,7 @@ object ShortestPathExtenderTest : Spek({
     given("a route with LOCAL-PREF = 5 and an empty AS-PATH sent by node 1234") {
 
         val route = BGPRoute.with(localPref = 5, asPath = emptyPath())
-        val sender = BGPNode.with(id = 1234)
+        val sender = BGPNode(id = 1234)
 
         on("extending through a link of cost 5") {
 
@@ -55,8 +55,8 @@ object ShortestPathExtenderTest : Spek({
 
     given("a route with LOCAL-PREF = 5 and an AS-PATH = [1, 2] sent by node 1234") {
 
-        val route = BGPRoute.with(localPref = 5, asPath = pathOf(BGPNode.with(id = 1), BGPNode.with(id = 2)))
-        val sender = BGPNode.with(id = 1234)
+        val route = BGPRoute.with(localPref = 5, asPath = pathOf(BGPNode(id = 1), BGPNode(id = 2)))
+        val sender = BGPNode(id = 1234)
 
         on("extending through a link of cost 15") {
 
@@ -67,7 +67,7 @@ object ShortestPathExtenderTest : Spek({
             }
 
             it("returns a route with an AS-PATH = [1, 2, 1234]") {
-                assertThat(extendedRoute.asPath, `is`(pathOf(BGPNode.with(1), BGPNode.with(2), sender)))
+                assertThat(extendedRoute.asPath, `is`(pathOf(BGPNode(1), BGPNode(2), sender)))
             }
 
         }
@@ -77,7 +77,7 @@ object ShortestPathExtenderTest : Spek({
     given("an invalid route sent by node 1234") {
 
         val route = BGPRoute.invalid()
-        val sender = BGPNode.with(id = 1234)
+        val sender = BGPNode(id = 1234)
 
         on("extending through a link of cost 15") {
 
@@ -94,7 +94,7 @@ object ShortestPathExtenderTest : Spek({
     given("a self route sent by node 1234 ") {
 
         val route = BGPRoute.self()
-        val sender = BGPNode.with(id = 1234)
+        val sender = BGPNode(id = 1234)
 
         on("extending through a link of cost 5") {
 

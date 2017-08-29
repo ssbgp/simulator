@@ -1,12 +1,16 @@
 package core.simulator
 
 import core.routing.Message
+import core.routing.Route
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThan
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import testing.invalidRoute
+import testing.node
+import testing.someExtender
 
 /**
  * Created on 22-07-2017
@@ -15,9 +19,23 @@ import org.jetbrains.spek.api.dsl.on
  */
 object ExporterTests : Spek({
 
+    /**
+     * Returns a message.
+     */
+    fun message(): Message<Route> {
+        return Message(node(1), node(2), invalidRoute(), someExtender())
+    }
+
     given("an exporter using a random delay generator") {
 
-        val exporter = Exporter(RandomDelayGenerator.with(min = 1, max = 10, seed = 10L))
+        // Change message delay generator to random generator
+        Engine.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
+
+        afterGroup {
+            Engine.resetToDefaults()
+        }
+
+        val exporter = Exporter<Route>()
 
         on("exporting 100 messages") {
 
@@ -38,19 +56,3 @@ object ExporterTests : Spek({
 
 })
 
-//region Fake implementation of message used in the tests
-
-object FakeMessage : Message {
-    override fun send() {
-        throw UnsupportedOperationException("Not necessary for the tests")
-    }
-}
-
-/**
- * Returns a message.
- */
-fun message(): Message {
-    return FakeMessage
-}
-
-//endregion

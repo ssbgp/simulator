@@ -1,4 +1,4 @@
-package core.simulator.notifications
+package core.simulator
 
 /**
  * Created on 25-07-2017.

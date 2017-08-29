@@ -1,8 +1,8 @@
 package bgp.policies.shortestpath
 
-import bgp.BGPExtender
-import bgp.BGPNode
 import bgp.BGPRoute
+import core.routing.Extender
+import core.routing.Node
 import core.routing.pathOf
 
 /**
@@ -10,12 +10,12 @@ import core.routing.pathOf
  *
  * @author David Fialho
  */
-class ShortestPathExtender(val cost: Int) : BGPExtender {
+class ShortestPathExtender(val cost: Int) : Extender<BGPRoute> {
 
     /**
      * Extends the route by adding the cost of the extender to the LOCAL-PREF of the incoming route.
      */
-    override fun extend(route: BGPRoute, sender: BGPNode): BGPRoute {
+    override fun extend(route: BGPRoute, sender: Node<BGPRoute>): BGPRoute {
 
         return when {
             !route.isValid() -> BGPRoute.invalid()
