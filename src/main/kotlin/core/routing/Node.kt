@@ -1,5 +1,9 @@
 package core.routing
 
+import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.MessageReceivedNotification
+import core.simulator.notifications.MessageSentNotification
+
 /**
  * Alias used for node IDs
  * This makes it easy to change the ID type to long if an Int is too small
@@ -18,13 +22,11 @@ typealias NodeID = Int
  */
 class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
 
-    private val mutableInNeighbors = ArrayList<Neighbor<R>>()
-
     /**
-     * List containing the in-neighbors of this node.
+     * Collection containing the in-neighbors of this node.
      */
-    val inNeighbors: List<Neighbor<R>>
-        get() = mutableInNeighbors
+    val inNeighbors: Collection<Neighbor<R>>
+        get() = protocol.inNeighbors
 
     /**
      * Sets a new in-neighbor for this node.
@@ -33,7 +35,7 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * @param extender the extender used to map routes from this node to the in-neighbor
      */
     fun addInNeighbor(neighbor: Node<R>, extender: Extender<R>) {
-        mutableInNeighbors.add(Neighbor(neighbor, extender))
+        protocol.addInNeighbor(Neighbor(neighbor, extender))
     }
 
     /**
@@ -50,10 +52,21 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      */
     fun send(route: R) {
 
-        for ((neighbor, extender, exporter) in inNeighbors) {
-            val message = Message(this, neighbor, route, extender)
-            exporter.export(message)
+        for (neighbor in inNeighbors) {
+            send(route, neighbor)
         }
+    }
+
+    /**
+     * Sends a message containing the route [route] to the specified neighbor.
+     *
+     * @param route the route to be sent
+     */
+    fun send(route: R, neighbor: Neighbor<R>) {
+        val message = Message(this, neighbor.node, route, neighbor.extender)
+
+        neighbor.exporter.export(message)
+        BasicNotifier.notifyMessageSent(MessageSentNotification(message))
     }
 
     /**
@@ -61,6 +74,8 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
      * This method should be invoked when a new message is expected to arrive to this node and be processed by it.
      */
     fun receive(message: Message<R>) {
+
+        BasicNotifier.notifyMessageReceived(MessageReceivedNotification(message))
         protocol.process(message)
     }
 

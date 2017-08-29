@@ -31,16 +31,23 @@ fun fakeCompare(route1: Route, route2: Route): Int {
 
 object FakeProtocol: Protocol<Route> {
 
+    override val inNeighbors: Collection<Neighbor<Route>>
+        get() = TODO("not implemented yet")
+
+    override fun addInNeighbor(neighbor: Neighbor<Route>) {
+        TODO("not implemented yet")
+    }
+
     override fun start(node: Node<Route>) {
-        TODO("not implemented")
+        TODO("not implemented yet")
     }
 
     override fun process(message: Message<Route>) {
-        TODO("not implemented")
+        TODO("not implemented yet")
     }
 
     override fun reset() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented yet")
     }
 }
 

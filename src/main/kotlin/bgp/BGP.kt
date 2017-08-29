@@ -10,7 +10,19 @@ import core.simulator.Timer
  *
  * @author David Fialho
  */
-abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute> {
+abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Protocol<BGPRoute> {
+
+    /**
+     * This data structure contains all neighbors that the protocol needs to send routes to when a new
+     * route is selected.
+     */
+    protected val neighbors = ArrayList<Neighbor<BGPRoute>>()
+
+    /**
+     * Collection of all the in-neighbors added to the protocol.
+     */
+    override val inNeighbors: Collection<Neighbor<BGPRoute>>
+        get() = neighbors
 
     /**
      * Routing table containing the candidate routes.
@@ -28,6 +40,16 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : P
      * the message is being processed.
      */
     protected var wasSelectedRouteUpdated: Boolean = false
+
+    /**
+     * Adds a new in-neighbor for the protocol to export selected routes to.
+     *
+     * It does not check if the neighbor was already added to the protocol. Thus, the same neighbor can be added
+     * twice, which means that it will be notified twice every time a new route is selected.
+     */
+    override fun addInNeighbor(neighbor: Neighbor<BGPRoute>) {
+        neighbors.add(neighbor)
+    }
 
     /**
      * Announces [node] as the destination.
@@ -123,7 +145,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : P
      *
      * @param node  the node exporting the node
      */
-    protected fun export(node: Node<BGPRoute>, restartMRAITimer : Boolean = true) {
+    protected fun export(node: Node<BGPRoute>, restartMRAITimer: Boolean = true) {
 
         if (!mraiTimer.expired) {
             // The MRAI timer is still running: no route is exported while the MRAI timer is running

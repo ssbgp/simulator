@@ -6,6 +6,16 @@ package core.routing
 interface Protocol<R: Route> {
 
     /**
+     * Collection of all the in-neighbors added to the protocol.
+     */
+    val inNeighbors: Collection<Neighbor<R>>
+
+    /**
+     * Adds a new in-neighbor for the protocol to consider.
+     */
+    fun addInNeighbor(neighbor: Neighbor<R>)
+
+    /**
      * Starts this protocol.
      */
     fun start(node: Node<R>)

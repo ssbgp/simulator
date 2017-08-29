@@ -43,6 +43,18 @@ object NotificationsTests: Spek({
                 assertThat(collector.endNotifications.size, Is(1))
             }
 
+            it("never issues threshold reached notification") {
+                assertThat(collector.thresholdReachedNotifications.size, Is(0))
+            }
+
+            it("issues message sent notification once") {
+                assertThat(collector.messageSentNotifications.size, Is(1))
+            }
+
+            it("issues message received notification once") {
+                assertThat(collector.messageReceivedNotifications.size, Is(1))
+            }
+
             it("issues import notification once") {
                 assertThat(collector.importNotifications.size, Is(1))
             }
@@ -86,6 +98,18 @@ object NotificationsTests: Spek({
 
             val collector = collectBGPNotifications {
                 Engine.simulate(node[0], threshold = 1000)
+            }
+
+            it("never issues threshold reached notification") {
+                assertThat(collector.thresholdReachedNotifications.size, Is(0))
+            }
+
+            it("issues message sent notification once") {
+                assertThat(collector.messageSentNotifications.size, Is(8))
+            }
+
+            it("issues message received notification once") {
+                assertThat(collector.messageReceivedNotifications.size, Is(8))
             }
 
             it("issues import notification 8 times") {
