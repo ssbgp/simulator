@@ -1,7 +1,7 @@
 package utils
 
 import bgp.notifications.*
-import core.simulator.Notification
+import core.simulator.notifications.Notification
 
 /**
  * Created on 26-07-2017

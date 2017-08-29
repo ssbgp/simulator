@@ -1,4 +1,4 @@
-package core.simulator
+package core.simulator.notifications
 
 
 /**

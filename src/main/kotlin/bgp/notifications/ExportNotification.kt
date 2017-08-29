@@ -2,7 +2,7 @@ package bgp.notifications
 
 import bgp.BGPRoute
 import core.routing.Node
-import core.simulator.Notification
+import core.simulator.notifications.Notification
 
 /**
  * Created on 26-07-2017

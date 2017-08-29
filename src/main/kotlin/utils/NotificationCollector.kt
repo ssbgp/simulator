@@ -1,6 +1,6 @@
 package utils
 
-import core.simulator.*
+import core.simulator.notifications.*
 
 /**
  * Created on 26-07-2017
