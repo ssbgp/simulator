@@ -11,6 +11,7 @@ object BasicNotifier : Notifier {
 
     private val startListeners = mutableListOf<StartListener>()
     private val endListeners = mutableListOf<EndListener>()
+    private val thresholdReachedListeners = mutableListOf<ThresholdReachedListener>()
 
     //endregion
 
@@ -72,6 +73,37 @@ object BasicNotifier : Notifier {
      */
     fun notifyEnd(notification: EndNotification) {
         endListeners.forEach { it.notify(notification) }
+    }
+
+    //endregion
+
+    //region Threshold reached notification
+
+    /**
+     * Registers a new threshold reached listener.
+     *
+     * @param listener threshold reached listener to register.
+     */
+    fun addThresholdReachedListener(listener: ThresholdReachedListener) {
+        thresholdReachedListeners.add(listener)
+    }
+
+    /**
+     * Unregisters a new threshold reached listener.
+     *
+     * @param listener threshold reached listener to unregister.
+     */
+    fun removeThresholdReachedListener(listener: ThresholdReachedListener) {
+        thresholdReachedListeners.remove(listener)
+    }
+
+    /**
+     * Sends a threshold reached notification to each threshold reached listener.
+     *
+     * @param notification the threshold reached notification to send to each registered listener.
+     */
+    fun notifyThresholdReached(notification: ThresholdReachedNotification) {
+        thresholdReachedListeners.forEach { it.notify(notification) }
     }
 
     //endregion

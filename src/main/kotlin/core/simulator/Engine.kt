@@ -5,6 +5,7 @@ import core.routing.Route
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.EndNotification
 import core.simulator.notifications.StartNotification
+import core.simulator.notifications.ThresholdReachedNotification
 
 /**
  * Created on 23-07-2017
@@ -61,6 +62,7 @@ object Engine {
             // This verification needs to be performed after obtaining the next event because the scheduler's time is
             // updated when performing that action
             if (currentTime() >= threshold) {
+                BasicNotifier.notifyThresholdReached(ThresholdReachedNotification(threshold))
                 terminatedBeforeThreshold = false
                 break
             }
