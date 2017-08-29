@@ -32,4 +32,11 @@ class Exporter<R: Route> {
         return deliverTime
     }
 
+    /**
+     * Resets the exporter to its initial state.
+     */
+    fun reset() {
+        lastDeliverTime = 0
+    }
+
 }

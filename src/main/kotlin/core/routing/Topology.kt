@@ -63,4 +63,11 @@ class Topology<R: Route>(private val idToNode: Map<NodeID, Node<R>>) {
      */
     operator fun get(id: Int): Node<R>? = idToNode[id]
 
+    /**
+     * Resets the topology state.
+     */
+    fun reset() {
+        nodes.forEach { it.reset() }
+    }
+
 }

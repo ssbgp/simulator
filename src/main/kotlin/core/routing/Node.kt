@@ -90,4 +90,11 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
         return "Node($id)"
     }
 
+    /**
+     * Resets the node state.
+     */
+    fun reset() {
+        protocol.reset()
+        for ((_, _, exporter) in inNeighbors) exporter.reset()
+    }
 }
