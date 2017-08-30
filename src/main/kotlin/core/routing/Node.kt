@@ -80,6 +80,14 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
     }
 
     /**
+     * Resets the node state.
+     */
+    fun reset() {
+        protocol.reset()
+        inNeighbors.forEach { it.exporter.reset() }
+    }
+
+    /**
      * Two nodes are considered equal if they have exactly the same ID.
      * Subclasses of node should not override this method.
      */
@@ -103,13 +111,5 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
 
     override fun toString(): String {
         return "Node($id)"
-    }
-
-    /**
-     * Resets the node state.
-     */
-    fun reset() {
-        protocol.reset()
-        for ((_, _, exporter) in inNeighbors) exporter.reset()
     }
 }
