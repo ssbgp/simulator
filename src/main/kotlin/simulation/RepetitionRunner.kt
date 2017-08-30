@@ -3,6 +3,7 @@ package simulation
 import core.routing.Node
 import core.routing.NodeID
 import core.routing.Topology
+import core.simulator.DelayGenerator
 import core.simulator.Engine
 import io.TopologyReaderHandler
 import java.io.IOException
@@ -15,12 +16,16 @@ import java.io.IOException
 class RepetitionRunner(
         private val topologyReader: TopologyReaderHandler,
         private val destination: NodeID,
-        private val repetitions: Int
+        private val repetitions: Int,
+        private val messageDelayGenerator: DelayGenerator
 
 ): Runner {
 
     /**
      * Runs the specified execution the number of times specified in the [repetitions] property.
+     *
+     * The engine configurations may be modified during the run. At the end of this method the engine is always
+     * reverted to its defaults.
      */
     override fun run(execution: Execution) {
 
@@ -35,12 +40,20 @@ class RepetitionRunner(
         // Find the destination in the topology
         val destination: Node<*> = topology[destination] ?: return
 
-        repeat(times = repetitions) {
-            execution.execute(topology, destination)
+        Engine.messageDelayGenerator = messageDelayGenerator
 
-            // Cleanup for next execution
-            topology.reset()
-            Engine.messageDelayGenerator.generateNewSeed()
+        try {
+            repeat(times = repetitions) {
+                execution.execute(topology, destination)
+
+                // Cleanup for next execution
+                topology.reset()
+                Engine.messageDelayGenerator.generateNewSeed()
+            }
+
+        } finally {
+            // Make sure that the engine is always reverted to the defaults after running
+            Engine.resetToDefaults()
         }
     }
 }
