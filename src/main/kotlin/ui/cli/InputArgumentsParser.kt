@@ -85,7 +85,7 @@ class InputArgumentsParser {
         // Note: the verifyOption method would throw exception if the option was ot defined and default was null
 
         if (!file.isFile) {
-            throw InputArgumentsException("File '${file.path}' specified for option '$option' does not exist")
+            throw InputArgumentsException("The file specified for `$option` does not exist: ${file.path}")
         }
 
         return file
@@ -101,7 +101,7 @@ class InputArgumentsParser {
         // Note: the verifyOption method would throw exception if the option was ot defined and default was null
 
         if (!directory.isDirectory) {
-            throw InputArgumentsException("Directory '${directory.path}' specified for option '$option' does not exist")
+            throw InputArgumentsException("The directory specified for `$option` does not exist: ${directory.path}")
         }
 
         return directory
@@ -125,7 +125,7 @@ class InputArgumentsParser {
             return intValue
 
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("Option '$option' must be a non-negative integer value: was '$value'")
+            throw InputArgumentsException("Parameter '$option' must be a non-negative integer value: was '$value'")
         }
     }
 
@@ -147,7 +147,7 @@ class InputArgumentsParser {
             return intValue
 
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("Option '$option' must be a positive integer value: was '$value'")
+            throw InputArgumentsException("Parameter '$option' must be a positive integer value: was '$value'")
         }
     }
 
@@ -162,7 +162,7 @@ class InputArgumentsParser {
             // Note: the verifyOption method would throw exception if the option was ot defined and default was null
 
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("Option '$option' must be a positive long value: was '$value'")
+            throw InputArgumentsException("Parameter '$option' must be a positive long value: was '$value'")
         }
     }
 
@@ -170,7 +170,7 @@ class InputArgumentsParser {
     private fun verifyOption(commandLine: CommandLine, option: String, default: Any?) {
 
         if (!commandLine.hasOption(option) && default == null) {
-            throw InputArgumentsException("The option '$option' is missing and it is mandatory")
+            throw InputArgumentsException("The parameter '$option' is missing and it is mandatory")
         }
     }
 }
