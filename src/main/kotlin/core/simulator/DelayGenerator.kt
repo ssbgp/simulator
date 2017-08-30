@@ -26,4 +26,9 @@ interface DelayGenerator {
      */
     fun reset()
 
+    /**
+     * Generates a new seed for the delay generator and sets the new seed as the generator's seed.
+     */
+    fun generateNewSeed()
+
 }

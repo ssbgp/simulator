@@ -15,4 +15,6 @@ object ZeroDelayGenerator : DelayGenerator {
 
     override fun reset() = Unit
 
+    override fun generateNewSeed() = Unit
+
 }

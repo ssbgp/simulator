@@ -15,7 +15,13 @@ import java.util.Random
  * @param seed the seed used to generate the random delays
  */
 class RandomDelayGenerator
-private constructor(val min: Time, val max: Time, override val seed: Long): DelayGenerator {
+private constructor(val min: Time, val max: Time, seed: Long): DelayGenerator {
+
+    /**
+     * Initial seed used for the generator. When reset() is called this seed is reused.
+     */
+    override var seed = seed
+        private set
 
     companion object Factories {
 
@@ -48,4 +54,11 @@ private constructor(val min: Time, val max: Time, override val seed: Long): Dela
 
     override fun reset() = random.setSeed(seed)
 
+    /**
+     * Generates a new seed for the delay generator and sets the new seed as the generator's seed.
+     */
+    override fun generateNewSeed() {
+        seed = random.nextInt().toLong()
+        random = Random(seed)
+    }
 }
