@@ -21,8 +21,8 @@ class InputArgumentsParser {
     private val DESTINATION = "destination"
     private val REPETITIONS = "repetitions"
     private val REPORT_DIRECTORY = "output"
-    private val MIN_DELAY = "min-delay"
-    private val MAX_DELAY = "max-delay"
+    private val MIN_DELAY = "mindelay"
+    private val MAX_DELAY = "maxdelay"
     private val THRESHOLD = "threshold"
     private val SEED = "seed"
 
