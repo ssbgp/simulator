@@ -8,8 +8,10 @@ import io.TopologyReaderHandler
 import ui.Application
 import java.io.File
 import java.io.IOException
+import java.time.Duration
 import java.util.logging.Logger
 import kotlin.system.exitProcess
+import java.time.Instant
 
 /**
  * Created on 30-08-2017
@@ -46,8 +48,12 @@ object CLIApplication: Application {
 
         try {
             console.info("Topology file: ${topologyFile.path}.\nLoading topology...")
-            val topology: Topology<*> = loadBlock()
-            console.info("Topology loaded")
+
+            val (duration, topology) = timer {
+                loadBlock()
+            }
+
+            console.info("Topology loaded in $duration seconds")
             return topology
 
         } catch (exception: ParseException) {
@@ -89,9 +95,10 @@ object CLIApplication: Application {
     override fun execute(executionID: Int, destination: Node<*>, seed: Long, executeBlock: () -> Unit) {
 
         console.info("Executing `$executionID`... (destination=$destination and seed=$seed)")
-        val value = executeBlock()
-        console.info("Finished `$executionID`")
-        return value
+        val (duration, _) = timer {
+            executeBlock()
+        }
+        console.info("Finished `$executionID` in $duration seconds")
     }
 
     /**
@@ -101,9 +108,8 @@ object CLIApplication: Application {
 
         try {
             console.info("Running...")
-            val value = runBlock()
+            runBlock()
             console.info("Finished run")
-            return value
 
         } catch (exception: IOException) {
             console.severe("Failed to report results due to an IO error: ${exception.message}.")
@@ -112,4 +118,13 @@ object CLIApplication: Application {
 
     }
 
+}
+
+private fun <R> timer(block: () -> R): Pair<Double, R> {
+
+    val start = Instant.now()
+    val value = block()
+    val end = Instant.now()
+
+    return Pair(Duration.between(start, end).toMillis().div(1000.0), value)
 }
