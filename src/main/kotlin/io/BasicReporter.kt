@@ -14,9 +14,7 @@ import java.io.Writer
  *
  * Reporter used to reporter data from a basic data set.
  */
-class BasicReporter(private val writer: Writer): Reporter<BasicDataSet> {
-
-    constructor(outputFile: File): this(FileWriter(outputFile))
+class BasicReporter(private val outputFile: File): Reporter<BasicDataSet> {
 
     /**
      * Flag to indicate if the headers were already printed.
@@ -37,7 +35,7 @@ class BasicReporter(private val writer: Writer): Reporter<BasicDataSet> {
     @Throws(IOException::class)
     override fun report(data: BasicDataSet) {
 
-        CSVPrinter(writer).use {
+        CSVPrinter(outputFile).use {
 
             if (!wereHeadersPrinted) {
                 it.printRecord(
