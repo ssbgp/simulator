@@ -40,7 +40,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 1 as the destination") {
 
-            val terminated = Engine.simulate(node1, threshold = 1000)
+            val terminated = Engine.simulate(topology, node1, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -69,7 +69,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 2 as the destination") {
 
-            val terminated = Engine.simulate(node2, threshold = 1000)
+            val terminated = Engine.simulate(topology, node2, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -116,7 +116,7 @@ object BGPWithShortestPathRoutingTests : Spek({
         on("simulating with node 1 as the destination") {
             // Make sure that node 1 always elects the self route
 
-            val terminated = Engine.simulate(node1, threshold = 1000)
+            val terminated = Engine.simulate(topology, node1, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -171,7 +171,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(node[0], threshold = 1000)
+            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -215,7 +215,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 1 as the destination") {
 
-            val terminated = Engine.simulate(node[1], threshold = 1000)
+            val terminated = Engine.simulate(topology, node[1], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -282,7 +282,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(node[0], threshold = 1000)
+            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
 
             it("does not terminate") {
                 assertThat(terminated, Is(false))

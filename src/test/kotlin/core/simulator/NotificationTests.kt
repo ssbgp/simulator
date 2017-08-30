@@ -32,7 +32,7 @@ object NotificationsTests: Spek({
             val node = topology.nodes.sortedBy { it.id }
 
             val collector = collectBGPNotifications {
-                Engine.simulate(node[0], threshold = 1000)
+                Engine.simulate(topology, node[0], threshold = 1000)
             }
 
             it("issues start notification once") {
@@ -97,7 +97,7 @@ object NotificationsTests: Spek({
             val node = topology.nodes.sortedBy { it.id }
 
             val collector = collectBGPNotifications {
-                Engine.simulate(node[0], threshold = 1000)
+                Engine.simulate(topology, node[0], threshold = 1000)
             }
 
             it("never issues threshold reached notification") {

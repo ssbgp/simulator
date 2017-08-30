@@ -41,7 +41,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 1 as the destination") {
 
-            val terminated = Engine.simulate(node1, threshold = 1000)
+            val terminated = Engine.simulate(topology, node1, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -66,7 +66,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 2 as the destination") {
 
-            val terminated = Engine.simulate(node2, threshold = 1000)
+            val terminated = Engine.simulate(topology, node2, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -116,7 +116,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(node[0], threshold = 1000)
+            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
 
             it("terminates") {
                 assertThat(terminated, Is(true))
@@ -177,7 +177,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(node[0], threshold = 1000)
+            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
 
             it("terminates") {
                 assertThat(terminated, Is(true))
