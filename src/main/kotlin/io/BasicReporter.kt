@@ -3,6 +3,7 @@ package io
 import simulation.BasicDataSet
 import java.io.File
 import java.io.FileWriter
+import java.io.IOException
 import java.io.Writer
 
 
@@ -30,7 +31,10 @@ class BasicReporter(private val writer: Writer): Reporter<BasicDataSet> {
 
     /**
      * Reports a data set.
+     *
+     * @throws IOException If an I/O error occurs
      */
+    @Throws(IOException::class)
     override fun report(data: BasicDataSet) {
 
         CSVPrinter(writer).use {

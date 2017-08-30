@@ -19,8 +19,8 @@ class InterdomainTopologyReaderHandler(private val reader: Reader): TopologyRead
      * Reads the topology file associated with the handler on a new topology reader and then closes it down correctly
      * whether an exception is thrown or not.
      *
-     * @IOException - If an I/O error occurs
-     * @ParseException - if a topology object can not be created due to incorrect representation
+     * @throws IOException - If an I/O error occurs
+     * @throws ParseException - if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
     override fun read(): Topology<*> {

@@ -15,8 +15,8 @@ interface TopologyReaderHandler {
      * whether an exception is thrown or not.
      *
      * @return the topology read from the file.
-     * @IOException - If an I/O error occurs
-     * @ParseException - if a topology object can not be created due to incorrect representation
+     * @throws IOException - If an I/O error occurs
+     * @throws ParseException - if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
     fun read(): Topology<*>

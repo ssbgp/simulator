@@ -6,6 +6,7 @@ import core.simulator.Time
 import core.simulator.notifications.*
 import io.BasicReporter
 import java.io.File
+import java.io.IOException
 
 /**
  * Created on 29-08-2017
@@ -82,7 +83,10 @@ class BasicDataCollector(private val reporter: BasicReporter): DataCollector,
 
     /**
      * Reports the currently collected data.
+     *
+     * @throws IOException If an I/O error occurs
      */
+    @Throws(IOException::class)
     override fun report() {
         reporter.report(data)
     }
