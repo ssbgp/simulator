@@ -9,9 +9,8 @@ import ui.Application
 import java.io.File
 import java.io.IOException
 import java.time.Duration
-import java.util.logging.Logger
-import kotlin.system.exitProcess
 import java.time.Instant
+import kotlin.system.exitProcess
 
 /**
  * Created on 30-08-2017
@@ -20,7 +19,7 @@ import java.time.Instant
  */
 object CLIApplication: Application {
 
-    private val console = Logger.getLogger("cli")
+    private val console = Console()
 
     override fun launch(args: Array<String>) {
 
@@ -29,10 +28,12 @@ object CLIApplication: Application {
             runner.run(execution, this)
 
         } catch (e: InputArgumentsException) {
-            console.severe("Input arguments are invalid.\n${e.message}.")
+            console.error("Input arguments are invalid.\n${e.message}.")
+            console.error("Cause: ${e.message ?: "No information available"}")
 
         } catch (e: Exception){
-            console.severe("Program was interrupted due to unexpected error: ${e.message}.")
+            console.error("Program was interrupted due to unexpected error.")
+            console.error("Cause: ${e.message ?: "No information available"}")
         }
     }
 
@@ -47,7 +48,8 @@ object CLIApplication: Application {
                               loadBlock: () -> Topology<*>): Topology<*> {
 
         try {
-            console.info("Topology file: ${topologyFile.path}.\nLoading topology...")
+            console.info("Topology file: ${topologyFile.path}.")
+            console.info("Loading topology...")
 
             val (duration, topology) = timer {
                 loadBlock()
@@ -57,11 +59,13 @@ object CLIApplication: Application {
             return topology
 
         } catch (exception: ParseException) {
-            console.severe("Failed to load topology due to parse error: ${exception.message}.")
+            console.error("Failed to load topology due to parse error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (exception: IOException) {
-            console.severe("Failed to load topology due to IO error: ${exception.message}.")
+            console.error("Failed to load topology due to IO error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(2)
         }
 
@@ -77,7 +81,7 @@ object CLIApplication: Application {
         val destination: Node<*>? = block()
 
         if (destination == null) {
-            console.severe("Destination `$destinationID` was not found.")
+            console.error("Destination `$destinationID` was not found.")
             exitProcess(3)
         }
 
@@ -94,11 +98,11 @@ object CLIApplication: Application {
      */
     override fun execute(executionID: Int, destination: Node<*>, seed: Long, executeBlock: () -> Unit) {
 
-        console.info("Executing `$executionID`... (destination=$destination and seed=$seed)")
+        console.info("Executing $executionID... (destination=$destination and seed=$seed)")
         val (duration, _) = timer {
             executeBlock()
         }
-        console.info("Finished `$executionID` in $duration seconds")
+        console.info("Finished $executionID in $duration seconds")
     }
 
     /**
@@ -112,7 +116,8 @@ object CLIApplication: Application {
             console.info("Finished run")
 
         } catch (exception: IOException) {
-            console.severe("Failed to report results due to an IO error: ${exception.message}.")
+            console.error("Failed to report results due to an IO error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(4)
         }
 
