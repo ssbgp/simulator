@@ -49,7 +49,7 @@ class RepetitionRunner(
             try {
                 repeat(times = repetitions) { repetition ->
 
-                    application.execute(repetition, destination, messageDelayGenerator.seed) {
+                    application.execute(repetition + 1, destination, messageDelayGenerator.seed) {
                         execution.execute(topology, destination)
                     }
 
