@@ -66,7 +66,7 @@ class InputArgumentsParser {
             val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
             val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
 
-            val runner = RepetitionRunner(topologyReader, destination, repetitions, messageDelayGenerator)
+            val runner = RepetitionRunner(topologyFile, topologyReader, destination, repetitions, messageDelayGenerator)
             val execution = SimpleAdvertisementExecution(threshold).apply {
                 dataCollectors.add(BasicDataCollector(reportFile))
             }

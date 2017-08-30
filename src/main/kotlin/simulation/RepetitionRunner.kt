@@ -6,7 +6,8 @@ import core.routing.Topology
 import core.simulator.DelayGenerator
 import core.simulator.Engine
 import io.TopologyReaderHandler
-import java.io.IOException
+import ui.Application
+import java.io.File
 
 /**
  * Created on 29-08-2017
@@ -14,6 +15,7 @@ import java.io.IOException
  * @author David Fialho
  */
 class RepetitionRunner(
+        private val topologyFile: File,
         private val topologyReader: TopologyReaderHandler,
         private val destination: NodeID,
         private val repetitions: Int,
@@ -26,34 +28,40 @@ class RepetitionRunner(
      *
      * The engine configurations may be modified during the run. At the end of this method the engine is always
      * reverted to its defaults.
+     *
+     * @param execution        the execution that will be executed in each run
+     * @param application the application running that wants to monitor progress and handle errors
      */
-    override fun run(execution: Execution) {
+    override fun run(execution: Execution, application: Application) {
 
-        // Read the topology
-        val topology: Topology<*> = try {
+        val topology: Topology<*> = application.loadTopology(topologyFile, topologyReader) {
             topologyReader.read()
-
-        } catch (e: IOException) {
-            return
         }
 
-        // Find the destination in the topology
-        val destination: Node<*> = topology[destination] ?: return
+        val destination: Node<*> = application.findDestination(destination) {
+            topology[destination]
+        }
 
         Engine.messageDelayGenerator = messageDelayGenerator
 
-        try {
-            repeat(times = repetitions) {
-                execution.execute(topology, destination)
+        application.run {
 
-                // Cleanup for next execution
-                topology.reset()
-                Engine.messageDelayGenerator.generateNewSeed()
+            try {
+                repeat(times = repetitions) { repetition ->
+
+                    application.execute(repetition, destination, messageDelayGenerator.seed) {
+                        execution.execute(topology, destination)
+                    }
+
+                    // Cleanup for next execution
+                    topology.reset()
+                    Engine.messageDelayGenerator.generateNewSeed()
+                }
+
+            } finally {
+                // Make sure that the engine is always reverted to the defaults after running
+                Engine.resetToDefaults()
             }
-
-        } finally {
-            // Make sure that the engine is always reverted to the defaults after running
-            Engine.resetToDefaults()
         }
     }
 }

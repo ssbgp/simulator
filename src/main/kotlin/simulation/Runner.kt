@@ -1,5 +1,7 @@
 package simulation
 
+import ui.Application
+
 /**
  * Created on 29-08-2017
  *
@@ -10,6 +12,6 @@ interface Runner {
     /**
      * Runs the specified execution.
      */
-    fun run(execution: Execution)
+    fun run(execution: Execution, application: Application)
 
 }
