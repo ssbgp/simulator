@@ -40,5 +40,6 @@ gradle-app.setting
 
 ### JetBrains template
 .idea/
+out/
 
 
