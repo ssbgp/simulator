@@ -50,7 +50,7 @@ object Engine {
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
-        BasicNotifier.notifyStart(StartNotification(seed = 0, topology = topology))
+        BasicNotifier.notifyStart(StartNotification(messageDelayGenerator.seed, topology))
 
         // The simulation execution starts when the protocol of the destination is started
         destination.start()
