@@ -6,6 +6,7 @@ import bgp.ISSBGP
 import bgp.SSBGP
 import bgp.policies.interdomain.*
 import core.routing.*
+import io.TopologyParser.Handler
 import java.io.*
 
 /**
@@ -13,7 +14,7 @@ import java.io.*
  *
  * @author David Fialho
  */
-class InterdomainTopologyReader(reader: Reader): TopologyParser.Handler, Closeable {
+class InterdomainTopologyReader(reader: Reader): TopologyReader, Closeable, Handler {
 
     /**
      * Provides option to create a reader with a file object.
@@ -34,7 +35,7 @@ class InterdomainTopologyReader(reader: Reader): TopologyParser.Handler, Closeab
      * @throws ParseException if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
-    fun read(): Topology<BGPRoute> {
+    override fun read(): Topology<BGPRoute> {
         parser.parse()
         return builder.build()
     }

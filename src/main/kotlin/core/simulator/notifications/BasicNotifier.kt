@@ -5,7 +5,7 @@ package core.simulator.notifications
  *
  * @author David Fialho
  */
-object BasicNotifier : Notifier {
+object BasicNotifier: Notifier {
 
     //region Lists containing the registered listeners
 

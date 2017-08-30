@@ -52,6 +52,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile "com.github.inamik.text.tables:inamik-text-tables:1.0-SNAPSHOT"
+    compile 'org.apache.commons:commons-csv:1.4'
 }
 
 compileKotlin {
