@@ -49,13 +49,13 @@ object CLIApplication: Application {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
-            console.info("Loading topology...")
+            console.info("Loading topology...  ", inline = true)
 
             val (duration, topology) = timer {
                 loadBlock()
             }
 
-            console.info("Topology loaded in $duration seconds")
+            console.print("loaded in $duration seconds")
             return topology
 
         } catch (exception: ParseException) {
@@ -98,11 +98,11 @@ object CLIApplication: Application {
      */
     override fun execute(executionID: Int, destination: Node<*>, seed: Long, executeBlock: () -> Unit) {
 
-        console.info("Executing $executionID... (destination=$destination and seed=$seed)")
+        console.info("Executing $executionID (destination=${destination.id} and seed=$seed)...  ", inline = true)
         val (duration, _) = timer {
             executeBlock()
         }
-        console.info("Finished $executionID in $duration seconds")
+        console.print("finished in $duration seconds")
     }
 
     /**

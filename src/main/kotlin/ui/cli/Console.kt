@@ -7,19 +7,25 @@ package ui.cli
  */
 class Console {
 
-    companion object {
-        private val format = "%s: %s"
+    fun info(message: String, inline: Boolean = false) {
+        print("INFO", message, inline)
     }
 
-    fun info(message: String) {
-        println(String.format(format, "INFO", message))
+    fun warning(message: String, inline: Boolean = false) {
+        print("WARNING", message, inline)
     }
 
-    fun warning(message: String) {
-        println(String.format(format, "WARNING", message))
+    fun error(message: String, inline: Boolean = false) {
+        print("ERROR", message, inline)
     }
 
-    fun error(message: String) {
-        System.err.println(String.format(format, "ERROR", message))
+    fun print(message: String) {
+        println(message)
+    }
+
+    private fun print(level: String, message: String, inline: Boolean) {
+
+        val formattedMessage = String.format("%s: %s", level, message)
+        if (inline) kotlin.io.print(formattedMessage) else println(formattedMessage)
     }
 }
