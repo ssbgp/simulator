@@ -126,8 +126,10 @@ object CLIApplication: Application {
 
         try {
             console.info("Running...")
-            runBlock()
-            console.info("Finished run")
+            val (duration, _) = timer {
+                runBlock()
+            }
+            console.info("Finished run in $duration in seconds")
 
         } catch (exception: IOException) {
             console.error("Failed to report results due to an IO error.")
