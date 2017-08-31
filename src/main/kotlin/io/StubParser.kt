@@ -103,7 +103,8 @@ class StubParser(reader: Reader): Closeable {
      */
     @Throws(IOException::class)
     fun reset() {
-        reader.reset()
+        if (!reader.markSupported())
+            reader.reset()
     }
 
     /**
