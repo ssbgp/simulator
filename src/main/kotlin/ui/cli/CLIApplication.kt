@@ -79,7 +79,20 @@ object CLIApplication: Application {
      * @param block         the block of code to find the destination
      */
     override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> {
-        val destination: Node<R>? = block()
+
+        val destination= try {
+            block()
+
+        } catch (exception: ParseException) {
+            console.error("Failed to parse stubs file.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
+            exitProcess(1)
+
+        } catch (exception: IOException) {
+            console.error("Failed to read stubs file due to IO error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
+            exitProcess(2)
+        }
 
         if (destination == null) {
             console.error("Destination `$destinationID` was not found.")

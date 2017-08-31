@@ -18,9 +18,10 @@ import java.io.File
 class RepetitionRunner<R: Route>(
         private val topologyFile: File,
         private val topologyReader: TopologyReaderHandler<R>,
-        private val destination: NodeID,
+        private val destinationID: NodeID,
         private val repetitions: Int,
-        private val messageDelayGenerator: DelayGenerator
+        private val messageDelayGenerator: DelayGenerator,
+        private val stubDB: StubDB<R>?
 
 ): Runner {
 
@@ -39,8 +40,8 @@ class RepetitionRunner<R: Route>(
             topologyReader.read()
         }
 
-        val destination: Node<R> = application.findDestination(destination) {
-            topology[destination]
+        val destination: Node<R> = application.findDestination(destinationID) {
+            topology[destinationID] ?: stubDB?.getStub(destinationID, topology)
         }
 
         Engine.messageDelayGenerator = messageDelayGenerator

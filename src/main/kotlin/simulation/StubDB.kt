@@ -3,6 +3,7 @@ package simulation
 import core.routing.*
 import io.ParseException
 import io.StubParser
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -11,21 +12,18 @@ import kotlin.collections.ArrayList
  *
  * @author David Fialho
  *
- * @property topology      the topology missing the stubs in this database
- * @property parser        the parser used to parse the stubs
+ * @param stubProtocol     the protocol to assign to the stub
  * @property parseExtender function to convert a string label into an extender
  */
 class StubDB<R: Route>(
-        private val topology: Topology<R>,
-        private val parser: StubParser,
+        val stubsFile: File,
+        private val stubProtocol: Protocol<R>,
         private val parseExtender: (String) -> Extender<R>
 
 ): StubParser.Handler {
 
-    /**
-     * Stores the ID of the stub to get from the DB.
-     */
-    private var stubToGet: NodeID = -1
+    private var topology: Topology<R>? = null
+    private var stubID: NodeID = -1
 
     /**
      * Stores the links of the stub that is to be obtained.
@@ -36,29 +34,29 @@ class StubDB<R: Route>(
      * Obtains the stub node with id [stubID].
      *
      * @param stubID   the ID of the stub to get
-     * @param protocol the protocol to assign to the stub
+     * @param topology the topology missing the stubs in this database
      * @return the stub node initialized with its in-neighbors
      * @throws ParseException if the input file defined a neighbor not included in the topology or if it includes a
      * label that is not recognized.
      */
     @Throws(ParseException::class)
-    fun getStub(stubID: NodeID, protocol: Protocol<R>): Node<R>? {
+    fun getStub(stubID: NodeID, topology: Topology<R>): Node<R>? {
 
-        stubToGet = stubID
-        parser.parse(this)
+        StubParser.useFile(stubsFile).use {
+            this.stubID = stubID
+            this.topology = topology
+            it.parse(this)
+        }
 
         // Return empty optional if the stub was not found
         if (stubLinks.isEmpty()) return null
 
         // Create stub node
-        val stub = Node(stubID, protocol)
+        val stub = Node(stubID, stubProtocol)
         stubLinks.forEach { (neighbor, extender) -> stub.addInNeighbor(neighbor, extender) }
 
         // Stub links are no longer required
         stubLinks.clear()
-
-        // Reset the parser so that it can be parsed again
-        parser.reset()
 
         return stub
     }
@@ -77,9 +75,9 @@ class StubDB<R: Route>(
     override fun onStubLink(id: NodeID, inNeighbor: NodeID, label: String, currentLine: Int) {
 
         // Consider only the stub that we want to obtain
-        if (id != stubToGet) return
+        if (id != stubID) return
 
-        val node = topology[inNeighbor] ?:
+        val node = topology?.get(inNeighbor) ?:
                 throw ParseException("Neighbor ID `$inNeighbor` was not found in the topology", currentLine)
         val extender = parseExtender(label)
 

@@ -1,12 +1,16 @@
 package ui.cli
 
+import bgp.BGP
 import core.simulator.RandomDelayGenerator
 import io.InterdomainTopologyReaderHandler
+import io.StubParser
+import io.parseInterdomainExtender
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Options
 import simulation.*
 import java.io.File
+import java.util.*
 
 /**
  * Created on 30-08-2017
@@ -25,6 +29,7 @@ class InputArgumentsParser {
     private val MAX_DELAY = "maxdelay"
     private val THRESHOLD = "threshold"
     private val SEED = "seed"
+    private val STUBS = "stubs"
 
     private val options = Options()
 
@@ -38,6 +43,7 @@ class InputArgumentsParser {
         options.addOption(MAX_DELAY, true, "maximum message delay (inclusive)")
         options.addOption("th", THRESHOLD, true, "threshold value")
         options.addOption(SEED, true, "first seed used for generate message delays")
+        options.addOption(STUBS, true, "path to stubs file")
     }
 
     @Throws(InputArgumentsException::class)
@@ -45,12 +51,13 @@ class InputArgumentsParser {
 
         DefaultParser().parse(options, args).let {
 
-            val topologyFile = getFile(it, option = TOPOLOGY_FILE)
+            val topologyFile = getFile(it, option = TOPOLOGY_FILE).get()
             val destination = getNonNegativeInteger(it, option = DESTINATION)
             val repetitions = getPositiveInteger(it, option = REPETITIONS, default = 1)
             val reportDirectory = getDirectory(it, option = REPORT_DIRECTORY, default = File(System.getProperty("user.dir")))
             val threshold = getPositiveInteger(it, option = THRESHOLD, default = 1_000_000)
             val seed = getLong(it, option = SEED, default = System.currentTimeMillis())
+            val stubsFile = getFile(it, option = STUBS, default = Optional.empty())
 
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
@@ -66,7 +73,20 @@ class InputArgumentsParser {
             val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
             val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
 
-            val runner = RepetitionRunner(topologyFile, topologyReader, destination, repetitions, messageDelayGenerator)
+            val stubDB = if (stubsFile.isPresent) {
+                StubDB(stubsFile.get(), BGP(), ::parseInterdomainExtender)
+            } else {
+                null
+            }
+
+            val runner = RepetitionRunner(
+                    topologyFile,
+                    topologyReader,
+                    destination,
+                    repetitions,
+                    messageDelayGenerator,
+                    stubDB
+            )
             val execution = SimpleAdvertisementExecution(threshold).apply {
                 dataCollectors.add(BasicDataCollector(reportFile))
             }
@@ -74,18 +94,16 @@ class InputArgumentsParser {
             return Pair(runner, execution)
         }
     }
-
     @Throws(InputArgumentsException::class)
-    private fun getFile(commandLine: CommandLine, option: String, default: File? = null): File {
+    private fun getFile(commandLine: CommandLine, option: String, default: Optional<File>? = null): Optional<File> {
         verifyOption(commandLine, option, default)
 
         val value = commandLine.getOptionValue(option)
-        val file = if (value != null) File(value) else default!!    // See note below
-
+        val file = if (value != null) Optional.of(File(value)) else default!!   // See note below
         // Note: the verifyOption method would throw exception if the option was ot defined and default was null
 
-        if (!file.isFile) {
-            throw InputArgumentsException("The file specified for `$option` does not exist: ${file.path}")
+        if (file.isPresent && !file.get().isFile) {
+            throw InputArgumentsException("The file specified for `$option` does not exist: ${file.get().path}")
         }
 
         return file
