@@ -1,5 +1,6 @@
 package io
 
+import core.routing.Route
 import core.routing.Topology
 
 /**
@@ -7,7 +8,7 @@ import core.routing.Topology
  *
  * @author David Fialho
  */
-interface TopologyReader {
+interface TopologyReader<R: Route> {
 
-    fun read(): Topology<*>
+    fun read(): Topology<R>
 }

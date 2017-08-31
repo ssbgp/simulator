@@ -1,5 +1,7 @@
 package io
 
+import bgp.BGPRoute
+import core.routing.Route
 import core.routing.Topology
 import java.io.File
 import java.io.FileReader
@@ -11,7 +13,7 @@ import java.io.Reader
  *
  * @author David Fialho
  */
-sealed class TopologyReaderHandler {
+sealed class TopologyReaderHandler<R: Route> {
 
     /**
      * Reads the topology file associated with the handler on a new topology reader and then closes it down correctly
@@ -22,14 +24,14 @@ sealed class TopologyReaderHandler {
      * @throws ParseException - if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
-    abstract fun read(): Topology<*>
+    abstract fun read(): Topology<R>
 
 }
 
 /**
  * Handler for InterdomainTopologyReader.
  */
-class InterdomainTopologyReaderHandler(private val reader: Reader): TopologyReaderHandler() {
+class InterdomainTopologyReaderHandler(private val reader: Reader): TopologyReaderHandler<BGPRoute>() {
 
     constructor(topologyFile: File): this(FileReader(topologyFile))
 
@@ -41,7 +43,7 @@ class InterdomainTopologyReaderHandler(private val reader: Reader): TopologyRead
      * @throws ParseException - if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
-    override fun read(): Topology<*> {
+    override fun read(): Topology<BGPRoute> {
 
         InterdomainTopologyReader(reader).use {
             return it.read()

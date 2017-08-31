@@ -14,7 +14,7 @@ import java.io.*
  *
  * @author David Fialho
  */
-class InterdomainTopologyReader(reader: Reader): TopologyReader, Closeable, Handler {
+class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Closeable, Handler {
 
     /**
      * Provides option to create a reader with a file object.
