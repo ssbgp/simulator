@@ -29,7 +29,7 @@ import core.routing.Extender
  * @throws ParseException if the label is not recognized
  */
 @Throws(ParseException::class)
-fun parseInterdomainExtender(label: String, lineNumber: Int = 0): Extender<BGPRoute> {
+fun parseInterdomainExtender(label: String, lineNumber: Int): Extender<BGPRoute> {
 
     return when (label.toLowerCase()) {
         "r+" -> PeerplusExtender
@@ -40,4 +40,8 @@ fun parseInterdomainExtender(label: String, lineNumber: Int = 0): Extender<BGPRo
         else -> throw ParseException("Extender label `$label` was not recognized: " +
                 "must be either R+, C, R, P, or S", lineNumber)
     }
+}
+
+fun parseInterdomainExtender(label: String): Extender<BGPRoute> {
+    return parseInterdomainExtender(label, lineNumber = 0)
 }
