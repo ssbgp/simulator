@@ -4,9 +4,9 @@ import bgp.BGP
 import bgp.BGPRoute
 import bgp.ISSBGP
 import bgp.SSBGP
-import bgp.policies.interdomain.*
 import core.routing.*
 import io.TopologyParser.Handler
+import utils.toNonNegativeInt
 import java.io.*
 
 /**
@@ -54,7 +54,11 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader, Closeable, Hand
         }
 
         val protocolLabel = values[0]
-        val mrai = parseNonNegativeInteger(values[1], currentLine)
+        val mrai = try {
+            values[1].toNonNegativeInt()
+        } catch (e: NumberFormatException) {
+            throw ParseException("Failed to parse `${values[1]}`: must be a non-negative integer number", currentLine)
+        }
 
         val protocol = when (protocolLabel.toLowerCase()) {
             "bgp" -> BGP(mrai)
@@ -86,7 +90,7 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader, Closeable, Hand
             throw ParseException("Link is missing required values: extender label", currentLine)
         }
 
-        val extender = parseExtender(values[0], currentLine)
+        val extender = parseInterdomainExtender(values[0], currentLine)
 
         try {
             builder.link(tail, head, extender)
@@ -95,36 +99,6 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader, Closeable, Hand
             throw ParseException(e.message!!, currentLine)
         } catch (e: ElementExistsException) {
             throw ParseException(e.message!!, currentLine)
-        }
-    }
-
-    @Throws(ParseException::class)
-    private fun parseNonNegativeInteger(value: String, currentLine: Int): Int {
-
-        try {
-            val intValue = value.toInt()
-            if (intValue < 0) {
-                throw NumberFormatException()
-            }
-
-            return intValue
-
-        } catch (e: NumberFormatException) {
-            throw ParseException("Failed to parse value `$value`: must be a non-negative integer value", currentLine)
-        }
-    }
-
-    @Throws(ParseException::class)
-    private fun parseExtender(label: String, currentLine: Int): Extender<BGPRoute> {
-
-        return when (label) {
-            "r+" -> PeerplusExtender
-            "c" -> CustomerExtender
-            "r" -> PeerExtender
-            "p" -> ProviderExtender
-            "s" -> SiblingExtender
-            else -> throw ParseException("Extender label `$label` was not recognized: " +
-                    "must be either R+, C, R, P, or S", currentLine)
         }
     }
 
