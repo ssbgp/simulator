@@ -1,9 +1,6 @@
 package io
 
-import bgp.BGP
-import bgp.BGPRoute
-import bgp.ISSBGP
-import bgp.SSBGP
+import bgp.*
 import core.routing.*
 import io.TopologyParser.Handler
 import utils.toNonNegativeInt
@@ -64,8 +61,10 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Close
             "bgp" -> BGP(mrai)
             "ssbgp" -> SSBGP(mrai)
             "issbgp" -> ISSBGP(mrai)
-            else -> throw ParseException("Protocol label `$protocolLabel` was not recognized: supported labels are BGP, " +
-                    "SSBGP, and ISSBGP", currentLine)
+            "ssbgp2" -> SSBGP2(mrai)
+            else -> throw ParseException(
+                    "Protocol label `$protocolLabel` was not recognized: supported labels are BGP, " +
+                    "SSBGP, ISSBGP, and SSBGP2", currentLine)
         }
 
         try {
