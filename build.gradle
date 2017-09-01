@@ -75,3 +75,14 @@ task enabledMockingFinalClasses << {
     mockMakerFile.createNewFile()
     mockMakerFile.write("mock-maker-inline")
 }
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'main.MainKt'
+    }
+
+    // This line of code recursively collects and copies all of a project's files
+    // and adds them to the JAR itself. One can extend this task, to skip certain
+    // files or particular types at will
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
