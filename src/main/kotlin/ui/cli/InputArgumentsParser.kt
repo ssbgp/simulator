@@ -3,11 +3,11 @@ package ui.cli
 import bgp.BGP
 import core.simulator.RandomDelayGenerator
 import io.InterdomainTopologyReaderHandler
-import io.StubParser
 import io.parseInterdomainExtender
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.Options
+import org.apache.commons.cli.ParseException
 import simulation.*
 import java.io.File
 import java.util.*
@@ -49,7 +49,13 @@ class InputArgumentsParser {
     @Throws(InputArgumentsException::class)
     fun parse(args: Array<String>): Pair<Runner, Execution> {
 
-        DefaultParser().parse(options, args).let {
+        val commandLine = try {
+            DefaultParser().parse(options, args)
+        } catch (e: ParseException) {
+            throw InputArgumentsException(e.message.toString())
+        }
+
+        commandLine.let {
 
             val topologyFile = getFile(it, option = TOPOLOGY_FILE).get()
             val destination = getNonNegativeInteger(it, option = DESTINATION)
