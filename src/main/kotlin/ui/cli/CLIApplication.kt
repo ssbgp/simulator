@@ -29,12 +29,14 @@ object CLIApplication: Application {
             runner.run(execution, this)
 
         } catch (e: InputArgumentsException) {
-            console.error("Input arguments are invalid.\n${e.message}.")
-            console.error("Cause: ${e.message ?: "No information available"}")
+            console.error("Input arguments are invalid.")
+            console.error("Cause: ${e.message ?: "No information available."}")
+            exitProcess(1)
 
         } catch (e: Exception){
             console.error("Program was interrupted due to unexpected error.")
-            console.error("Cause: ${e.message ?: "No information available"}")
+            console.error("Cause: ${e.message ?: "No information available."}")
+            exitProcess(1)
         }
     }
 
