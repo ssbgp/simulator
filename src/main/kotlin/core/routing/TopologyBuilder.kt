@@ -28,14 +28,17 @@ class TopologyBuilder<R: Route> {
      *
      * @param id       the ID to identify the new node
      * @param protocol the protocol deployed by the new node
+     * @return this builder
      * @throws ElementExistsException if a node with the specified ID was already added to the builder
      */
     @Throws(ElementExistsException::class)
-    fun addNode(id: NodeID, protocol: Protocol<R>) {
+    fun addNode(id: NodeID, protocol: Protocol<R>): TopologyBuilder<R> {
 
         if (nodes.putIfAbsent(id, Node(id, protocol)) != null) {
             throw ElementExistsException("Node with ID `$id` was added twice to the topology builder")
         }
+
+        return this
     }
 
     /**
@@ -47,11 +50,12 @@ class TopologyBuilder<R: Route> {
      * @param from     the Id of the node at the tail of the link
      * @param to the protocol deployed by the new node
      * @param extender the protocol deployed by the new node
+     * @return this builder
      * @throws ElementExistsException if a node with the specified ID was already added to the builder
      * @throws ElementNotFoundException if builder is missing the node with ID [from] and/or [to]
      */
     @Throws(ElementExistsException::class, ElementNotFoundException::class)
-    fun link(from: NodeID, to: NodeID, extender: Extender<R>) {
+    fun link(from: NodeID, to: NodeID, extender: Extender<R>): TopologyBuilder<R> {
 
         val tail = nodes[from] ?: throw ElementNotFoundException("Node with ID `$from` was not yet added the builder")
         val head = nodes[to] ?: throw ElementNotFoundException("Node with ID `$to` was not yet added the builder")
@@ -61,6 +65,8 @@ class TopologyBuilder<R: Route> {
         }
 
         head.addInNeighbor(tail, extender)
+
+        return this
     }
 
     /**

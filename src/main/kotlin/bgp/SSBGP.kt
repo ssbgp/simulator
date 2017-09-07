@@ -25,6 +25,8 @@ abstract class BaseSSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute>): 
             return
         }
 
+        val prevSelectedRoute = routingTable.getSelectedRoute()
+
         // Since a loop routing was detected, the new route via the sender node is surely invalid
 
         // Set the route via the sender as invalid
@@ -33,7 +35,7 @@ abstract class BaseSSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute>): 
         wasSelectedRouteUpdated = wasSelectedRouteUpdated || updated
 
         val alternativeRoute = routingTable.getSelectedRoute()
-        if (isRecurrent(node, route, alternativeRoute)) {
+        if (isRecurrent(node, route, alternativeRoute, prevSelectedRoute)) {
             disableNeighbor(sender)
             BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
         }
@@ -43,7 +45,8 @@ abstract class BaseSSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute>): 
      * Checks if the routing loop detected is recurrent.
      * Subclasses must implement this method to define the detection condition.
      */
-    abstract fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean
+    protected abstract fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute,
+                                       alternativeRoute: BGPRoute, prevSelectedRoute: BGPRoute): Boolean
 
     /**
      * Enables the specified neighbor.
@@ -81,7 +84,9 @@ abstract class BaseSSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute>): 
 class SSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
     : BaseSSBGP(mrai, routingTable) {
 
-    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean {
+    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute,
+                             prevSelectedRoute: BGPRoute): Boolean {
+
         return learnedRoute.localPref > alternativeRoute.localPref
     }
 }
@@ -93,8 +98,38 @@ class SSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.
 class ISSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
     : BaseSSBGP(mrai, routingTable) {
 
-    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute): Boolean {
+    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute,
+                             prevSelectedRoute: BGPRoute): Boolean {
+
         return learnedRoute.localPref > alternativeRoute.localPref &&
+                alternativeRoute.asPath == learnedRoute.asPath.subPathBefore(node)
+    }
+}
+
+/**
+ * SS-BGP version 2 Protocol: it uses a more generic detection condition than version 1.
+ */
+class SSBGP2(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
+    : BaseSSBGP(mrai, routingTable) {
+
+    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute,
+                             prevSelectedRoute: BGPRoute): Boolean {
+
+        return alternativeRoute.localPref < prevSelectedRoute.localPref
+    }
+}
+
+/**
+ * ISS-BGP version 2 Protocol: it uses the detection condition of SS-BGP2 and also checks if the tail of looping
+ * path matches the path of the alternative route.
+ */
+class ISSBGP2(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
+    : BaseSSBGP(mrai, routingTable) {
+
+    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute,
+                             prevSelectedRoute: BGPRoute): Boolean {
+
+        return alternativeRoute.localPref < prevSelectedRoute.localPref &&
                 alternativeRoute.asPath == learnedRoute.asPath.subPathBefore(node)
     }
 }

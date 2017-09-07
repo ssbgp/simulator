@@ -2,6 +2,7 @@ package ui
 
 import core.routing.Node
 import core.routing.NodeID
+import core.routing.Route
 import core.routing.Topology
 import io.TopologyReaderHandler
 import java.io.File
@@ -22,10 +23,10 @@ interface Application {
      * @param topologyReader the reader used to load the topology into memory
      * @param loadBlock      the code block to load the topology.
      */
-    fun loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler,
-                     loadBlock: () -> Topology<*>): Topology<*>
+    fun <R: Route> loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler<R>,
+                                loadBlock: () -> Topology<R>): Topology<R>
 
-    fun findDestination(destinationID: NodeID, block: () -> Node<*>?): Node<*>
+    fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R>
 
     /**
      * Invoked while executing each execution.
@@ -35,7 +36,7 @@ interface Application {
      * @param seed         the seed of the message delay generator used for the execution
      * @param executeBlock the code block that performs one execution
      */
-    fun execute(executionID: Int, destination: Node<*>, seed: Long, executeBlock: () -> Unit)
+    fun <R: Route> execute(executionID: Int, destination: Node<R>, seed: Long, executeBlock: () -> Unit)
 
     /**
      * Invoked during a run.

@@ -2,6 +2,7 @@ package ui.cli
 
 import core.routing.Node
 import core.routing.NodeID
+import core.routing.Route
 import core.routing.Topology
 import io.ParseException
 import io.TopologyReaderHandler
@@ -28,12 +29,14 @@ object CLIApplication: Application {
             runner.run(execution, this)
 
         } catch (e: InputArgumentsException) {
-            console.error("Input arguments are invalid.\n${e.message}.")
-            console.error("Cause: ${e.message ?: "No information available"}")
+            console.error("Input arguments are invalid.")
+            console.error("Cause: ${e.message ?: "No information available."}")
+            exitProcess(1)
 
         } catch (e: Exception){
             console.error("Program was interrupted due to unexpected error.")
-            console.error("Cause: ${e.message ?: "No information available"}")
+            console.error("Cause: ${e.message ?: "No information available."}")
+            exitProcess(1)
         }
     }
 
@@ -44,8 +47,8 @@ object CLIApplication: Application {
      * @param topologyReader the reader used to load the topology into memory
      * @param loadBlock      the code block to load the topology.
      */
-    override fun loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler,
-                              loadBlock: () -> Topology<*>): Topology<*> {
+    override fun <R: Route> loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler<R>,
+                              loadBlock: () -> Topology<R>): Topology<R> {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
@@ -77,8 +80,21 @@ object CLIApplication: Application {
      * @param destinationID the destination ID
      * @param block         the block of code to find the destination
      */
-    override fun findDestination(destinationID: NodeID, block: () -> Node<*>?): Node<*> {
-        val destination: Node<*>? = block()
+    override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> {
+
+        val destination= try {
+            block()
+
+        } catch (exception: ParseException) {
+            console.error("Failed to parse stubs file.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
+            exitProcess(1)
+
+        } catch (exception: IOException) {
+            console.error("Failed to read stubs file due to IO error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
+            exitProcess(2)
+        }
 
         if (destination == null) {
             console.error("Destination `$destinationID` was not found.")
@@ -96,7 +112,7 @@ object CLIApplication: Application {
      * @param seed         the seed of the message delay generator used for the execution
      * @param executeBlock the code block that performs one execution
      */
-    override fun execute(executionID: Int, destination: Node<*>, seed: Long, executeBlock: () -> Unit) {
+    override fun <R: Route> execute(executionID: Int, destination: Node<R>, seed: Long, executeBlock: () -> Unit) {
 
         console.info("Executing $executionID (destination=${destination.id} and seed=$seed)...  ", inline = true)
         val (duration, _) = timer {
@@ -112,8 +128,10 @@ object CLIApplication: Application {
 
         try {
             console.info("Running...")
-            runBlock()
-            console.info("Finished run")
+            val (duration, _) = timer {
+                runBlock()
+            }
+            console.info("Finished run in $duration in seconds")
 
         } catch (exception: IOException) {
             console.error("Failed to report results due to an IO error.")

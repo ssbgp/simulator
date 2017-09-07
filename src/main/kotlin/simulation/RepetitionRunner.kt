@@ -2,6 +2,7 @@ package simulation
 
 import core.routing.Node
 import core.routing.NodeID
+import core.routing.Route
 import core.routing.Topology
 import core.simulator.DelayGenerator
 import core.simulator.Engine
@@ -14,12 +15,13 @@ import java.io.File
  *
  * @author David Fialho
  */
-class RepetitionRunner(
+class RepetitionRunner<R: Route>(
         private val topologyFile: File,
-        private val topologyReader: TopologyReaderHandler,
-        private val destination: NodeID,
+        private val topologyReader: TopologyReaderHandler<R>,
+        private val destinationID: NodeID,
         private val repetitions: Int,
-        private val messageDelayGenerator: DelayGenerator
+        private val messageDelayGenerator: DelayGenerator,
+        private val stubDB: StubDB<R>?
 
 ): Runner {
 
@@ -34,12 +36,12 @@ class RepetitionRunner(
      */
     override fun run(execution: Execution, application: Application) {
 
-        val topology: Topology<*> = application.loadTopology(topologyFile, topologyReader) {
+        val topology: Topology<R> = application.loadTopology(topologyFile, topologyReader) {
             topologyReader.read()
         }
 
-        val destination: Node<*> = application.findDestination(destination) {
-            topology[destination]
+        val destination: Node<R> = application.findDestination(destinationID) {
+            topology[destinationID] ?: stubDB?.getStub(destinationID, topology)
         }
 
         Engine.messageDelayGenerator = messageDelayGenerator
