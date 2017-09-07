@@ -118,3 +118,18 @@ class SSBGP2(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable
         return alternativeRoute.localPref < prevSelectedRoute.localPref
     }
 }
+
+/**
+ * ISS-BGP version 2 Protocol: it uses the detection condition of SS-BGP2 and also checks if the tail of looping
+ * path matches the path of the alternative route.
+ */
+class ISSBGP2(mrai: Time = 0, routingTable: RoutingTable<BGPRoute> = RoutingTable.empty(BGPRoute.invalid()))
+    : BaseSSBGP(mrai, routingTable) {
+
+    override fun isRecurrent(node: Node<BGPRoute>, learnedRoute: BGPRoute, alternativeRoute: BGPRoute,
+                             prevSelectedRoute: BGPRoute): Boolean {
+
+        return alternativeRoute.localPref < prevSelectedRoute.localPref &&
+                alternativeRoute.asPath == learnedRoute.asPath.subPathBefore(node)
+    }
+}
