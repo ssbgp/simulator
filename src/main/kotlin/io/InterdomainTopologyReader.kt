@@ -62,9 +62,10 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Close
             "ssbgp" -> SSBGP(mrai)
             "issbgp" -> ISSBGP(mrai)
             "ssbgp2" -> SSBGP2(mrai)
+            "issbgp2" -> ISSBGP2(mrai)
             else -> throw ParseException(
                     "Protocol label `$protocolLabel` was not recognized: supported labels are BGP, " +
-                    "SSBGP, ISSBGP, and SSBGP2", currentLine)
+                    "SSBGP, ISSBGP, SSBGP2, and ISSBGP2", currentLine)
         }
 
         try {
