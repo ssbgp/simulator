@@ -19,6 +19,12 @@ fun peerplusRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
         = BGPRoute.with(localPref = LOCAL_PREF_PEERPLUS - siblingHops, asPath = asPath)
 
 /**
+ * Returns a peer* route.
+ */
+fun peerstarRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
+        = BGPRoute.with(localPref = LOCAL_PREF_PEERSTAR - siblingHops, asPath = asPath)
+
+/**
  * Returns a customer route.
  */
 fun customerRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
