@@ -16,6 +16,7 @@ import core.routing.Extender
  * Parses an Interdomain Extender. The supported labels are:
  *
  *  R+ - parsed as a PeerplusExtender
+ *  R* - parsed as a PeerstarExtender
  *  C  - parsed as a CustomerExtender
  *  R  - parsed as a PeerExtender
  *  P  - parsed as a ProviderExtender
@@ -33,12 +34,13 @@ fun parseInterdomainExtender(label: String, lineNumber: Int): Extender<BGPRoute>
 
     return when (label.toLowerCase()) {
         "r+" -> PeerplusExtender
+        "r*" -> PeerstarExtender
         "c" -> CustomerExtender
         "r" -> PeerExtender
         "p" -> ProviderExtender
         "s" -> SiblingExtender
         else -> throw ParseException("Extender label `$label` was not recognized: " +
-                "must be either R+, C, R, P, or S", lineNumber)
+                "must be either R+, R*, C, R, P, or S", lineNumber)
     }
 }
 

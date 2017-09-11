@@ -83,6 +83,11 @@ infix fun TopologyBuilder<BGPRoute>.peerplusLink(createLink: () -> TemporaryLink
     this.link(link.tail, link.head, PeerplusExtender)
 }
 
+infix fun TopologyBuilder<BGPRoute>.peerstarLink(createLink: () -> TemporaryLink) {
+    val link = createLink()
+    this.link(link.tail, link.head, PeerstarExtender)
+}
+
 infix fun TopologyBuilder<BGPRoute>.customerLink(createLink: () -> TemporaryLink) {
     val link = createLink()
     this.link(link.tail, link.head, CustomerExtender)
