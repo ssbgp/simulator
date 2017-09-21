@@ -1,12 +1,12 @@
 package bgp.policies.interdomain
 
 import bgp.bgpRouteCompare
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
+import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import org.hamcrest.Matchers.`is` as Is
 
 
@@ -47,6 +47,22 @@ object InterdomainCompareRoutesTests: Spek({
 
             it("returns customer route has higher preference") {
                 assertThat(bgpRouteCompare(customerRoute(), providerRoute()),
+                        Is(greaterThan(0)))
+            }
+        }
+
+        on("comparing a customer route and a peer* route") {
+
+            it("returns peer* route has higher preference") {
+                assertThat(bgpRouteCompare(peerstarRoute(), customerRoute()),
+                        Is(greaterThan(0)))
+            }
+        }
+
+        on("comparing a peer+ route and a peer* route") {
+
+            it("returns peer+ route has higher preference") {
+                assertThat(bgpRouteCompare(peerplusRoute(), peerstarRoute()),
                         Is(greaterThan(0)))
             }
         }
