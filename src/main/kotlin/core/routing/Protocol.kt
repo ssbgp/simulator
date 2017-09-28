@@ -11,6 +11,11 @@ interface Protocol<R: Route> {
     val inNeighbors: Collection<Neighbor<R>>
 
     /**
+     * The route selected by the protocol.
+     */
+    val selectedRoute: R
+
+    /**
      * Adds a new in-neighbor for the protocol to consider.
      */
     fun addInNeighbor(neighbor: Neighbor<R>)

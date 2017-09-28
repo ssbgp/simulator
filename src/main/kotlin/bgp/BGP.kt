@@ -31,6 +31,12 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      */
     val routingTable = RouteSelector.wrap(routingTable, ::bgpRouteCompare)
 
+    /**
+     * The route selected by the protocol.
+     */
+    override val selectedRoute: BGPRoute
+        get() = routingTable.getSelectedRoute()
+
     var mraiTimer = Timer.disabled()
         protected set
 
