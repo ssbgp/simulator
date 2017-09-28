@@ -71,7 +71,7 @@ object Engine {
             event.processIt()
         }
 
-        BasicNotifier.notifyEnd(EndNotification())
+        BasicNotifier.notifyEnd(EndNotification(topology))
 
         return terminatedBeforeThreshold
     }

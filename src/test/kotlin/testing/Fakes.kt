@@ -34,6 +34,9 @@ object FakeProtocol: Protocol<Route> {
     override val inNeighbors: Collection<Neighbor<Route>>
         get() = TODO("not implemented yet")
 
+    override val selectedRoute: Route
+        get() = TODO("not implemented yet")
+
     override fun addInNeighbor(neighbor: Neighbor<Route>) {
         TODO("not implemented yet")
     }

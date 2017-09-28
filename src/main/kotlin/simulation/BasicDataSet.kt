@@ -15,6 +15,7 @@ import core.simulator.Time
  * @property avgTerminationTime   the average of the termination times of all nodes
  * @property detectionCount       the number of detections recorded during the simulation.
  * @property terminated           flag indicating if the simulation terminated or not
+ * @property disconnectedCount     number of nodes left without a route when the simulation ended.
  */
 data class BasicDataSet(
         var delaySeed: Long = 0L,
@@ -22,7 +23,8 @@ data class BasicDataSet(
         var totalTerminationTime: Time = 0,
         var avgTerminationTime: Double = 0.0,
         var detectionCount: Int = 0,
-        var terminated: Boolean = true
+        var terminated: Boolean = true,
+        var disconnectedCount: Int = 0
 
 ): DataSet {
 
@@ -36,5 +38,6 @@ data class BasicDataSet(
         avgTerminationTime = 0.0
         detectionCount = 0
         terminated = true
+        disconnectedCount = 0
     }
 }

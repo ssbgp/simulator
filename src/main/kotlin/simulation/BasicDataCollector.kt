@@ -18,17 +18,18 @@ import java.io.IOException
  *
  * @param reporter the reporter used to report the final data.
  */
-class BasicDataCollector(private val reporter: BasicReporter): DataCollector,
+class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
         StartListener,
         MessageSentListener,
         ExportListener,
         DetectListener,
-        ThresholdReachedListener {
+        ThresholdReachedListener,
+        EndListener {
 
     /**
      * Creates a Basic Reporter that will output results to the specified output file.
      */
-    constructor(outputFile: File): this(BasicReporter(outputFile))
+    constructor(outputFile: File) : this(BasicReporter(outputFile))
 
     /**
      * Stores the final data to be reported.
@@ -57,6 +58,7 @@ class BasicDataCollector(private val reporter: BasicReporter): DataCollector,
         BGPNotifier.addExportListener(this)
         BGPNotifier.addDetectListener(this)
         BasicNotifier.addThresholdReachedListener(this)
+        BasicNotifier.addEndListener(this)
     }
 
     /**
@@ -68,6 +70,7 @@ class BasicDataCollector(private val reporter: BasicReporter): DataCollector,
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeDetectListener(this)
         BasicNotifier.removeThresholdReachedListener(this)
+        BasicNotifier.removeEndListener(this)
     }
 
     /**
@@ -136,6 +139,16 @@ class BasicDataCollector(private val reporter: BasicReporter): DataCollector,
      */
     override fun notify(notification: ThresholdReachedNotification) {
         data.terminated = false
+    }
+
+    /**
+     * Invoked to notify the listener of a new end notification.
+     */
+    override fun notify(notification: EndNotification) {
+
+        data.disconnectedCount = notification.topology.nodes
+                .filterNot { it.protocol.selectedRoute.isValid() }
+                .count()
     }
 
     // endregion
