@@ -1,8 +1,8 @@
 group 'ssbgp'
-version '1.1.1'
+version '1.2'
 
 buildscript {
-    ext.kotlin_version = '1.1.4-3'
+    ext.kotlin_version = '1.1.50'
     ext.dokka_version = '0.9.15'
     ext.junit_version = '1.0.0-M4'
     ext.junit5_version = '5.0.0-M4'

@@ -2,9 +2,7 @@ package io
 
 import simulation.BasicDataSet
 import java.io.File
-import java.io.FileWriter
 import java.io.IOException
-import java.io.Writer
 
 
 /**
@@ -45,7 +43,8 @@ class BasicReporter(private val outputFile: File): Reporter<BasicDataSet> {
                         "Termination Time (Avg.)",
                         "Message Count",
                         "Detection Count",
-                        "Terminated"
+                        "Terminated",
+                        "Disconnected Count"
                 )
 
                 wereHeadersPrinted = true
@@ -58,7 +57,8 @@ class BasicReporter(private val outputFile: File): Reporter<BasicDataSet> {
                     data.avgTerminationTime,
                     data.messageCount,
                     data.detectionCount,
-                    if (data.terminated) "Yes" else "No"
+                    if (data.terminated) "Yes" else "No",
+                    data.disconnectedCount
             )
 
             simulation++
