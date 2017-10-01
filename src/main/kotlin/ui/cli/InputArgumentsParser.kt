@@ -21,6 +21,7 @@ class InputArgumentsParser {
 
     //region Options
 
+    private val VERSION = "version"
     private val TOPOLOGY_FILE = "topology"
     private val DESTINATION = "destination"
     private val REPETITIONS = "repetitions"
@@ -35,6 +36,7 @@ class InputArgumentsParser {
 
     init {
         // setup the command options
+        options.addOption("v", VERSION, false, "show the version number")
         options.addOption("t", TOPOLOGY_FILE, true, "path to topology file")
         options.addOption("d", DESTINATION, true, "ID of the destination")
         options.addOption("c", REPETITIONS, true, "number of repetitions")
@@ -42,7 +44,7 @@ class InputArgumentsParser {
         options.addOption(MIN_DELAY, true, "minimum message delay (inclusive)")
         options.addOption(MAX_DELAY, true, "maximum message delay (inclusive)")
         options.addOption("th", THRESHOLD, true, "threshold value")
-        options.addOption(SEED, true, "first seed used for generate message delays")
+        options.addOption(SEED, true, "first seed used to generate message delays")
         options.addOption(STUBS, true, "path to stubs file")
     }
 
@@ -53,6 +55,22 @@ class InputArgumentsParser {
             DefaultParser().parse(options, args)
         } catch (e: ParseException) {
             throw InputArgumentsException(e.message.toString())
+        }
+
+        if (commandLine.hasOption(VERSION)) {
+
+            if (commandLine.options.size > 1) {
+                throw InputArgumentsException("when option -v/-version is specified, no more options are expected ")
+            }
+
+            javaClass.getResourceAsStream("/version.properties").use {
+                val properties = Properties()
+                properties.load(it)
+
+                println("SS-BGP Simulator: ${properties.getProperty("application.version")}")
+            }
+
+            System.exit(0)
         }
 
         commandLine.let {

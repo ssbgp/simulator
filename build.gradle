@@ -1,5 +1,5 @@
 group 'ssbgp'
-version '1.3-SNAPSHOT'
+version properties.get('application.version')
 
 buildscript {
     ext.kotlin_version = '1.1.50'
@@ -77,6 +77,14 @@ task enabledMockingFinalClasses << {
 }
 
 jar {
+
+    task updateProjectVersion {
+        def versionFile = new File("$projectDir/src/main/resources/version.properties")
+        versionFile.parentFile.mkdirs()
+        versionFile.createNewFile()
+        versionFile.write("application.version=${version}")
+    }
+
     manifest {
         attributes 'Main-Class': 'main.MainKt'
     }
