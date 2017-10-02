@@ -34,7 +34,7 @@ object CLIApplication: Application {
             exitProcess(1)
 
         } catch (e: Exception){
-            console.error("Program was interrupted due to unexpected error.")
+            console.error("Program was interrupted due to unexpected error: ${e.javaClass.simpleName}")
             console.error("Cause: ${e.message ?: "No information available."}")
             exitProcess(1)
         }

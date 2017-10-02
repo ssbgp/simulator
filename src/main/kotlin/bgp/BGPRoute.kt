@@ -69,6 +69,34 @@ sealed class BGPRoute : Route {
     override fun toString(): String {
         return "BGPRoute(localPref=$localPref, asPath=$asPath)"
     }
+
+    /**
+     * Two BGP routes are considered equal if and only if they have the same exact local preference value and the
+     * same AS path
+     */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BGPRoute
+
+        if (localPref != other.localPref) return false
+
+        // trick to avoid having to compare each node of the AS-paths most times
+        if (asPath.size != other.asPath.size) return false
+
+        if (asPath != other.asPath) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = localPref
+        result = 31 * result + asPath.hashCode()
+        return result
+    }
+
+
 }
 
 /**

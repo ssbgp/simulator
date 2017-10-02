@@ -57,6 +57,7 @@ class RepetitionRunner<R: Route>(
 
                     // Cleanup for next execution
                     topology.reset()
+                    destination.reset()
                     Engine.messageDelayGenerator.generateNewSeed()
                 }
 

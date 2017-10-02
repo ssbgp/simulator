@@ -21,6 +21,7 @@ class InputArgumentsParser {
 
     //region Options
 
+    private val VERSION = "version"
     private val TOPOLOGY_FILE = "topology"
     private val DESTINATION = "destination"
     private val REPETITIONS = "repetitions"
@@ -30,11 +31,13 @@ class InputArgumentsParser {
     private val THRESHOLD = "threshold"
     private val SEED = "seed"
     private val STUBS = "stubs"
+    private val NODE_REPORT = "reportnodes"
 
     private val options = Options()
 
     init {
         // setup the command options
+        options.addOption("v", VERSION, false, "show the version number")
         options.addOption("t", TOPOLOGY_FILE, true, "path to topology file")
         options.addOption("d", DESTINATION, true, "ID of the destination")
         options.addOption("c", REPETITIONS, true, "number of repetitions")
@@ -42,8 +45,9 @@ class InputArgumentsParser {
         options.addOption(MIN_DELAY, true, "minimum message delay (inclusive)")
         options.addOption(MAX_DELAY, true, "maximum message delay (inclusive)")
         options.addOption("th", THRESHOLD, true, "threshold value")
-        options.addOption(SEED, true, "first seed used for generate message delays")
+        options.addOption(SEED, true, "first seed used to generate message delays")
         options.addOption(STUBS, true, "path to stubs file")
+        options.addOption("rn", NODE_REPORT, false, "output data for each individual node")
     }
 
     @Throws(InputArgumentsException::class)
@@ -53,6 +57,22 @@ class InputArgumentsParser {
             DefaultParser().parse(options, args)
         } catch (e: ParseException) {
             throw InputArgumentsException(e.message.toString())
+        }
+
+        if (commandLine.hasOption(VERSION)) {
+
+            if (commandLine.options.size > 1) {
+                throw InputArgumentsException("when option -v/-version is specified, no more options are expected ")
+            }
+
+            javaClass.getResourceAsStream("/version.properties").use {
+                val properties = Properties()
+                properties.load(it)
+
+                println("SS-BGP Simulator: ${properties.getProperty("application.version")}")
+            }
+
+            System.exit(0)
         }
 
         commandLine.let {
@@ -75,7 +95,12 @@ class InputArgumentsParser {
 
             // If the topology filename is `topology.nf` and the destination is 10 the report filename
             // is `topology_10.basic.csv`
-            val reportFile = File(reportDirectory, topologyFile.nameWithoutExtension.plus("_$destination.basic.csv"))
+            val basicReportFile = File(reportDirectory,
+                    topologyFile.nameWithoutExtension.plus("_$destination.basic.csv"))
+
+            val nodesReportFile = File(reportDirectory,
+                    topologyFile.nameWithoutExtension.plus("_$destination.nodes.csv"))
+
             val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
             val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
 
@@ -94,7 +119,11 @@ class InputArgumentsParser {
                     stubDB
             )
             val execution = SimpleAdvertisementExecution(threshold).apply {
-                dataCollectors.add(BasicDataCollector(reportFile))
+                dataCollectors.add(BasicDataCollector(basicReportFile))
+
+                if (commandLine.hasOption(NODE_REPORT)) {
+                    dataCollectors.add(NodeDataCollector(nodesReportFile))
+                }
             }
 
             return Pair(runner, execution)

@@ -1,8 +1,8 @@
 group 'ssbgp'
-version '1.2'
+version properties.get('application.version')
 
 buildscript {
-    ext.kotlin_version = '1.1.50'
+    ext.kotlin_version = '1.1.51'
     ext.dokka_version = '0.9.15'
     ext.junit_version = '1.0.0-M4'
     ext.junit5_version = '5.0.0-M4'
@@ -77,6 +77,14 @@ task enabledMockingFinalClasses << {
 }
 
 jar {
+
+    task updateProjectVersion {
+        def versionFile = new File("$projectDir/src/main/resources/version.properties")
+        versionFile.parentFile.mkdirs()
+        versionFile.createNewFile()
+        versionFile.write("application.version=${version}")
+    }
+
     manifest {
         attributes 'Main-Class': 'main.MainKt'
     }
