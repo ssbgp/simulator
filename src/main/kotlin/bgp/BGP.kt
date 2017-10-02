@@ -48,6 +48,12 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
     protected var wasSelectedRouteUpdated: Boolean = false
 
     /**
+     * Stores the last route that was exported to neighbors.
+     * This is used to ensure that a selected and exported is not exported again when the MRAI expires.
+     */
+    private var lastExportedRoute = BGPRoute.invalid()
+
+    /**
      * Adds a new in-neighbor for the protocol to export selected routes to.
      *
      * It does not check if the neighbor was already added to the protocol. Thus, the same neighbor can be added
@@ -160,9 +166,17 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
 
         val selectedRoute = routingTable.getSelectedRoute()
 
+        if (selectedRoute == lastExportedRoute) {
+            // No need to export any route since the currently selected route corresponds to the
+            // last exported route
+            // This test prevents routes from being exported multiple times before and after the MRAI expires
+            return
+        }
+
         // Export the route currently selected
         node.send(selectedRoute)
         BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
+        lastExportedRoute = selectedRoute
 
         if (restartMRAITimer && mrai > 0) {
             // Restart the MRAI timer
