@@ -31,6 +31,7 @@ class InputArgumentsParser {
     private val THRESHOLD = "threshold"
     private val SEED = "seed"
     private val STUBS = "stubs"
+    private val NODE_REPORT = "reportnodes"
 
     private val options = Options()
 
@@ -46,6 +47,7 @@ class InputArgumentsParser {
         options.addOption("th", THRESHOLD, true, "threshold value")
         options.addOption(SEED, true, "first seed used to generate message delays")
         options.addOption(STUBS, true, "path to stubs file")
+        options.addOption("rn", NODE_REPORT, false, "output data for each individual node")
     }
 
     @Throws(InputArgumentsException::class)
@@ -93,7 +95,12 @@ class InputArgumentsParser {
 
             // If the topology filename is `topology.nf` and the destination is 10 the report filename
             // is `topology_10.basic.csv`
-            val reportFile = File(reportDirectory, topologyFile.nameWithoutExtension.plus("_$destination.basic.csv"))
+            val basicReportFile = File(reportDirectory,
+                    topologyFile.nameWithoutExtension.plus("_$destination.basic.csv"))
+
+            val nodesReportFile = File(reportDirectory,
+                    topologyFile.nameWithoutExtension.plus("_$destination.nodes.csv"))
+
             val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
             val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
 
@@ -112,7 +119,11 @@ class InputArgumentsParser {
                     stubDB
             )
             val execution = SimpleAdvertisementExecution(threshold).apply {
-                dataCollectors.add(BasicDataCollector(reportFile))
+                dataCollectors.add(BasicDataCollector(basicReportFile))
+
+                if (commandLine.hasOption(NODE_REPORT)) {
+                    dataCollectors.add(NodeDataCollector(nodesReportFile))
+                }
             }
 
             return Pair(runner, execution)
