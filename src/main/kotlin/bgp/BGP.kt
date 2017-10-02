@@ -195,6 +195,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         wasSelectedRouteUpdated = false
         mraiTimer.cancel()
         mraiTimer = Timer.disabled()
+        lastExportedRoute = BGPRoute.invalid()
     }
 
     /**
