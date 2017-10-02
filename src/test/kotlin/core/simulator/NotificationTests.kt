@@ -3,13 +3,13 @@ package core.simulator
 import bgp.BGP
 import bgp.SSBGP
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is` as Is
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import testing.*
 import utils.collectBGPNotifications
+import org.hamcrest.Matchers.`is` as Is
 
 /**
  * Created on 26-07-2017.
@@ -23,8 +23,8 @@ object NotificationsTests: Spek({
         on("simulating topology with only one link") {
 
             val topology = bgpTopology {
-                node { 0 deploying BGP() }
-                node { 1 deploying BGP() }
+                node { 0 deploying BGP(mrai = 1) }
+                node { 1 deploying BGP(mrai = 1) }
 
                 link { 1 to 0 withCost 10 }
             }
@@ -72,11 +72,11 @@ object NotificationsTests: Spek({
             }
 
             it("issues export notification 2 times") {
-                // Although node 1 has no in-neighbors two export notifications are sent
-                // This is because the export notification indicates that node exports a route not that it actually
-                // sent any route to any neighbor
-                // Note that the sent notification coutn is only one indicating that only 1 message was sent from
-                // node 0 to node 1
+                // Although node 1 has no in-neighbors, two export notifications are sent
+                // This is because the export notification indicates that a node exports a
+                // route not that it actually sent any route to any neighbor.
+                // Note that the sent notification count is only one indicating that only
+                // 1 message was sent from  node 0 to node 1
                 assertThat(collector.exportNotifications.size, Is(2))
             }
         }
