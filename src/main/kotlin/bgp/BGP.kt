@@ -167,9 +167,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         val selectedRoute = routingTable.getSelectedRoute()
 
         if (selectedRoute == lastExportedRoute) {
-            // No need to export any route since the currently selected route corresponds to the
-            // last exported route
-            // This test prevents routes from being exported multiple times before and after the MRAI expires
+            // Do not export if the selected route is equal to the last route exported by the node
             return
         }
 
