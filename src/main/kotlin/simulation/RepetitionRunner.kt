@@ -6,9 +6,12 @@ import core.routing.Route
 import core.routing.Topology
 import core.simulator.DelayGenerator
 import core.simulator.Engine
+import core.simulator.Time
+import io.Metadata
 import io.TopologyReaderHandler
 import ui.Application
 import java.io.File
+import java.time.Instant
 
 /**
  * Created on 29-08-2017
@@ -21,7 +24,9 @@ class RepetitionRunner<R: Route>(
         private val destinationID: NodeID,
         private val repetitions: Int,
         private val messageDelayGenerator: DelayGenerator,
-        private val stubDB: StubDB<R>?
+        private val stubDB: StubDB<R>?,
+        private val threshold: Time,
+        private val metadataFile: File
 
 ): Runner {
 
@@ -35,6 +40,8 @@ class RepetitionRunner<R: Route>(
      * @param application the application running that wants to monitor progress and handle errors
      */
     override fun run(execution: Execution, application: Application) {
+
+        val startInstant = Instant.now()
 
         val topology: Topology<R> = application.loadTopology(topologyFile, topologyReader) {
             topologyReader.read()
@@ -52,7 +59,7 @@ class RepetitionRunner<R: Route>(
                 repeat(times = repetitions) { repetition ->
 
                     application.execute(repetition + 1, destination, messageDelayGenerator.seed) {
-                        execution.execute(topology, destination)
+                        execution.execute(topology, destination, threshold)
                     }
 
                     // Cleanup for next execution
@@ -66,5 +73,19 @@ class RepetitionRunner<R: Route>(
                 Engine.resetToDefaults()
             }
         }
+
+        // Output metadata
+        Metadata(
+                Engine.version(),
+                startInstant,
+                finishInstant = Instant.now(),
+                topologyFilename = topologyFile.name,
+                stubsFilename = stubDB?.stubsFile?.name,
+                destinationID = destinationID,
+                minDelay = messageDelayGenerator.min,
+                maxDelay = messageDelayGenerator.max,
+                threshold = threshold
+        ).print(metadataFile)
+
     }
 }

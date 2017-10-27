@@ -15,7 +15,7 @@ import java.util.Random
  * @param seed the seed used to generate the random delays
  */
 class RandomDelayGenerator
-private constructor(val min: Time, val max: Time, seed: Long): DelayGenerator {
+private constructor(override val min: Time, override val max: Time, seed: Long): DelayGenerator {
 
     /**
      * Initial seed used for the generator. When reset() is called this seed is reused.
