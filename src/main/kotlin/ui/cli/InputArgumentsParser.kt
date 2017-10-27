@@ -1,6 +1,7 @@
 package ui.cli
 
 import bgp.BGP
+import core.simulator.Engine
 import core.simulator.RandomDelayGenerator
 import io.InterdomainTopologyReaderHandler
 import io.parseInterdomainExtender
@@ -65,12 +66,7 @@ class InputArgumentsParser {
                 throw InputArgumentsException("when option -v/-version is specified, no more options are expected ")
             }
 
-            javaClass.getResourceAsStream("/version.properties").use {
-                val properties = Properties()
-                properties.load(it)
-
-                println("SS-BGP Simulator: ${properties.getProperty("application.version")}")
-            }
+            println("SS-BGP Simulator: ${Engine.version()}")
 
             System.exit(0)
         }
