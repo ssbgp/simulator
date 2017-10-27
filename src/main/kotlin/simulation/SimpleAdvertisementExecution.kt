@@ -11,7 +11,7 @@ import java.io.IOException
  *
  * @author David Fialho
  */
-class SimpleAdvertisementExecution(val threshold: Time): Execution {
+class SimpleAdvertisementExecution: Execution {
 
     val dataCollectors = DataCollectorGroup()
 
@@ -24,7 +24,7 @@ class SimpleAdvertisementExecution(val threshold: Time): Execution {
      * @throws IOException If an I/O error occurs
      */
     @Throws(IOException::class)
-    override fun execute(topology: Topology<*>, destination: Node<*>) {
+    override fun execute(topology: Topology<*>, destination: Node<*>, threshold: Time) {
 
         dataCollectors.clear()
 

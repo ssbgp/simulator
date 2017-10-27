@@ -8,9 +8,19 @@ package core.simulator
 interface DelayGenerator {
 
     /**
-     * Th seed used to generate the delays.
+     * The seed used to generate the delays.
      */
     val seed: Long
+
+    /**
+     * Minimum delay that the generator will generate.
+     */
+    val min: Time
+
+    /**
+     * Maximum delay that the generator will generate.
+     */
+    val max: Time
 
     /**
      * Generates the next delay value and returns it.

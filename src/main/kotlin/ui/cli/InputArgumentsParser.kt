@@ -91,11 +91,11 @@ class InputArgumentsParser {
 
             // If the topology filename is `topology.nf` and the destination is 10 the report filename
             // is `topology_10.basic.csv`
-            val basicReportFile = File(reportDirectory,
-                    topologyFile.nameWithoutExtension.plus("_$destination.basic.csv"))
+            val outputName = topologyFile.nameWithoutExtension
 
-            val nodesReportFile = File(reportDirectory,
-                    topologyFile.nameWithoutExtension.plus("_$destination.nodes.csv"))
+            val basicReportFile = File(reportDirectory, outputName.plus("_$destination.basic.csv"))
+            val nodesReportFile = File(reportDirectory, outputName.plus("_$destination.nodes.csv"))
+            val metadataFile = File(reportDirectory, outputName.plus("_$destination.meta.txt"))
 
             val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
             val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
@@ -112,9 +112,12 @@ class InputArgumentsParser {
                     destination,
                     repetitions,
                     messageDelayGenerator,
-                    stubDB
+                    stubDB,
+                    threshold,
+                    metadataFile
             )
-            val execution = SimpleAdvertisementExecution(threshold).apply {
+
+            val execution = SimpleAdvertisementExecution().apply {
                 dataCollectors.add(BasicDataCollector(basicReportFile))
 
                 if (commandLine.hasOption(NODE_REPORT)) {
