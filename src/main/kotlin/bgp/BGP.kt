@@ -157,7 +157,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      *
      * @param node  the node exporting the node
      */
-    protected fun export(node: Node<BGPRoute>, restartMRAITimer: Boolean = true) {
+    protected fun export(node: Node<BGPRoute>) {
 
         if (!mraiTimer.expired) {
             // The MRAI timer is still running: no route is exported while the MRAI timer is running
@@ -167,9 +167,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         val selectedRoute = routingTable.getSelectedRoute()
 
         if (selectedRoute == lastExportedRoute) {
-            // No need to export any route since the currently selected route corresponds to the
-            // last exported route
-            // This test prevents routes from being exported multiple times before and after the MRAI expires
+            // Do not export if the selected route is equal to the last route exported by the node
             return
         }
 
@@ -178,11 +176,12 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
         lastExportedRoute = selectedRoute
 
-        if (restartMRAITimer && mrai > 0) {
+        if (mrai > 0) {
             // Restart the MRAI timer
             mraiTimer = Timer.enabled(mrai) {
-                export(node, restartMRAITimer = false)
-            } // when the timer expires
+                export(node)    // when the timer expires
+            }
+
             mraiTimer.start()
         }
     }

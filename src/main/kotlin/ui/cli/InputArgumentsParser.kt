@@ -1,6 +1,7 @@
 package ui.cli
 
 import bgp.BGP
+import core.simulator.Engine
 import core.simulator.RandomDelayGenerator
 import io.InterdomainTopologyReaderHandler
 import io.parseInterdomainExtender
@@ -65,12 +66,7 @@ class InputArgumentsParser {
                 throw InputArgumentsException("when option -v/-version is specified, no more options are expected ")
             }
 
-            javaClass.getResourceAsStream("/version.properties").use {
-                val properties = Properties()
-                properties.load(it)
-
-                println("SS-BGP Simulator: ${properties.getProperty("application.version")}")
-            }
+            println("SS-BGP Simulator: ${Engine.version()}")
 
             System.exit(0)
         }
@@ -95,11 +91,11 @@ class InputArgumentsParser {
 
             // If the topology filename is `topology.nf` and the destination is 10 the report filename
             // is `topology_10.basic.csv`
-            val basicReportFile = File(reportDirectory,
-                    topologyFile.nameWithoutExtension.plus("_$destination.basic.csv"))
+            val outputName = topologyFile.nameWithoutExtension
 
-            val nodesReportFile = File(reportDirectory,
-                    topologyFile.nameWithoutExtension.plus("_$destination.nodes.csv"))
+            val basicReportFile = File(reportDirectory, outputName.plus("_$destination.basic.csv"))
+            val nodesReportFile = File(reportDirectory, outputName.plus("_$destination.nodes.csv"))
+            val metadataFile = File(reportDirectory, outputName.plus("_$destination.meta.txt"))
 
             val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
             val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
@@ -116,9 +112,12 @@ class InputArgumentsParser {
                     destination,
                     repetitions,
                     messageDelayGenerator,
-                    stubDB
+                    stubDB,
+                    threshold,
+                    metadataFile
             )
-            val execution = SimpleAdvertisementExecution(threshold).apply {
+
+            val execution = SimpleAdvertisementExecution().apply {
                 dataCollectors.add(BasicDataCollector(basicReportFile))
 
                 if (commandLine.hasOption(NODE_REPORT)) {

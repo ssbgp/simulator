@@ -6,6 +6,7 @@ import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.EndNotification
 import core.simulator.notifications.StartNotification
 import core.simulator.notifications.ThresholdReachedNotification
+import java.util.*
 
 /**
  * Created on 23-07-2017
@@ -74,6 +75,19 @@ object Engine {
         BasicNotifier.notifyEnd(EndNotification(topology))
 
         return terminatedBeforeThreshold
+    }
+
+    /**
+     * Returns the simulator version.
+     * It obtains the version from the resource where the simulator's version is defined.
+     */
+    fun version(): String {
+
+        javaClass.getResourceAsStream("/version.properties").use {
+            val properties = Properties()
+            properties.load(it)
+            return properties.getProperty("application.version")
+        }
     }
 
 }

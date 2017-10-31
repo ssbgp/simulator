@@ -11,6 +11,10 @@ object ZeroDelayGenerator : DelayGenerator {
 
     override val seed = 0L
 
+    override val min: Time = 0
+
+    override val max: Time = 0
+
     override fun nextDelay(): Time = 0
 
     override fun reset() = Unit
