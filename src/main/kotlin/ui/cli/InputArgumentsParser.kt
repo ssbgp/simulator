@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
  */
 class InputArgumentsParser {
 
-    //region Options
+    private val MAIN_COMMAND = "ssbgp-simulator"
 
     // Information Options
     private val HELP = "help"
@@ -131,6 +131,14 @@ class InputArgumentsParser {
             DefaultParser().parse(options, args)
         } catch (e: ParseException) {
             throw InputArgumentsException(e.message.toString())
+        }
+
+        if (commandLine.hasOption(HELP)) {
+            val formatter = HelpFormatter()
+            formatter.width = 100
+
+            val usageHeader = "\nOptions:"
+            formatter.printHelp(MAIN_COMMAND, usageHeader, options, "", true)
         }
 
         if (commandLine.hasOption(VERSION)) {
