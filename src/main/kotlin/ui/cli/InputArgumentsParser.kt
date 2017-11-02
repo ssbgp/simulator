@@ -139,6 +139,7 @@ class InputArgumentsParser {
 
             val usageHeader = "\nOptions:"
             formatter.printHelp(MAIN_COMMAND, usageHeader, options, "", true)
+            exitProcess(0)
         }
 
         if (commandLine.hasOption(VERSION)) {
