@@ -2,8 +2,8 @@ package bgp
 
 import com.nhaarman.mockito_kotlin.*
 import core.routing.*
-import core.simulator.Time
 import core.simulator.Engine
+import core.simulator.Time
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
@@ -547,9 +547,9 @@ object BGPTests : Spek({
                     verify(node, times(1)).send(exportedRoute)
                 }
 
-                it("does NOT start a new MRAI timer") {
+                it("does start a new MRAI timer") {
                     assertThat(protocol.mraiTimer.expired,
-                            Is(true))
+                            Is(false))
                 }
             }
         }
