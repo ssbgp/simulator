@@ -5,13 +5,12 @@ import core.simulator.Engine
 import core.simulator.RandomDelayGenerator
 import io.InterdomainTopologyReaderHandler
 import io.parseInterdomainExtender
-import org.apache.commons.cli.CommandLine
-import org.apache.commons.cli.DefaultParser
-import org.apache.commons.cli.Options
-import org.apache.commons.cli.ParseException
+import org.apache.commons.cli.*
 import simulation.*
 import java.io.File
 import java.util.*
+import kotlin.system.exitProcess
+
 
 /**
  * Created on 30-08-2017
@@ -22,7 +21,11 @@ class InputArgumentsParser {
 
     //region Options
 
+    // Information Options
+    private val HELP = "help"
     private val VERSION = "version"
+
+    // Execution Options
     private val TOPOLOGY_FILE = "topology"
     private val DESTINATION = "destination"
     private val REPETITIONS = "repetitions"
@@ -37,18 +40,88 @@ class InputArgumentsParser {
     private val options = Options()
 
     init {
-        // setup the command options
-        options.addOption("v", VERSION, false, "show the version number")
-        options.addOption("t", TOPOLOGY_FILE, true, "path to topology file")
-        options.addOption("d", DESTINATION, true, "ID of the destination")
-        options.addOption("c", REPETITIONS, true, "number of repetitions")
-        options.addOption("o", REPORT_DIRECTORY, true, "directory where to output results")
-        options.addOption(MIN_DELAY, true, "minimum message delay (inclusive)")
-        options.addOption(MAX_DELAY, true, "maximum message delay (inclusive)")
-        options.addOption("th", THRESHOLD, true, "threshold value")
-        options.addOption(SEED, true, "first seed used to generate message delays")
-        options.addOption(STUBS, true, "path to stubs file")
-        options.addOption("rn", NODE_REPORT, false, "output data for each individual node")
+
+        options.apply {
+
+            // Information Options
+            addOption(Option.builder("h")
+                    .desc("Print help")
+                    .required(false)
+                    .hasArg(false)
+                    .longOpt(HELP)
+                    .build())
+            addOption(Option.builder("V")
+                    .desc("Print application's version")
+                    .required(false)
+                    .hasArg(false)
+                    .longOpt(VERSION)
+                    .build())
+
+            // Execution Options
+            addOption(Option.builder("t")
+                    .desc("Topology file to simulate with")
+                    .hasArg(true)
+                    .argName("topology-file")
+                    .longOpt(TOPOLOGY_FILE)
+                    .build())
+            addOption(Option.builder("d")
+                    .desc("ID of destination node")
+                    .hasArg(true)
+                    .argName("destination")
+                    .longOpt(DESTINATION)
+                    .build())
+            addOption(Option.builder("c")
+                    .desc("Number of executions to run [default: 1]")
+                    .hasArg(true)
+                    .argName("executions")
+                    .longOpt(REPETITIONS)
+                    .build())
+            addOption(Option.builder("o")
+                    .desc("Directory to place reports [default: working directory]")
+                    .hasArg(true)
+                    .argName("out-directory")
+                    .longOpt(REPORT_DIRECTORY)
+                    .build())
+            addOption(Option.builder("min")
+                    .desc("Minimum delay applied to the routing messages [default: 1]")
+                    .hasArg(true)
+                    .argName("mindelay")
+                    .longOpt(MIN_DELAY)
+                    .build())
+            addOption(Option.builder("max")
+                    .desc("Maximum delay applied to the routing messages [default: 1]")
+                    .hasArg(true)
+                    .argName("maxdelay")
+                    .longOpt(MAX_DELAY)
+                    .build())
+            addOption(Option.builder("th")
+                    .desc("Maximum amount simulation time [default: 1000000]")
+                    .hasArg(true)
+                    .argName("threshold")
+                    .longOpt(THRESHOLD)
+                    .build())
+            addOption(Option.builder("s")
+                    .desc("Seed used to generate the delays in the first execution")
+                    .required(false)
+                    .hasArg(true)
+                    .argName("threshold")
+                    .longOpt(SEED)
+                    .build())
+            addOption(Option.builder("S")
+                    .desc("Stubs file")
+                    .required(false)
+                    .hasArg(true)
+                    .argName("stubs-file")
+                    .longOpt(STUBS)
+                    .build())
+            addOption(Option.builder("rn")
+                    .desc("Output data for each individual node")
+                    .required(false)
+                    .hasArg(false)
+                    .longOpt(NODE_REPORT)
+                    .build())
+        }
+
     }
 
     @Throws(InputArgumentsException::class)
@@ -61,14 +134,8 @@ class InputArgumentsParser {
         }
 
         if (commandLine.hasOption(VERSION)) {
-
-            if (commandLine.options.size > 1) {
-                throw InputArgumentsException("when option -v/-version is specified, no more options are expected ")
-            }
-
             println("SS-BGP Simulator: ${Engine.version()}")
-
-            System.exit(0)
+            exitProcess(0)
         }
 
         commandLine.let {
@@ -128,6 +195,7 @@ class InputArgumentsParser {
             return Pair(runner, execution)
         }
     }
+
     @Throws(InputArgumentsException::class)
     private fun getFile(commandLine: CommandLine, option: String, default: Optional<File>? = null): Optional<File> {
         verifyOption(commandLine, option, default)
