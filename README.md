@@ -54,11 +54,9 @@ Replacing `<output-directory>` with the path to the directory where the simulato
 
 The first file is a simple text file, which includes some information about the setup of the simulation, such as the version of the simulator, the name of the topology file, etc. The second file contains the actual output of the simulation, the data obtained from the simulation. It is a Comma Separated Values (CSV) file containing a table with 8 columns and multiple rows (excluding the header row). Each row shows data corresponding to each simulation run. We suggest opening this file with a spreadsheet application, such as MS Excel or LibreOffice's Calc.
 
----
-
-*Note: If the `-c N` option was used, than the table will have `N` rows (excluding the header row), one row per simulation run. If the `-c` option was not used, than only a single simulation run was performed and, therefore, the file will contain only a single row.*
-
----
+| Note |
+|:---|
+| If the `-c N` option was used, than the table will have `N` rows (excluding the header row), one row per simulation run. If the `-c` option was not used, than only a single simulation run was performed and, therefore, the file will contain only a single row.* |
 
 Each column in the table corresponds to a piece of information collected by the simulator during the execution of each simulation run. The table includes the following columns:
 
@@ -113,7 +111,7 @@ Here is an example of a topology file with 3 nodes and 4 links.
     link = 1 | 2 | R+
     link = 2 | 1 | R+
 
-Each node deploys a different protocol: node 0 deploys BGP, node 1 deploys SS-BGP, and node 2 deploys the SS-BGP version 2. The same is through for the MRAI values: node 0 uses an MRAI of 5000, while nodes 1 and 2 use MRAI values of 3000 and 1000, respectively. 
+Each node deploys a different protocol: node 0 deploys BGP, node 1 deploys SS-BGP, and node 2 deploys the SS-BGP version 2. The same is through for the MRAI values: node 0 uses an MRAI of 5000, while nodes 1 and 2 use MRAI values of 3000 and 1000, respectively.
 
 There is a *customer link* from node 1 to node 0, and another one from node 2 to node 0. Nodes 1 and 2 are connected in both directions through peer+ links.
 
