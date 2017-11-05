@@ -14,13 +14,13 @@ The simulator application is composed of a single, self-contained, JAR file. It 
 
 1. Assuming the JRE is properly installed, open up the command line and type the following command, replacing `<path-to-jar-file>` with the path to the JAR file previously downloaded.
 
-        java -jar <path-to-jar-file> -v
+        java -jar <path-to-jar-file> --version
 
     If everything went ok, the message `SS-BGP Simulator: {version}`  should be present in the terminal prompt, where `{version}` corresponds to the version of the application that was downloaded. If any issues occur, check out the [Troubleshooting](Troubleshooting) section for solutions to common problems.
 
 ## Basic Usage
 
-The [Installation](#installation) section already showed how to run the simulator application using the `-v` option to show the simulator's version. This command is useful to determine if we are running the expected version of the simulator. But, it does not do much else.
+The [Installation](#installation) section already showed how to run the simulator application using the `--version` option to show the simulator's version. This command is useful to determine if we are running the expected version of the simulator. But, it does not do much else.
 
 **From this point on will assume the path to the simulator's JAR file is `simulator.jar`**
 
