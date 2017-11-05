@@ -2,8 +2,6 @@
 
 An event-driven routing simulator for Self-Stable BGP (SS-BGP). It is also capable to run the well known Border Gateway Protocol (BGP).
 
-# TODO describe the simulator a bit more
-
 ## Prerequisites
 
 The simulator is a java application, thus it requires the Java Runtime Environment (JRE) to run (version 8 or above). See the instructions on how to install the JRE on [Linux](https://docs.oracle.com/javase/8/docs/technotes/guides/install/linux_jre.html#CFHBJIIG), [Windows](https://docs.oracle.com/javase/8/docs/technotes/guides/install/windows_jre_install.html#CHDEDHAJ), and [macOS](https://docs.oracle.com/javase/8/docs/technotes/guides/install/mac_jre.html).
@@ -80,7 +78,7 @@ There are other useful options, not shown in this section, that may be of use. T
 
 ## Topology File
 
-The topology file is a text file with a pre-defined format. The format is very simple. Each line includes a single key and multiple values associated with that key. Keys are separated from values with an eauls sign `=` and values are separated between each other with a straight line `|`.
+The topology file is a text file with a predefined format. The format is very simple. Each line includes a single key and multiple values associated with that key. Keys are separated from values with an equals sign `=` and values are separated between each other with a straight line `|`.
 
 There are only two possible keys: `node` and `link`. The former describes a node, and the latter a link. Nodes have 3 values,
 
@@ -122,28 +120,61 @@ In progress...
 
 ### How to change the minimum and maximum message delays?
 
+The order with which routing messages are processed affects the routing behavior, thus affecting the overall development of the routing protocol. This order is defined by the delays imposed by the network and its components. The simulator aggregates all these delays in a single value that assigns to each routing message. These value are generated using a normal distribution. A minimum and maximum delay can be specified, using the `-min/--mindelay` and `-max/--maxdelay` options. This will force the delay generator to generate uniform delay values within the specified interval.
+
+Here is example of how to use this options.
+
+    java -jar simulator.jar -t topology.topo -d 0 -c 10 -min 100 -max 1000
+
+This command executes 10 simulation runs, advertising destination with ID `0` on the topology specified in file `topology.topo`. All routing messages will be subjected to delays with values between `100` and `1000` (both inclusive).
+
+By default, that is if the `-min` and `-max` options are not used, then the minimum and maximum delays are set to 1, meaning that all messages will have a delay of 1.
+
+### How to repeat the exact same simulation?
+
+The randomness of the delays imposed to the routing messages makes harder to reproduce a simulation run. But, not that hard. The generator that generates these delays accepts a seed value that determines the sequence of delays that it generates. Therefore, to reproduce a simulation we need to force the simulator to use the same seed value as the one used on that simulation. That can be accomplished with the `-seed` option as follows.
+
+    java -jar simulator.jar -t topology.topo -d 0 -min 100 -max 1000 -seed 129312379172
+
+This command will execute a single simulation run using `129312379172` as the seed to generate the message delays.
+
+*Warning: make sure that input parameters are exactly the same as well!*
+
+Since the only thing we need is the initial seed used in a previous simulation to reproduce it, we need to know where to get that value. It can be obtained from the `.basic.csv` file, output by the simulator.
+
+| Note |
+|:---|
+| By default, the first seed used to generate the message delays during the first simulation run is obtained from the current time (real time). The seeds used for the next simulation runs are obtained from the last value generated in the previous simulation. |
+
 ### How to set the simulation threshold?
 
-### How to run the exact same simulation?
+Each run simulates the advertisement of a single destination over a network. It terminates once all nodes have reached a stable state, that is none of them has any new route to announce, and no route is currently in transit. However, the Border Gateway Protocol (BGP) does not give any guarantee of termination. Thus, the simulation itself may never terminate. To prevent this from happening, a threshold value is established for each simulation run. This threshold value corresponds to the maximum simulation time. If the simulation reaches this threshold, it is immediately interrupted and labeled as *not terminated*.
+
+The threshold value is set to 1000000 by default. This value can be changed with the `-th/--threshold` option as follows.
+
+    java -jar simulator.jar -t topology.topo -d 0 -c 10 -th 15000000
+
+This command will execute 10 simulation runs. Each one will use the 15000000 as the threshold value.
+
+*Suggestion: consider adjusting the threshold value accordingly to the minimum and maximum delay values.*
 
 ### How to simulate with stubs?
 In progress...
 
 ### How to obtain more information about each node?
 
+By default, the simulator outputs global information about the protocol. To obtain more detailed information about each node, the `-rn/--reportnodes` option is available. Use it as follows.
 
-Here is a list of parameters that are *not mandatory*, but *very useful*:
-- Repetitions - number of simulations to run with the specified parameters;
-- Minimum message delay - the minimum amount of time that it will take for a message to be sent by a node and imported at the other;
-- Maximum message delay - the maximum amount of time that it will take for a message to be sent by a node and imported at the other. This value must equal to or higher than the minimum message delay;
-- Simulation threshold - the maximum amount of time that a simulation can take;
-- Stubs file - a file specifying a set of nodes (stubs) that are not part of the original topology, but can be used as the destination. See [here](#stubs-file) for more details;
-- Report nodes option - if set then the simulator will output extra information related to each individual node in the topology;
+    java -jar simulator.jar -t topology.topo -d 0 -c 10 --reportnodes
 
+With this option enabled, the simulator will output a different file with extension `.nodes.csv`. This is also a CSV file containing a table. This table shows the following information for each node and each simulation:
 
-Here is a list of other parameters that may be useful:
-- Report directory - directory to place the report files containing the data collected by the simulator during the execution of a simulation;
-- Simulation seed - starting seed value used to generate the message delays;
+- **Local Preference** - LOCAL-PREF of route elected by the node;
+- **Next-hop** - ID of neighbor elected by the node;
+- **Path Length** - length of the AS-PATH of route elected by the node;
+- **Termination Time** - time at which the node sent its last route.
+
+The first two columns of the table include the simulation number and the ID of the node. This simulation number corresponds to the same number included in the `.basic.csv`.
 
 ## Troubleshooting
 
