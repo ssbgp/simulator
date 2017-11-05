@@ -31,6 +31,7 @@ object CLIApplication: Application {
         } catch (e: InputArgumentsException) {
             console.error("Input arguments are invalid.")
             console.error("Cause: ${e.message ?: "No information available."}")
+            console.info("Try the '-h' option to see more information")
             exitProcess(1)
 
         } catch (e: Exception){
