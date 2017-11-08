@@ -1,5 +1,6 @@
 package core.routing
 
+import core.simulator.Advertiser
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.MessageReceivedNotification
 import core.simulator.notifications.MessageSentNotification
@@ -20,7 +21,7 @@ typealias NodeID = Int
  *
  * @property id The ID of the node. This ID uniquely identifies it inside a topology
  */
-class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
+class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser {
 
     /**
      * Collection containing the in-neighbors of this node.
@@ -39,10 +40,10 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
     }
 
     /**
-     * Starts the protocol deployed by this node.
+     * This node advertises a destination according to the specification of its deployed protocol.
      */
-    fun start() {
-        protocol.start(this)
+    override fun advertise() {
+        protocol.advertise(this)
     }
 
     /**

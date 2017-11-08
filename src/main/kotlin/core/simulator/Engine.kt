@@ -1,6 +1,5 @@
 package core.simulator
 
-import core.routing.Node
 import core.routing.Topology
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.EndNotification
@@ -41,12 +40,12 @@ object Engine {
      * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the
      * simulator will run 'forever'.
      *
-     * @param topology    the topology used for the simulation
-     * @param destination the destination used for the simulation
-     * @param threshold   a threshold value for the simulation
+     * @param topology   the topology used for the simulation
+     * @param advertiser the advertiser that will start advertising the destination
+     * @param threshold  a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
-    fun simulate(topology: Topology<*>, destination: Node<*>, threshold: Time = Int.MAX_VALUE): Boolean {
+    fun simulate(topology: Topology<*>, advertiser: Advertiser, threshold: Time = Int.MAX_VALUE): Boolean {
 
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
@@ -54,7 +53,7 @@ object Engine {
         BasicNotifier.notifyStart(StartNotification(messageDelayGenerator.seed, topology))
 
         // The simulation execution starts when the protocol of the destination is started
-        destination.start()
+        advertiser.advertise()
 
         var terminatedBeforeThreshold = true
         while (scheduler.hasEvents()) {

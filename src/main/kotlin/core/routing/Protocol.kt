@@ -21,9 +21,9 @@ interface Protocol<R: Route> {
     fun addInNeighbor(neighbor: Neighbor<R>)
 
     /**
-     * Starts this protocol.
+     * Have [node] advertise a destination.
      */
-    fun start(node: Node<R>)
+    fun advertise(node: Node<R>)
 
     /**
      * Processes an incoming routing message.
