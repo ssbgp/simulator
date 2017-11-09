@@ -90,7 +90,7 @@ class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser<R>
     /**
      * Resets the node state.
      */
-    fun reset() {
+    override fun reset() {
         protocol.reset()
         inNeighbors.forEach { it.exporter.reset() }
     }
