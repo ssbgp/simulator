@@ -71,14 +71,11 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      * @param defaultRoute the default route to reach the destination
      */
     override fun advertise(node: Node<BGPRoute>, defaultRoute: BGPRoute) {
-        routingTable.update(node, defaultRoute)
-        export(node)
+        process(node, node, defaultRoute)
     }
 
     override fun advertise(node: Node<BGPRoute>) {
-        val selfRoute = BGPRoute.self()
-        routingTable.update(node, selfRoute)
-        export(node)
+        process(node, node, BGPRoute.self())
     }
 
     /**
