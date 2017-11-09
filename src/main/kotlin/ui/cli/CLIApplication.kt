@@ -5,7 +5,6 @@ import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
 import io.ParseException
-import io.TopologyReaderHandler
 import ui.Application
 import java.io.File
 import java.io.IOException
@@ -25,8 +24,9 @@ object CLIApplication: Application {
     override fun launch(args: Array<String>) {
 
         try {
-            val (runner, execution) = InputArgumentsParser().parse(args)
-            runner.run(execution, this)
+            val initializer = InputArgumentsParser().parse(args)
+            val (runner, execution) = initializer.initialize(this)
+            runner.run(execution)
 
         } catch (e: InputArgumentsException) {
             console.error("Input arguments are invalid.")
@@ -45,11 +45,9 @@ object CLIApplication: Application {
      * Invoked while loading the topology.
      *
      * @param topologyFile   the file from which the topology will be loaded
-     * @param topologyReader the reader used to load the topology into memory
      * @param loadBlock      the code block to load the topology.
      */
-    override fun <R: Route> loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler<R>,
-                              loadBlock: () -> Topology<R>): Topology<R> {
+    override fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R> {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
