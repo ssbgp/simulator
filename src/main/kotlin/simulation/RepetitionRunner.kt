@@ -1,8 +1,8 @@
 package simulation
 
-import core.routing.Node
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.DelayGenerator
 import core.simulator.Engine
 import core.simulator.Time
@@ -19,7 +19,7 @@ import java.time.Instant
 class RepetitionRunner<R: Route>(
         private val application: Application,
         private val topology: Topology<R>,
-        private val advertiser: Node<R>,
+        private val advertisement: Advertisement<R>,
         private val threshold: Time,
         private val repetitions: Int,
         private val messageDelayGenerator: DelayGenerator,
@@ -45,13 +45,13 @@ class RepetitionRunner<R: Route>(
             try {
                 repeat(times = repetitions) { repetition ->
 
-                    application.execute(repetition + 1, advertiser, messageDelayGenerator.seed) {
-                        execution.execute(topology, advertiser, threshold)
+                    application.execute(repetition + 1, advertisement, messageDelayGenerator.seed) {
+                        execution.execute(topology, advertisement, threshold)
                     }
 
                     // Cleanup for next execution
                     topology.reset()
-                    advertiser.reset()
+                    advertisement.advertiser.reset()
                     Engine.messageDelayGenerator.generateNewSeed()
                 }
 

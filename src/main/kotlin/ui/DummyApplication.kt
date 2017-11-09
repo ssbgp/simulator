@@ -4,6 +4,7 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import java.io.File
 
 /**
@@ -19,7 +20,7 @@ object DummyApplication: Application {
 
     override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> = block()!!
 
-    override fun <R: Route> execute(executionID: Int, destination: Node<R>, seed: Long, executeBlock: () -> Unit) = Unit
+    override fun <R: Route> execute(executionID: Int, advertisement: Advertisement<R>, seed: Long, executeBlock: () -> Unit) = Unit
 
     override fun run(runBlock: () -> Unit) = Unit
 

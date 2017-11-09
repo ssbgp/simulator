@@ -1,8 +1,8 @@
 package simulation
 
-import core.routing.Node
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.Engine
 import core.simulator.Time
 import java.io.IOException
@@ -25,12 +25,12 @@ class SimpleAdvertisementExecution<R: Route>: Execution<R> {
      * @throws IOException If an I/O error occurs
      */
     @Throws(IOException::class)
-    override fun execute(topology: Topology<R>, destination: Node<R>, threshold: Time) {
+    override fun execute(topology: Topology<R>, advertisement: Advertisement<R>, threshold: Time) {
 
         dataCollectors.clear()
 
         val data = dataCollectors.collect {
-            Engine.simulate(topology, destination, threshold)
+            Engine.simulate(topology, advertisement.advertiser, threshold)
         }
 
         data.processData()

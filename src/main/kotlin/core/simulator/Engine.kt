@@ -1,5 +1,6 @@
 package core.simulator
 
+import core.routing.Route
 import core.routing.Topology
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.EndNotification
@@ -45,7 +46,8 @@ object Engine {
      * @param threshold  a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
-    fun simulate(topology: Topology<*>, advertiser: Advertiser<*>, threshold: Time = Int.MAX_VALUE): Boolean {
+    fun <R: Route> simulate(topology: Topology<R>, advertiser: Advertiser<R>,
+                            threshold: Time = Int.MAX_VALUE): Boolean {
 
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()

@@ -4,6 +4,7 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import java.io.File
 
 /**
@@ -26,14 +27,16 @@ interface Application {
     fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R>
 
     /**
+     * FIXME update documentation
+     *
      * Invoked while executing each execution.
      *
-     * @param executionID  the identifier of the execution
-     * @param destination  the destination used in the execution
-     * @param seed         the seed of the message delay generator used for the execution
-     * @param executeBlock the code block that performs one execution
+     * @param executionID   the identifier of the execution
+     * @param advertisement the destination used in the execution
+     * @param seed          the seed of the message delay generator used for the execution
+     * @param executeBlock  the code block that performs one execution
      */
-    fun <R: Route> execute(executionID: Int, destination: Node<R>, seed: Long, executeBlock: () -> Unit)
+    fun <R: Route> execute(executionID: Int, advertisement: Advertisement<R>, seed: Long, executeBlock: () -> Unit)
 
     /**
      * Invoked during a run.

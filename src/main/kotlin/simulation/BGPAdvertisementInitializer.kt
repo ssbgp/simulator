@@ -5,6 +5,7 @@ import bgp.BGPRoute
 import core.routing.Node
 import core.routing.NodeID
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.RandomDelayGenerator
 import core.simulator.Time
 import io.InterdomainTopologyReader
@@ -93,7 +94,7 @@ class BGPAdvertisementInitializer(
         val runner = RepetitionRunner(
                 application,
                 topology,
-                advertiser,
+                Advertisement(advertiser, BGPRoute.self()),
                 threshold,
                 repetitions,
                 messageDelayGenerator,

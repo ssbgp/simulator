@@ -4,6 +4,7 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.Engine
 import io.ParseException
 import simulation.Metadata
@@ -110,13 +111,14 @@ object CLIApplication: Application {
      * Invoked while executing each execution.
      *
      * @param executionID  the identifier of the execution
-     * @param destination  the destination used in the execution
+     * @param advertisement  the destination used in the execution
      * @param seed         the seed of the message delay generator used for the execution
      * @param executeBlock the code block that performs one execution
      */
-    override fun <R: Route> execute(executionID: Int, destination: Node<R>, seed: Long, executeBlock: () -> Unit) {
+    override fun <R: Route> execute(executionID: Int, advertisement: Advertisement<R>, seed: Long,
+                                    executeBlock: () -> Unit) {
 
-        console.info("Executing $executionID (destination=${destination.id} and seed=$seed)...  ", inline = true)
+        console.info("Executing $executionID (seed=$seed)...  ", inline = true)
         val (duration, _) = timer {
             executeBlock()
         }
