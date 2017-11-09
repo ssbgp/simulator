@@ -45,7 +45,7 @@ object Engine {
      * @param threshold  a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
-    fun simulate(topology: Topology<*>, advertiser: Advertiser, threshold: Time = Int.MAX_VALUE): Boolean {
+    fun simulate(topology: Topology<*>, advertiser: Advertiser<*>, threshold: Time = Int.MAX_VALUE): Boolean {
 
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()

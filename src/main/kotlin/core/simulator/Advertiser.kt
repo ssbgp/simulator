@@ -1,5 +1,7 @@
 package core.simulator
 
+import core.routing.Route
+
 /**
  * Created on 08-11-2017
  *
@@ -7,10 +9,15 @@ package core.simulator
  *
  * An advertiser is some entity that can advertise destinations.
  */
-interface Advertiser {
+interface Advertiser<in R: Route> {
 
     /**
      * Advertises some destination.
+     *
+     * @param defaultRoute the default route for the destination.
      */
+    fun advertise(defaultRoute: R)
+
+    // TODO remove this. kept here to avoid compilation errors during the transition
     fun advertise()
 }

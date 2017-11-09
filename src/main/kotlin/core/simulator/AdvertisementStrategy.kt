@@ -1,5 +1,7 @@
 package core.simulator
 
+import core.routing.Route
+
 /**
  * Created on 08-11-2017
  *
@@ -11,24 +13,24 @@ package core.simulator
  * Advertisement strategies are used by the Engine to run simulations with one or more advertisements that advertise the
  * destination at different instants of time.
  */
-class AdvertisementStrategy : Iterable<Advertisement> {
+class AdvertisementStrategy<R: Route> : Iterable<Advertisement<R>> {
 
     /**
      * Stores are advertisements planned in this strategy.
      */
-    private val advertisements = ArrayList<Advertisement>()
+    private val advertisements = ArrayList<Advertisement<R>>()
 
     /**
      * Plans an advertisement.
      */
-    fun plan(advertisement: Advertisement) {
+    fun plan(advertisement: Advertisement<R>) {
         advertisements.add(advertisement)
     }
 
     /**
      * Returns an iterator over the planned advertisements
      */
-    override fun iterator(): Iterator<Advertisement> = advertisements.iterator()
+    override fun iterator(): Iterator<Advertisement<R>> = advertisements.iterator()
 
     /**
      * Checks whether or not the strategy includes any planned advertisements.

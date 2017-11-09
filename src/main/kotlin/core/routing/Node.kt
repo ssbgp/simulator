@@ -21,7 +21,7 @@ typealias NodeID = Int
  *
  * @property id The ID of the node. This ID uniquely identifies it inside a topology
  */
-class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser {
+class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser<R> {
 
     /**
      * Collection containing the in-neighbors of this node.
@@ -40,8 +40,15 @@ class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser {
     }
 
     /**
-     * This node advertises a destination according to the specification of its deployed protocol.
+     * This node advertises a destination according to the specification of the deployed protocol.
+     * It sets a default route for the destination. This route maybe sent to neighbors.
+     *
+     * @param defaultRoute the default route to set for the destination
      */
+    override fun advertise(defaultRoute: R) {
+        protocol.advertise(this, defaultRoute)
+    }
+
     override fun advertise() {
         protocol.advertise(this)
     }

@@ -21,8 +21,14 @@ interface Protocol<R: Route> {
     fun addInNeighbor(neighbor: Neighbor<R>)
 
     /**
-     * Have [node] advertise a destination.
+     * Makes [node] advertise a destination and sets [defaultRoute] as the default route to reach that destination.
+     *
+     * @param node         the node to advertise destination
+     * @param defaultRoute the default route to reach the destination
      */
+    fun advertise(node: Node<R>, defaultRoute: R)
+
+    // TODO remove this. kept here to avoid compilation errors during the transition
     fun advertise(node: Node<R>)
 
     /**
