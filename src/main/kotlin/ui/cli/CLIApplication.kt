@@ -4,7 +4,9 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Engine
 import io.ParseException
+import simulation.Metadata
 import ui.Application
 import java.io.File
 import java.io.IOException
@@ -25,8 +27,9 @@ object CLIApplication: Application {
 
         try {
             val initializer = InputArgumentsParser().parse(args)
-            val (runner, execution) = initializer.initialize(this)
-            runner.run(execution)
+            val metadata = Metadata(version = Engine.version())
+            val (runner, execution) = initializer.initialize(this, metadata)
+            runner.run(execution, metadata)
 
         } catch (e: InputArgumentsException) {
             console.error("Input arguments are invalid.")
@@ -34,7 +37,7 @@ object CLIApplication: Application {
             console.info("Try the '-h' option to see more information")
             exitProcess(1)
 
-        } catch (e: Exception){
+        } catch (e: Exception) {
             console.error("Program was interrupted due to unexpected error: ${e.javaClass.simpleName}")
             console.error("Cause: ${e.message ?: "No information available."}")
             exitProcess(1)
@@ -81,7 +84,7 @@ object CLIApplication: Application {
      */
     override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> {
 
-        val destination= try {
+        val destination = try {
             block()
 
         } catch (exception: ParseException) {

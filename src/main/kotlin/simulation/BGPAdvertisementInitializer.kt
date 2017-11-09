@@ -47,7 +47,7 @@ class BGPAdvertisementInitializer(
     /**
      * Initializes a simulation. It sets up the executions to run and the runner to run them.
      */
-    override fun initialize(application: Application): Pair<Runner<BGPRoute>, Execution<BGPRoute>> {
+    override fun initialize(application: Application, metadata: Metadata): Pair<Runner<BGPRoute>, Execution<BGPRoute>> {
 
         val repetitions = repetitions ?: DEFAULT_REPETITIONS
         val minDelay = minDelay ?: DEFAULT_MINDELAY
@@ -97,9 +97,7 @@ class BGPAdvertisementInitializer(
                 threshold,
                 repetitions,
                 messageDelayGenerator,
-                metadataFile,
-                topologyFile.name,
-                stubsFile?.name
+                metadataFile
         )
 
         val execution = SimpleAdvertisementExecution<BGPRoute>().apply {
@@ -109,6 +107,15 @@ class BGPAdvertisementInitializer(
                 dataCollectors.add(NodeDataCollector(nodesReportFile))
             }
         }
+
+        metadata["Topology file"] = topologyFile.name
+        if (stubsFile != null) {
+            metadata["Stubs file"] = stubsFile.name
+        }
+        metadata["Destination ID"] = advertiserID.toString()
+        metadata["Minimum Delay"] = minDelay.toString()
+        metadata["Maximum Delay"] = maxDelay.toString()
+        metadata["Threshold"] = threshold.toString()
 
         return Pair(runner, execution)
     }

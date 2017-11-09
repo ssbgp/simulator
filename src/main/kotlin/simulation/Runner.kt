@@ -14,6 +14,6 @@ interface Runner<R: Route> {
     /**
      * Runs the specified execution.
      */
-    fun run(execution: Execution<R>)
+    fun run(execution: Execution<R>, metadata: Metadata)
 
 }

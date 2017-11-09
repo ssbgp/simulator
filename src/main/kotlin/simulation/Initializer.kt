@@ -20,5 +20,5 @@ interface Initializer<R: Route> {
     /**
      * Initializes a runner and execution based on some predefined parameters.
      */
-    fun initialize(application: Application): Pair<Runner<R>, Execution<R>>
+    fun initialize(application: Application, metadata: Metadata): Pair<Runner<R>, Execution<R>>
 }

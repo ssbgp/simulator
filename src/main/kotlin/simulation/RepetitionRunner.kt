@@ -6,7 +6,7 @@ import core.routing.Topology
 import core.simulator.DelayGenerator
 import core.simulator.Engine
 import core.simulator.Time
-import io.Metadata
+import io.KeyValueWriter
 import ui.Application
 import java.io.File
 import java.time.Instant
@@ -23,9 +23,7 @@ class RepetitionRunner<R: Route>(
         private val threshold: Time,
         private val repetitions: Int,
         private val messageDelayGenerator: DelayGenerator,
-        private val metadataFile: File,
-        private val topologyFilename: String,
-        private val stubsFilename: String?
+        private val metadataFile: File
 
 ): Runner<R> {
 
@@ -37,10 +35,9 @@ class RepetitionRunner<R: Route>(
      *
      * @param execution        the execution that will be executed in each run
      */
-    override fun run(execution: Execution<R>) {
+    override fun run(execution: Execution<R>, metadata: Metadata) {
 
         val startInstant = Instant.now()
-
         Engine.messageDelayGenerator = messageDelayGenerator
 
         application.run {
@@ -64,19 +61,16 @@ class RepetitionRunner<R: Route>(
             }
         }
 
-        // FIXME the metadata file cannot be written here because all info is not available
-        // Output metadata
-        Metadata(
-                Engine.version(),
-                startInstant,
-                finishInstant = Instant.now(),
-                topologyFilename = topologyFilename,
-                stubsFilename = stubsFilename,
-                destinationID = advertiser.id,
-                minDelay = messageDelayGenerator.min,
-                maxDelay = messageDelayGenerator.max,
-                threshold = threshold
-        ).print(metadataFile)
+        metadata["Start Time"] = startInstant
+        metadata["Finish Time"] = Instant.now()
+
+        // TODO add application method for writing the metadata file - writing may fail
+
+        KeyValueWriter(metadataFile).use {
+            for ((key, value) in metadata) {
+                it.write(key, value)
+            }
+        }
 
     }
 }
