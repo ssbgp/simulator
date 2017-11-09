@@ -4,13 +4,13 @@ import bgp.BGP
 import bgp.BGPRoute
 import core.routing.pathOf
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is` as Is
 import org.hamcrest.Matchers.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import testing.*
+import org.hamcrest.Matchers.`is` as Is
 
 /**
  * Created on 26-07-2017.
@@ -40,7 +40,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 1 as the destination") {
 
-            val terminated = Engine.simulate(topology, node1, threshold = 1000)
+            val terminated = simulate(topology, node1, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -69,7 +69,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 2 as the destination") {
 
-            val terminated = Engine.simulate(topology, node2, threshold = 1000)
+            val terminated = simulate(topology, node2, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -116,7 +116,7 @@ object BGPWithShortestPathRoutingTests : Spek({
         on("simulating with node 1 as the destination") {
             // Make sure that node 1 always elects the self route
 
-            val terminated = Engine.simulate(topology, node1, threshold = 1000)
+            val terminated = simulate(topology, node1, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -171,7 +171,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -215,7 +215,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 1 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[1], threshold = 1000)
+            val terminated = simulate(topology, node[1], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -282,7 +282,7 @@ object BGPWithShortestPathRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("does not terminate") {
                 assertThat(terminated, Is(false))

@@ -46,7 +46,7 @@ object SSBGP2WithInterdomainRoutingTests: Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminates") {
                 assertThat(terminated, Is(true))
@@ -106,7 +106,7 @@ object SSBGP2WithInterdomainRoutingTests: Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("does NOT terminate") {
                 assertThat(terminated, Is(false))

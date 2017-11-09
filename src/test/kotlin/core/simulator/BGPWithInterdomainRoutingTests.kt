@@ -6,13 +6,13 @@ import bgp.policies.interdomain.customerRoute
 import bgp.policies.interdomain.peerplusRoute
 import bgp.policies.interdomain.providerRoute
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is` as Is
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import testing.*
 import testing.bgp.pathOf
+import org.hamcrest.Matchers.`is` as Is
 
 /**
  * Created on 26-07-2017.
@@ -40,7 +40,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -59,7 +59,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 1 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[1], threshold = 1000)
+            val terminated = simulate(topology, node[1], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -101,7 +101,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -149,7 +149,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("does NOT terminate") {
                 assertThat(terminated, Is(false))
@@ -181,7 +181,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminates") {
                 assertThat(terminated, Is(true))
@@ -228,7 +228,7 @@ object BGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("does NOT terminate") {
                 assertThat(terminated, Is(false))

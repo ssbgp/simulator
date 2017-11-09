@@ -30,7 +30,7 @@ class SimpleAdvertisementExecution<R: Route>: Execution<R> {
         dataCollectors.clear()
 
         val data = dataCollectors.collect {
-            Engine.simulate(topology, advertisement.advertiser, threshold)
+            Engine.simulate(topology, advertisement, threshold)
         }
 
         data.processData()

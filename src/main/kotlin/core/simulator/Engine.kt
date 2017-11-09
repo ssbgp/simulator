@@ -36,6 +36,8 @@ object Engine {
     }
 
     /**
+     * FIXME update documentation
+     *
      * Runs the simulation for the given destination.
      * The threshold value determines the number of units of time the simulation should have terminated on. If this
      * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the
@@ -46,7 +48,7 @@ object Engine {
      * @param threshold  a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
-    fun <R: Route> simulate(topology: Topology<R>, advertiser: Advertiser<R>,
+    fun <R: Route> simulate(topology: Topology<R>, advertisement: Advertisement<R>,
                             threshold: Time = Int.MAX_VALUE): Boolean {
 
         // Ensure the scheduler is completely clean before starting the simulation
@@ -55,7 +57,7 @@ object Engine {
         BasicNotifier.notifyStart(StartNotification(messageDelayGenerator.seed, topology))
 
         // The simulation execution starts when the protocol of the destination is started
-        advertiser.advertise()
+        scheduler.schedule(advertisement)
 
         var terminatedBeforeThreshold = true
         while (scheduler.hasEvents()) {
@@ -91,6 +93,13 @@ object Engine {
         }
     }
 
+}
+
+/**
+ * Schedules an advertisement event.
+ */
+private fun <R: Route> Scheduler.schedule(advertisement: Advertisement<R>) {
+    schedule(AdvertiseEvent(advertisement.advertiser, advertisement.route), advertisement.time)
 }
 
 /**
