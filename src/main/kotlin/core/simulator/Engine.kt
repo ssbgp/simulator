@@ -36,30 +36,60 @@ object Engine {
     }
 
     /**
-     * FIXME update documentation
+     * Runs a simulation with a single advertisement.
      *
-     * Runs the simulation for the given destination.
+     * The scheduler is cleared before running the simulation.
+     *
      * The threshold value determines the number of units of time the simulation should have terminated on. If this
      * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the
      * simulator will run 'forever'.
      *
-     * @param topology   the topology used for the simulation
-     * @param advertiser the advertiser that will start advertising the destination
-     * @param threshold  a threshold value for the simulation
+     * @param topology      the topology used for the simulation
+     * @param advertisement the single advertisement to start off the simulation
+     * @param threshold     a threshold value for the simulation
      * @return true if the simulation terminated before the specified threshold or false if otherwise.
      */
     fun <R: Route> simulate(topology: Topology<R>, advertisement: Advertisement<R>,
                             threshold: Time = Int.MAX_VALUE): Boolean {
+        return simulate(topology, listOf(advertisement), threshold)
+    }
+
+    /**
+     * Runs a simulation with one or multiple advertisements.
+     *
+     * The scheduler is cleared before running the simulation.
+     *
+     * The threshold value determines the number of units of time the simulation should have terminated on. If this
+     * threshold is reached the simulation is interrupted immediately. If no threshold is specified then the
+     * simulator will run 'forever'.
+     *
+     * @param topology       the topology used for the simulation
+     * @param advertisements a list containing all the advertisements to occur in the simulation
+     * @param threshold      a threshold value for the simulation
+     * @return true if the simulation terminated before the specified threshold or false if otherwise
+     * @throws IllegalArgumentException if the advertisement plan is empty
+     */
+    @Throws(IllegalArgumentException::class)
+    fun <R: Route> simulate(topology: Topology<*>, advertisements: List<Advertisement<R>>,
+                            threshold: Time = Int.MAX_VALUE): Boolean {
+
+        if (advertisements.isEmpty()) {
+            throw IllegalArgumentException("a simulation requires at least one advertisement")
+        }
 
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
         BasicNotifier.notifyStart(StartNotification(messageDelayGenerator.seed, topology))
 
-        // The simulation execution starts when the protocol of the destination is started
-        scheduler.schedule(advertisement)
+        // Schedule advertisements specified in the strategy
+        for (advertisement in advertisements) {
+            scheduler.schedule(advertisement)
+        }
 
+        // Flag that will indicate whether or not the simulation finished before the threshold was reached
         var terminatedBeforeThreshold = true
+
         while (scheduler.hasEvents()) {
             val event = scheduler.nextEvent()
 
@@ -75,6 +105,7 @@ object Engine {
             event.processIt()
         }
 
+        // Notify listeners the simulation ended
         BasicNotifier.notifyEnd(EndNotification(topology))
 
         return terminatedBeforeThreshold
@@ -94,6 +125,7 @@ object Engine {
     }
 
 }
+
 
 /**
  * Schedules an advertisement event.
