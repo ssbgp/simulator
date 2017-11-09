@@ -4,7 +4,6 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
-import io.TopologyReaderHandler
 import java.io.File
 
 /**
@@ -20,11 +19,9 @@ interface Application {
      * Invoked while loading the topology.
      *
      * @param topologyFile   the file from which the topology will be loaded
-     * @param topologyReader the reader used to load the topology into memory
      * @param loadBlock      the code block to load the topology.
      */
-    fun <R: Route> loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler<R>,
-                                loadBlock: () -> Topology<R>): Topology<R>
+    fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R>
 
     fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R>
 

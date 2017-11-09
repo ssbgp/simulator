@@ -1,12 +1,10 @@
 package ui.cli
 
-import bgp.BGP
+import bgp.BGPRoute
 import core.simulator.Engine
-import core.simulator.RandomDelayGenerator
-import io.InterdomainTopologyReaderHandler
-import io.parseInterdomainExtender
 import org.apache.commons.cli.*
-import simulation.*
+import simulation.BGPAdvertisementInitializer
+import simulation.Initializer
 import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
@@ -125,7 +123,7 @@ class InputArgumentsParser {
     }
 
     @Throws(InputArgumentsException::class)
-    fun parse(args: Array<String>): Pair<Runner, Execution> {
+    fun parse(args: Array<String>): Initializer<BGPRoute> {
 
         val commandLine = try {
             DefaultParser().parse(options, args)
@@ -165,43 +163,18 @@ class InputArgumentsParser {
                         "min=$minDelay > max=$maxDelay")
             }
 
-            // If the topology filename is `topology.nf` and the destination is 10 the report filename
-            // is `topology_10.basic.csv`
-            val outputName = topologyFile.nameWithoutExtension
-
-            val basicReportFile = File(reportDirectory, outputName.plus("_$destination.basic.csv"))
-            val nodesReportFile = File(reportDirectory, outputName.plus("_$destination.nodes.csv"))
-            val metadataFile = File(reportDirectory, outputName.plus("_$destination.meta.txt"))
-
-            val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
-            val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
-
-            val stubDB = if (stubsFile.isPresent) {
-                StubDB(stubsFile.get(), BGP(), ::parseInterdomainExtender)
-            } else {
-                null
-            }
-
-            val runner = RepetitionRunner(
-                    topologyFile,
-                    topologyReader,
-                    destination,
-                    repetitions,
-                    messageDelayGenerator,
-                    stubDB,
-                    threshold,
-                    metadataFile
+            return BGPAdvertisementInitializer(
+                    topologyFile = topologyFile,
+                    advertiserID = destination,
+                    repetitions = repetitions,
+                    reportDirectory = reportDirectory,
+                    threshold = threshold,
+                    minDelay = minDelay,
+                    maxDelay = maxDelay,
+                    stubsFile = stubsFile.orElseGet { null },
+                    reportNodes = commandLine.hasOption(NODE_REPORT),
+                    seed = seed
             )
-
-            val execution = SimpleAdvertisementExecution().apply {
-                dataCollectors.add(BasicDataCollector(basicReportFile))
-
-                if (commandLine.hasOption(NODE_REPORT)) {
-                    dataCollectors.add(NodeDataCollector(nodesReportFile))
-                }
-            }
-
-            return Pair(runner, execution)
         }
     }
 

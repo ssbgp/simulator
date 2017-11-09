@@ -4,7 +4,6 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
-import io.TopologyReaderHandler
 import java.io.File
 
 /**
@@ -16,8 +15,7 @@ object DummyApplication: Application {
 
     override fun launch(args: Array<String>) = Unit
 
-    override fun <R: Route> loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler<R>,
-                              loadBlock: () -> Topology<R>): Topology<R> = loadBlock()
+    override fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R> = loadBlock()
 
     override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> = block()!!
 
