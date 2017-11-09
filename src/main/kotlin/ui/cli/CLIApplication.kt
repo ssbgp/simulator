@@ -4,8 +4,9 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Engine
 import io.ParseException
-import io.TopologyReaderHandler
+import simulation.Metadata
 import ui.Application
 import java.io.File
 import java.io.IOException
@@ -25,8 +26,10 @@ object CLIApplication: Application {
     override fun launch(args: Array<String>) {
 
         try {
-            val (runner, execution) = InputArgumentsParser().parse(args)
-            runner.run(execution, this)
+            val initializer = InputArgumentsParser().parse(args)
+            val metadata = Metadata(version = Engine.version())
+            val (runner, execution) = initializer.initialize(this, metadata)
+            runner.run(execution, metadata)
 
         } catch (e: InputArgumentsException) {
             console.error("Input arguments are invalid.")
@@ -34,7 +37,7 @@ object CLIApplication: Application {
             console.info("Try the '-h' option to see more information")
             exitProcess(1)
 
-        } catch (e: Exception){
+        } catch (e: Exception) {
             console.error("Program was interrupted due to unexpected error: ${e.javaClass.simpleName}")
             console.error("Cause: ${e.message ?: "No information available."}")
             exitProcess(1)
@@ -45,11 +48,9 @@ object CLIApplication: Application {
      * Invoked while loading the topology.
      *
      * @param topologyFile   the file from which the topology will be loaded
-     * @param topologyReader the reader used to load the topology into memory
      * @param loadBlock      the code block to load the topology.
      */
-    override fun <R: Route> loadTopology(topologyFile: File, topologyReader: TopologyReaderHandler<R>,
-                              loadBlock: () -> Topology<R>): Topology<R> {
+    override fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R> {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
@@ -83,7 +84,7 @@ object CLIApplication: Application {
      */
     override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> {
 
-        val destination= try {
+        val destination = try {
             block()
 
         } catch (exception: ParseException) {
