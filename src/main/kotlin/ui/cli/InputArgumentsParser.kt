@@ -5,6 +5,7 @@ import core.simulator.Engine
 import org.apache.commons.cli.*
 import simulation.BGPAdvertisementInitializer
 import simulation.Initializer
+import utils.toNonNegativeInt
 import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
@@ -26,7 +27,7 @@ class InputArgumentsParser {
 
         // Execution Options
         private val TOPOLOGY_FILE = "topology"
-        private val DESTINATION = "destination"
+        private val ADVERTISER = "advertiser"
         private val REPETITIONS = "repetitions"
         private val REPORT_DIRECTORY = "output"
         private val MIN_DELAY = "mindelay"
@@ -65,10 +66,10 @@ class InputArgumentsParser {
                     .longOpt(TOPOLOGY_FILE)
                     .build())
             addOption(Option.builder("d")
-                    .desc("ID of destination node")
-                    .hasArg(true)
-                    .argName("destination")
-                    .longOpt(DESTINATION)
+                    .desc("ID(s) of node(s) advertising a destination")
+                    .hasArgs()
+                    .argName("advertisers")
+                    .longOpt(ADVERTISER)
                     .build())
             addOption(Option.builder("c")
                     .desc("Number of executions to run [default: 1]")
@@ -150,7 +151,7 @@ class InputArgumentsParser {
         commandLine.let {
 
             val topologyFile = getFile(it, option = TOPOLOGY_FILE).get()
-            val destination = getNonNegativeInteger(it, option = DESTINATION)
+            val advertisers = getManyNonNegativeIntegers(it, option = ADVERTISER)
             val repetitions = getPositiveInteger(it, option = REPETITIONS, default = 1)
             val reportDirectory = getDirectory(it, option = REPORT_DIRECTORY, default = File(System.getProperty("user.dir")))
             val threshold = getPositiveInteger(it, option = THRESHOLD, default = 1_000_000)
@@ -167,7 +168,7 @@ class InputArgumentsParser {
 
             return BGPAdvertisementInitializer(
                     topologyFile = topologyFile,
-                    advertiserID = destination,
+                    advertiserID = advertisers[0],
                     repetitions = repetitions,
                     reportDirectory = reportDirectory,
                     threshold = threshold,
@@ -212,24 +213,20 @@ class InputArgumentsParser {
     }
 
     @Throws(InputArgumentsException::class)
-    private fun getNonNegativeInteger(commandLine: CommandLine, option: String, default: Int? = null): Int {
+    private fun getManyNonNegativeIntegers(commandLine: CommandLine, option: String,
+                                           default: Int? = null): IntArray {
         verifyOption(commandLine, option, default)
 
-        val value = commandLine.getOptionValue(option)
+        val values = commandLine.getOptionValues(option)
 
         try {
-            val intValue = value?.toInt() ?: default!!  // See note below
-            // Note: the verifyOption method would throw exception if the option was ot defined and default was null
-
-            if (intValue < 0) {
-                // Handle error in th
-                throw NumberFormatException()
-            }
-
-            return intValue
-
+            @Suppress("USELESS_ELVIS")
+            // 'values' can actually be null the option is not specified, see getOptionValues() doc
+            // 'default' is never null at this point!!
+            return values.map { it.toNonNegativeInt() }.toIntArray() ?: intArrayOf(default!!)
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("Parameter '$option' must be a non-negative integer value: was '$value'")
+            throw InputArgumentsException("values for '--$option' must be non-negative " +
+                    "integer values")
         }
     }
 
