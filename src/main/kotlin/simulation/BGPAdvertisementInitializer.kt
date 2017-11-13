@@ -102,11 +102,16 @@ class BGPAdvertisementInitializer(
             }.toList()
         }
 
+        // Create advertisements for each advertiser
+        // FIXME replace use of BGP's self route with a route defined by user
+        // Here we are using the BGP self route as the advertised/default route to have the same
+        // behavior as before
+        val advertisements = advertisers.map { Advertisement(it, BGPRoute.self()) }.toList()
+
         val runner = RepetitionRunner(
                 application,
                 topology,
-                // FIXME temporary hack to avoid multiple compilation errors
-                Advertisement(advertisers[0], BGPRoute.self()),
+                advertisements,
                 threshold,
                 repetitions,
                 messageDelayGenerator,

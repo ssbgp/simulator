@@ -50,17 +50,17 @@ object CLIApplication: Application {
      * Invoked while loading the topology.
      *
      * @param topologyFile   the file from which the topology will be loaded
-     * @param loadBlock      the code block to load the topology.
+     * @param block      the code block to load the topology.
      */
     override fun <R: Route> loadTopology(topologyFile: File,
-                                         loadBlock: () -> Topology<R>): Topology<R> {
+                                         block: () -> Topology<R>): Topology<R> {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
             console.info("Loading topology...  ", inline = true)
 
             val (duration, topology) = timer {
-                loadBlock()
+                block()
             }
 
             console.print("loaded in $duration seconds")

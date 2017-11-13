@@ -19,7 +19,7 @@ import java.time.Instant
 class RepetitionRunner<R: Route>(
         private val application: Application,
         private val topology: Topology<R>,
-        private val advertisement: Advertisement<R>,
+        private val advertisements: List<Advertisement<R>>,
         private val threshold: Time,
         private val repetitions: Int,
         private val messageDelayGenerator: DelayGenerator,
@@ -28,6 +28,8 @@ class RepetitionRunner<R: Route>(
 ): Runner<R> {
 
     /**
+     * TODO update documentation
+     *
      * Runs the specified execution the number of times specified in the [repetitions] property.
      *
      * The engine configurations may be modified during the run. At the end of this method the engine is always
@@ -45,13 +47,15 @@ class RepetitionRunner<R: Route>(
             try {
                 repeat(times = repetitions) { repetition ->
 
-                    application.execute(repetition + 1, advertisement, messageDelayGenerator.seed) {
-                        execution.execute(topology, advertisement, threshold)
+                    application.execute(repetition + 1, advertisements, messageDelayGenerator.seed) {
+                        execution.execute(topology, advertisements, threshold)
                     }
 
                     // Cleanup for next execution
                     topology.reset()
-                    advertisement.advertiser.reset()
+                    // TODO put stubs in the topology itself to avoid having this reset() method
+                    // in the advertiser interface
+                    advertisements.forEach { it.advertiser.reset() }
                     Engine.messageDelayGenerator.generateNewSeed()
                 }
 
