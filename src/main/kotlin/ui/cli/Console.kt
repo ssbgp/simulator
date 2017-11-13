@@ -19,7 +19,7 @@ class Console {
         print("ERROR", message, inline)
     }
 
-    fun print(message: String) {
+    fun print(message: String = "") {
         println(message)
     }
 
