@@ -5,6 +5,7 @@ import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
+import core.simulator.Advertiser
 import core.simulator.Engine
 import io.ParseException
 import simulation.InitializationException
@@ -90,10 +91,10 @@ object CLIApplication: Application {
      * @return a list containing the advertisers found
      */
     override fun <R: Route> findAdvertisers(ids: List<NodeID>,
-                                            block: () -> List<Node<R>>): List<Node<R>> {
+                                            block: () -> List<Advertiser<R>>): List<Advertiser<R>> {
 
         try {
-            console.info("Looking for advertisers [${ids.joinToString()}]...  ", inline = true)
+            console.info("Looking for advertisers (${ids.joinToString()})...  ", inline = true)
 
             val (duration, advertisers) = timer {
                 block()
