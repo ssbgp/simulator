@@ -5,6 +5,7 @@ import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
+import core.simulator.Advertiser
 import java.io.File
 
 /**
@@ -32,7 +33,8 @@ interface Application {
      * @param block the block of code to find the advertising nodes
      * @return a list containing the advertisers found
      */
-    fun <R: Route> findAdvertisers(ids: List<NodeID>, block: () -> List<Node<R>>): List<Node<R>>
+    fun <R: Route> findAdvertisers(ids: List<NodeID>,
+                                   block: () -> List<Advertiser<R>>): List<Advertiser<R>>
 
     /**
      * Invoked while executing each execution.

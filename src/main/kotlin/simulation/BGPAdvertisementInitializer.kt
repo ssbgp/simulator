@@ -87,19 +87,8 @@ class BGPAdvertisementInitializer(
 
         // Find all the advertisers from the specified IDs
         val advertisers = application.findAdvertisers(advertiserIDs) {
-            // TODO @refactor - this is ugly
-            // TODO @refactor - replace StubDB with a better alternative
-
-            advertiserIDs.map { id ->
-                var advertiser = topology[id]
-
-                if (stubsFile != null) {
-                    advertiser = StubDB(stubsFile, BGP(), ::parseInterdomainExtender)
-                            .getStub(id, topology)
-                }
-
-                advertiser ?: throw InitializationException("did not find advertiser with ID '$id'")
-            }.toList()
+            AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
+                    .get(advertiserIDs)
         }
 
         // Create advertisements for each advertiser

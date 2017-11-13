@@ -11,15 +11,19 @@ import java.io.*
  */
 class StubParser(reader: Reader): Closeable {
 
+    /**
+     * Creates a stub parser with a file reader to parse a file.
+     *
+     * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for
+     * some other reason cannot be opened for reading.
+     */
+    @Throws(FileNotFoundException::class)
+    constructor(stubFile: File): this(FileReader(stubFile))
+
+
     companion object {
 
-        /**
-         * Creates a stub parser with a file reader to parse a file.
-         *
-         * @throws FileNotFoundException if the file does not exist, is a directory rather than a regular file, or for
-         * some other reason cannot be opened for reading.
-         */
-        @Throws(FileNotFoundException::class)
+        // FIXME remove this and use the secondary constructor
         fun useFile(stubFile: File): StubParser {
             return StubParser(FileReader(stubFile))
         }
