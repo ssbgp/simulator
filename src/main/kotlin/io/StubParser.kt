@@ -20,16 +20,6 @@ class StubParser(reader: Reader): Closeable {
     @Throws(FileNotFoundException::class)
     constructor(stubFile: File): this(FileReader(stubFile))
 
-
-    companion object {
-
-        // FIXME remove this and use the secondary constructor
-        fun useFile(stubFile: File): StubParser {
-            return StubParser(FileReader(stubFile))
-        }
-
-    }
-
     /**
      * Interface for an handler that is called when a new stub item is parsed.
      */
