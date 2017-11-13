@@ -17,23 +17,25 @@ import kotlin.system.exitProcess
  */
 class InputArgumentsParser {
 
-    private val MAIN_COMMAND = "ssbgp-simulator"
+    companion object {
+        private val MAIN_COMMAND = "ssbgp-simulator"
 
-    // Information Options
-    private val HELP = "help"
-    private val VERSION = "version"
+        // Information Options
+        private val HELP = "help"
+        private val VERSION = "version"
 
-    // Execution Options
-    private val TOPOLOGY_FILE = "topology"
-    private val DESTINATION = "destination"
-    private val REPETITIONS = "repetitions"
-    private val REPORT_DIRECTORY = "output"
-    private val MIN_DELAY = "mindelay"
-    private val MAX_DELAY = "maxdelay"
-    private val THRESHOLD = "threshold"
-    private val SEED = "seed"
-    private val STUBS = "stubs"
-    private val NODE_REPORT = "reportnodes"
+        // Execution Options
+        private val TOPOLOGY_FILE = "topology"
+        private val DESTINATION = "destination"
+        private val REPETITIONS = "repetitions"
+        private val REPORT_DIRECTORY = "output"
+        private val MIN_DELAY = "mindelay"
+        private val MAX_DELAY = "maxdelay"
+        private val THRESHOLD = "threshold"
+        private val SEED = "seed"
+        private val STUBS = "stubs"
+        private val NODE_REPORT = "reportnodes"
+    }
 
     private val options = Options()
 
