@@ -130,7 +130,7 @@ class BGPAdvertisementInitializer(
         if (stubsFile != null) {
             metadata["Stubs file"] = stubsFile.name
         }
-        metadata["Destination ID(s)"] = advertiserIDs.joinToString()
+        metadata["Advertiser(s)"] = advertiserIDs.joinToString()
         metadata["Minimum Delay"] = minDelay.toString()
         metadata["Maximum Delay"] = maxDelay.toString()
         metadata["Threshold"] = threshold.toString()

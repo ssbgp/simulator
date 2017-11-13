@@ -93,7 +93,7 @@ object CLIApplication: Application {
                                             block: () -> List<Node<R>>): List<Node<R>> {
 
         try {
-            console.info("Looking for advertisers [${ids.joinToString()}]...", inline = true)
+            console.info("Looking for advertisers [${ids.joinToString()}]...  ", inline = true)
 
             val (duration, advertisers) = timer {
                 block()
