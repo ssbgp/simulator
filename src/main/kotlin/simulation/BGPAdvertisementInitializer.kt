@@ -2,7 +2,6 @@ package simulation
 
 import bgp.BGP
 import bgp.BGPRoute
-import core.routing.Node
 import core.routing.NodeID
 import core.routing.Topology
 import core.simulator.Advertisement
@@ -21,7 +20,7 @@ import java.io.File
 class BGPAdvertisementInitializer(
         // Mandatory
         private val topologyFile: File,
-        private val advertiserID: NodeID,
+        private val advertiserIDs: List<NodeID>,    // must include at least one ID
         private val reportNodes: Boolean,
 
         // Optional (with defaults)
@@ -45,11 +44,19 @@ class BGPAdvertisementInitializer(
         val DEFAULT_REPORT_DIRECTORY = File(System.getProperty("user.dir"))  // current working directory
     }
 
+    init {
+        // Verify that at least 1 advertiser ID is provided in the constructor
+        if (advertiserIDs.isEmpty()) {
+            throw IllegalArgumentException("initializer requires at least 1 advertiser ID")
+        }
+    }
+
     /**
      * Initializes a simulation. It sets up the executions to run and the runner to run them.
      */
     override fun initialize(application: Application, metadata: Metadata): Pair<Runner<BGPRoute>, Execution<BGPRoute>> {
 
+        // Set default values for parameters that have no set value
         val repetitions = repetitions ?: DEFAULT_REPETITIONS
         val minDelay = minDelay ?: DEFAULT_MINDELAY
         val maxDelay = maxDelay ?: DEFAULT_MAXDELAY
@@ -57,12 +64,16 @@ class BGPAdvertisementInitializer(
         val reportDirectory = reportDirectory ?: DEFAULT_REPORT_DIRECTORY
         val seed = seed ?: System.currentTimeMillis()
 
-        // If the topology filename is `topology.nf` and the advertiserID is 10 the report filename
-        // is `topology_10.basic.csv`
-        val outputName = topologyFile.nameWithoutExtension
-        val basicReportFile = File(reportDirectory, outputName.plus("_$advertiserID.basic.csv"))
-        val nodesReportFile = File(reportDirectory, outputName.plus("_$advertiserID.nodes.csv"))
-        val metadataFile = File(reportDirectory, outputName.plus("_$advertiserID.meta.txt"))
+        // The output name (excluding the extension) corresponds to the topology filename and
+        // the IDs of the advertisers. For instance, if the topology file name is `topology.nf` and
+        // the advertiser IDs are 10 and 12, then the output file name will be
+        // `topology_10-12`
+        val outputName = topologyFile.nameWithoutExtension + "_${advertiserIDs.joinToString("-")}"
+
+        // Append extensions according to the file type
+        val basicReportFile = File(reportDirectory, outputName.plus(".basic.csv"))
+        val nodesReportFile = File(reportDirectory, outputName.plus(".nodes.csv"))
+        val metadataFile = File(reportDirectory, outputName.plus(".meta.txt"))
 
         // Setup the message delay generator
         val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
@@ -74,9 +85,7 @@ class BGPAdvertisementInitializer(
             }
         }
 
-        // FIXME temporary hack to avoid multiple compilation errors
-        val advertiserIDs = listOf(advertiserID)
-
+        // Find all the advertisers from the specified IDs
         val advertisers = application.findAdvertisers(advertiserIDs) {
             // TODO refactor, this is ugly
             // TODO replace StubDB with a better alternative
@@ -116,7 +125,7 @@ class BGPAdvertisementInitializer(
         if (stubsFile != null) {
             metadata["Stubs file"] = stubsFile.name
         }
-        metadata["Destination ID"] = advertiserID.toString()
+        metadata["Destination ID(s)"] = advertiserIDs.joinToString()
         metadata["Minimum Delay"] = minDelay.toString()
         metadata["Maximum Delay"] = maxDelay.toString()
         metadata["Threshold"] = threshold.toString()

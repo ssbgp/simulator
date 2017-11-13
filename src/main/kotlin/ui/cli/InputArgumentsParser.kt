@@ -168,7 +168,7 @@ class InputArgumentsParser {
 
             return BGPAdvertisementInitializer(
                     topologyFile = topologyFile,
-                    advertiserID = advertisers[0],
+                    advertiserIDs = advertisers.asList(),
                     repetitions = repetitions,
                     reportDirectory = reportDirectory,
                     threshold = threshold,
