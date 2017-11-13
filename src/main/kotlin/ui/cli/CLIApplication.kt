@@ -7,6 +7,7 @@ import core.routing.Topology
 import core.simulator.Advertisement
 import core.simulator.Engine
 import io.ParseException
+import simulation.InitializationException
 import simulation.Metadata
 import ui.Application
 import java.io.File
@@ -51,7 +52,8 @@ object CLIApplication: Application {
      * @param topologyFile   the file from which the topology will be loaded
      * @param loadBlock      the code block to load the topology.
      */
-    override fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R> {
+    override fun <R: Route> loadTopology(topologyFile: File,
+                                         loadBlock: () -> Topology<R>): Topology<R> {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
@@ -78,15 +80,25 @@ object CLIApplication: Application {
     }
 
     /**
-     * Invoked when trying to find the destination node based on the ID.
+     * Invoked when determining which nodes will be advertisers. Some of these nodes may be
+     * stubs, which implies accessing the filesystem, which may throw some IO error.
      *
-     * @param destinationID the destination ID
-     * @param block         the block of code to find the destination
+     * @param ids   the IDs of the advertising nodes
+     * @param block the block of code to find the advertising nodes
+     * @return a list containing the advertisers found
      */
-    override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> {
+    override fun <R: Route> findAdvertisers(ids: List<NodeID>,
+                                            block: () -> List<Node<R>>): List<Node<R>> {
 
-        val destination = try {
-            block()
+        try {
+            console.info("Looking for advertisers [${ids.joinToString()}]...", inline = true)
+
+            val (duration, advertisers) = timer {
+                block()
+            }
+
+            console.print("found in $duration seconds")
+            return advertisers
 
         } catch (exception: ParseException) {
             console.error("Failed to parse stubs file.")
@@ -97,14 +109,13 @@ object CLIApplication: Application {
             console.error("Failed to read stubs file due to IO error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(2)
-        }
 
-        if (destination == null) {
-            console.error("Destination `$destinationID` was not found.")
+        } catch (exception: InitializationException) {
+            console.error("Failed to initialize the simulation.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(3)
         }
 
-        return destination
     }
 
     /**

@@ -74,27 +74,30 @@ class BGPAdvertisementInitializer(
             }
         }
 
-        // TODO rename findDestination to something better
-        val advertiser: Node<BGPRoute> = application.findDestination(advertiserID) {
-            val advertiser = topology[advertiserID]
+        // FIXME temporary hack to avoid multiple compilation errors
+        val advertiserIDs = listOf(advertiserID)
 
-            if (advertiser != null) {
-                advertiser
+        val advertisers = application.findAdvertisers(advertiserIDs) {
+            // TODO refactor, this is ugly
+            // TODO replace StubDB with a better alternative
 
-            } else if (stubsFile != null) {
-                // TODO include state method in application for loading stubs
-                // TODO replace stubDB with a better and faster parser to look for a single stub knowing the Route type
-                StubDB(stubsFile, BGP(), ::parseInterdomainExtender).getStub(advertiserID, topology)
+            advertiserIDs.map { id ->
+                var advertiser = topology[id]
 
-            } else {
-                null
-            }
+                if (stubsFile != null) {
+                    advertiser = StubDB(stubsFile, BGP(), ::parseInterdomainExtender)
+                            .getStub(id, topology)
+                }
+
+                advertiser ?: throw InitializationException("did not find advertiser with ID '$id'")
+            }.toList()
         }
 
         val runner = RepetitionRunner(
                 application,
                 topology,
-                Advertisement(advertiser, BGPRoute.self()),
+                // FIXME temporary hack to avoid multiple compilation errors
+                Advertisement(advertisers[0], BGPRoute.self()),
                 threshold,
                 repetitions,
                 messageDelayGenerator,
