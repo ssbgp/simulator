@@ -119,19 +119,21 @@ object CLIApplication: Application {
     }
 
     /**
+     * TODO update documentation
+     *
      * Invoked while executing each execution.
      *
      * @param executionID  the identifier of the execution
      * @param advertisement  the destination used in the execution
      * @param seed         the seed of the message delay generator used for the execution
-     * @param executeBlock the code block that performs one execution
+     * @param block the code block that performs one execution
      */
-    override fun <R: Route> execute(executionID: Int, advertisement: Advertisement<R>, seed: Long,
-                                    executeBlock: () -> Unit) {
+    override fun <R: Route> execute(executionID: Int, advertisements: List<Advertisement<R>>,
+                                    seed: Long, block: () -> Unit) {
 
         console.info("Executing $executionID (seed=$seed)...  ", inline = true)
         val (duration, _) = timer {
-            executeBlock()
+            block()
         }
         console.print("finished in $duration seconds")
     }

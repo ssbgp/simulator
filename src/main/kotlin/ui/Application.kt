@@ -19,10 +19,10 @@ interface Application {
     /**
      * Invoked while loading the topology.
      *
-     * @param topologyFile   the file from which the topology will be loaded
-     * @param loadBlock      the code block to load the topology
+     * @param topologyFile the file from which the topology will be loaded
+     * @param block        the code block to load the topology
      */
-    fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R>
+    fun <R: Route> loadTopology(topologyFile: File, block: () -> Topology<R>): Topology<R>
 
     /**
      * Invoked when determining which nodes will be advertisers. Some of these nodes may be
@@ -42,10 +42,10 @@ interface Application {
      * @param executionID   the identifier of the execution
      * @param advertisement the destination used in the execution
      * @param seed          the seed of the message delay generator used for the execution
-     * @param executeBlock  the code block that performs one execution
+     * @param block         the code block that performs one execution
      */
-    fun <R: Route> execute(executionID: Int, advertisement: Advertisement<R>, seed: Long,
-                           executeBlock: () -> Unit)
+    fun <R: Route> execute(executionID: Int, advertisements: List<Advertisement<R>>, seed: Long,
+                           block: () -> Unit)
 
     /**
      * Invoked during a run.
