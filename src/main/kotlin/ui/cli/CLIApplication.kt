@@ -67,11 +67,13 @@ object CLIApplication: Application {
             return topology
 
         } catch (exception: ParseException) {
+            console.print() // must print a new line here
             console.error("Failed to load topology due to parse error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (exception: IOException) {
+            console.print() // must print a new line here
             console.error("Failed to load topology due to IO error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(2)
@@ -101,16 +103,19 @@ object CLIApplication: Application {
             return advertisers
 
         } catch (exception: ParseException) {
+            console.print() // must print a new line here
             console.error("Failed to parse stubs file.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (exception: IOException) {
+            console.print() // must print a new line here
             console.error("Failed to read stubs file due to IO error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(2)
 
         } catch (exception: InitializationException) {
+            console.print() // must print a new line here
             console.error("Failed to initialize the simulation.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(3)
