@@ -74,10 +74,6 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         process(node, node, defaultRoute)
     }
 
-    override fun advertise(node: Node<BGPRoute>) {
-        process(node, node, BGPRoute.self())
-    }
-
     /**
      * Processes a BGP message received by a node.
      * May update the routing table and the selected route/neighbor.

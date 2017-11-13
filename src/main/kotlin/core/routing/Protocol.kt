@@ -28,9 +28,6 @@ interface Protocol<R: Route> {
      */
     fun advertise(node: Node<R>, defaultRoute: R)
 
-    // TODO remove this. kept here to avoid compilation errors during the transition
-    fun advertise(node: Node<R>)
-
     /**
      * Processes an incoming routing message.
      *

@@ -18,9 +18,6 @@ interface Advertiser<in R: Route> {
      */
     fun advertise(defaultRoute: R)
 
-    // TODO remove this. kept here to avoid compilation errors during the transition
-    fun advertise()
-
     /**
      * Resets the state of the advertiser. This may be required before advertising.
      */

@@ -41,10 +41,6 @@ object FakeProtocol: Protocol<Route> {
         TODO("not implemented yet")
     }
 
-    override fun advertise(node: Node<Route>) {
-        TODO("not implemented yet")
-    }
-
     override fun advertise(node: Node<Route>, defaultRoute: Route) {
         TODO("not implemented yet")
     }

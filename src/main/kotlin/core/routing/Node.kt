@@ -49,10 +49,6 @@ class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser<R>
         protocol.advertise(this, defaultRoute)
     }
 
-    override fun advertise() {
-        protocol.advertise(this)
-    }
-
     /**
      * Sends a message containing the route [route] to all in-neighbors of this node.
      *
