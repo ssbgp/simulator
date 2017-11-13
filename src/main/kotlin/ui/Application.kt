@@ -50,4 +50,11 @@ interface Application {
      */
     fun run(runBlock: () -> Unit)
 
+    /**
+     * Invoked while metadata is being written to disk.
+     *
+     * @param file the file where the metadata is going to be written to
+     */
+    fun writeMetadata(file: File, block: () -> Unit)
+
 }

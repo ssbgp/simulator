@@ -67,11 +67,12 @@ class RepetitionRunner<R: Route>(
         metadata["Start Time"] = startInstant
         metadata["Finish Time"] = Instant.now()
 
-        // TODO @refactor - add application method for writing the metadata file - writing may fail
+        application.writeMetadata(metadataFile) {
 
-        KeyValueWriter(metadataFile).use {
-            for ((key, value) in metadata) {
-                it.write(key, value)
+            KeyValueWriter(metadataFile).use {
+                for ((key, value) in metadata) {
+                    it.write(key, value)
+                }
             }
         }
 

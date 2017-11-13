@@ -151,7 +151,7 @@ object CLIApplication: Application {
             val (duration, _) = timer {
                 runBlock()
             }
-            console.info("Finished run in $duration in seconds")
+            console.info("Finished run in $duration seconds")
 
         } catch (exception: IOException) {
             console.error("Failed to report results due to an IO error.")
@@ -161,8 +161,32 @@ object CLIApplication: Application {
 
     }
 
+    /**
+     * Invoked while metadata is being written to disk.
+     *
+     * @param file the file where the metadata is going to be written to
+     */
+    override fun writeMetadata(file: File, block: () -> Unit) {
+
+        try {
+            console.info("Writing metadata...  ", inline = true)
+            val (duration, _) = timer {
+                block()
+            }
+            console.print("done in $duration seconds")
+
+        } catch (exception: IOException) {
+            console.print() // must print a new line here
+            console.error("Failed to metadata due to an IO error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
+            exitProcess(4)
+        }
+    }
+
 }
 
+
+// TODO @refactor - move timer to a utils file
 private fun <R> timer(block: () -> R): Pair<Double, R> {
 
     val start = Instant.now()
