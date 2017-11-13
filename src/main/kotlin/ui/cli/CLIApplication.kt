@@ -124,14 +124,12 @@ object CLIApplication: Application {
     }
 
     /**
-     * TODO update documentation
-     *
      * Invoked while executing each execution.
      *
-     * @param executionID  the identifier of the execution
-     * @param advertisement  the destination used in the execution
-     * @param seed         the seed of the message delay generator used for the execution
-     * @param block the code block that performs one execution
+     * @param executionID    the identifier of the execution
+     * @param advertisements the advertisements that will occur during the execution
+     * @param seed           the seed of the message delay generator used for the execution
+     * @param block          the code block that performs one execution
      */
     override fun <R: Route> execute(executionID: Int, advertisements: List<Advertisement<R>>,
                                     seed: Long, block: () -> Unit) {

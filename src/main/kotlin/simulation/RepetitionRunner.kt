@@ -28,14 +28,13 @@ class RepetitionRunner<R: Route>(
 ): Runner<R> {
 
     /**
-     * TODO update documentation
-     *
      * Runs the specified execution the number of times specified in the [repetitions] property.
      *
-     * The engine configurations may be modified during the run. At the end of this method the engine is always
-     * reverted to its defaults.
+     * The engine's configurations may be modified during the run. At the end of this method the
+     * engine is always reverted to its defaults.
      *
-     * @param execution        the execution that will be executed in each run
+     * @param execution the execution that will be executed in each run
+     * @param metadata  a metadata instance that may already contain some meta values
      */
     override fun run(execution: Execution<R>, metadata: Metadata) {
 
@@ -53,8 +52,8 @@ class RepetitionRunner<R: Route>(
 
                     // Cleanup for next execution
                     topology.reset()
-                    // TODO put stubs in the topology itself to avoid having this reset() method
-                    // in the advertiser interface
+                    // TODO @refactor - put stubs in the topology itself to avoid having this
+                    //                  reset() method in the advertiser interface
                     advertisements.forEach { it.advertiser.reset() }
                     Engine.messageDelayGenerator.generateNewSeed()
                 }
@@ -68,7 +67,7 @@ class RepetitionRunner<R: Route>(
         metadata["Start Time"] = startInstant
         metadata["Finish Time"] = Instant.now()
 
-        // TODO add application method for writing the metadata file - writing may fail
+        // TODO @refactor - add application method for writing the metadata file - writing may fail
 
         KeyValueWriter(metadataFile).use {
             for ((key, value) in metadata) {

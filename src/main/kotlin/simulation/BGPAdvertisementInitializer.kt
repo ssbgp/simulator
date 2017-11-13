@@ -87,8 +87,8 @@ class BGPAdvertisementInitializer(
 
         // Find all the advertisers from the specified IDs
         val advertisers = application.findAdvertisers(advertiserIDs) {
-            // TODO refactor, this is ugly
-            // TODO replace StubDB with a better alternative
+            // TODO @refactor - this is ugly
+            // TODO @refactor - replace StubDB with a better alternative
 
             advertiserIDs.map { id ->
                 var advertiser = topology[id]
@@ -103,7 +103,7 @@ class BGPAdvertisementInitializer(
         }
 
         // Create advertisements for each advertiser
-        // FIXME replace use of BGP's self route with a route defined by user
+        // TODO @feature - replace use of BGP's self route with a route defined by the user
         // Here we are using the BGP self route as the advertised/default route to have the same
         // behavior as before
         val advertisements = advertisers.map { Advertisement(it, BGPRoute.self()) }.toList()

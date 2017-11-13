@@ -9,7 +9,7 @@ package core.routing
  * This function describes how each route elected by the head node of the link is transformed at the tail node.
  * It describes both the export bgp.policies of the head node and the import bgp.policies of the tail node.
  *
- * TODO improve the documentation for extender
+ * TODO @doc - improve the documentation for extender
  */
 interface Extender<R: Route> {
 
