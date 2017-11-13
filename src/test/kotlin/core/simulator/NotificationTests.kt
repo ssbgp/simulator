@@ -32,7 +32,7 @@ object NotificationsTests: Spek({
             val node = topology.nodes.sortedBy { it.id }
 
             val collector = collectBGPNotifications {
-                Engine.simulate(topology, node[0], threshold = 1000)
+                simulate(topology, node[0], threshold = 1000)
             }
 
             it("issues start notification once") {
@@ -59,16 +59,16 @@ object NotificationsTests: Spek({
                 assertThat(collector.importNotifications.size, Is(1))
             }
 
-            it("issues learn notification once") {
-                assertThat(collector.learnNotifications.size, Is(1))
+            it("issues learn notification twice") {
+                assertThat(collector.learnNotifications.size, Is(2))
             }
 
             it("never issues detect notification") {
                 assertThat(collector.detectNotifications.size, Is(0))
             }
 
-            it("issues select notification once") {
-                assertThat(collector.selectNotifications.size, Is(1))
+            it("issues select notification twice") {
+                assertThat(collector.selectNotifications.size, Is(2))
             }
 
             it("issues export notification 2 times") {
@@ -97,7 +97,7 @@ object NotificationsTests: Spek({
             val node = topology.nodes.sortedBy { it.id }
 
             val collector = collectBGPNotifications {
-                Engine.simulate(topology, node[0], threshold = 1000)
+                simulate(topology, node[0], threshold = 1000)
             }
 
             it("never issues threshold reached notification") {
@@ -116,16 +116,16 @@ object NotificationsTests: Spek({
                 assertThat(collector.importNotifications.size, Is(8))
             }
 
-            it("issues learn notification 8 times") {
-                assertThat(collector.learnNotifications.size, Is(8))
+            it("issues learn notification 9 times") {
+                assertThat(collector.learnNotifications.size, Is(9))
             }
 
             it("issues detect notification 2 times") {
                 assertThat(collector.detectNotifications.size, Is(2))
             }
 
-            it("issues select notification 6 times") {
-                assertThat(collector.selectNotifications.size, Is(6))
+            it("issues select notification 7 times") {
+                assertThat(collector.selectNotifications.size, Is(7))
             }
 
             it("issues export notification 7 times") {

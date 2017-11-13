@@ -19,7 +19,7 @@ fun String.toNonNegativeInt(): Int {
 
     val value = this.toInt()
     if (value < 0) {
-        throw NumberFormatException()
+        throw NumberFormatException("For input string \"$this\"")
     }
 
     return value

@@ -32,25 +32,25 @@ fun fakeCompare(route1: Route, route2: Route): Int {
 object FakeProtocol: Protocol<Route> {
 
     override val inNeighbors: Collection<Neighbor<Route>>
-        get() = TODO("not implemented yet")
+        get() = throw UnsupportedOperationException()
 
     override val selectedRoute: Route
-        get() = TODO("not implemented yet")
+        get() = throw UnsupportedOperationException()
 
     override fun addInNeighbor(neighbor: Neighbor<Route>) {
-        TODO("not implemented yet")
+        throw UnsupportedOperationException()
     }
 
-    override fun start(node: Node<Route>) {
-        TODO("not implemented yet")
+    override fun advertise(node: Node<Route>, defaultRoute: Route) {
+        throw UnsupportedOperationException()
     }
 
     override fun process(message: Message<Route>) {
-        TODO("not implemented yet")
+        throw UnsupportedOperationException()
     }
 
     override fun reset() {
-        TODO("not implemented yet")
+        throw UnsupportedOperationException()
     }
 }
 

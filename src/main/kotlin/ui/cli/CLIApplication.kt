@@ -4,8 +4,10 @@ import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.Engine
 import io.ParseException
+import simulation.InitializationException
 import simulation.Metadata
 import ui.Application
 import java.io.File
@@ -48,27 +50,30 @@ object CLIApplication: Application {
      * Invoked while loading the topology.
      *
      * @param topologyFile   the file from which the topology will be loaded
-     * @param loadBlock      the code block to load the topology.
+     * @param block      the code block to load the topology.
      */
-    override fun <R: Route> loadTopology(topologyFile: File, loadBlock: () -> Topology<R>): Topology<R> {
+    override fun <R: Route> loadTopology(topologyFile: File,
+                                         block: () -> Topology<R>): Topology<R> {
 
         try {
             console.info("Topology file: ${topologyFile.path}.")
             console.info("Loading topology...  ", inline = true)
 
             val (duration, topology) = timer {
-                loadBlock()
+                block()
             }
 
             console.print("loaded in $duration seconds")
             return topology
 
         } catch (exception: ParseException) {
+            console.print() // must print a new line here
             console.error("Failed to load topology due to parse error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (exception: IOException) {
+            console.print() // must print a new line here
             console.error("Failed to load topology due to IO error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(2)
@@ -77,48 +82,61 @@ object CLIApplication: Application {
     }
 
     /**
-     * Invoked when trying to find the destination node based on the ID.
+     * Invoked when determining which nodes will be advertisers. Some of these nodes may be
+     * stubs, which implies accessing the filesystem, which may throw some IO error.
      *
-     * @param destinationID the destination ID
-     * @param block         the block of code to find the destination
+     * @param ids   the IDs of the advertising nodes
+     * @param block the block of code to find the advertising nodes
+     * @return a list containing the advertisers found
      */
-    override fun <R: Route> findDestination(destinationID: NodeID, block: () -> Node<R>?): Node<R> {
+    override fun <R: Route> findAdvertisers(ids: List<NodeID>,
+                                            block: () -> List<Node<R>>): List<Node<R>> {
 
-        val destination = try {
-            block()
+        try {
+            console.info("Looking for advertisers [${ids.joinToString()}]...  ", inline = true)
+
+            val (duration, advertisers) = timer {
+                block()
+            }
+
+            console.print("found in $duration seconds")
+            return advertisers
 
         } catch (exception: ParseException) {
+            console.print() // must print a new line here
             console.error("Failed to parse stubs file.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (exception: IOException) {
+            console.print() // must print a new line here
             console.error("Failed to read stubs file due to IO error.")
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(2)
-        }
 
-        if (destination == null) {
-            console.error("Destination `$destinationID` was not found.")
+        } catch (exception: InitializationException) {
+            console.print() // must print a new line here
+            console.error("Failed to initialize the simulation.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(3)
         }
 
-        return destination
     }
 
     /**
      * Invoked while executing each execution.
      *
-     * @param executionID  the identifier of the execution
-     * @param destination  the destination used in the execution
-     * @param seed         the seed of the message delay generator used for the execution
-     * @param executeBlock the code block that performs one execution
+     * @param executionID    the identifier of the execution
+     * @param advertisements the advertisements that will occur during the execution
+     * @param seed           the seed of the message delay generator used for the execution
+     * @param block          the code block that performs one execution
      */
-    override fun <R: Route> execute(executionID: Int, destination: Node<R>, seed: Long, executeBlock: () -> Unit) {
+    override fun <R: Route> execute(executionID: Int, advertisements: List<Advertisement<R>>,
+                                    seed: Long, block: () -> Unit) {
 
-        console.info("Executing $executionID (destination=${destination.id} and seed=$seed)...  ", inline = true)
+        console.info("Executing $executionID (seed=$seed)...  ", inline = true)
         val (duration, _) = timer {
-            executeBlock()
+            block()
         }
         console.print("finished in $duration seconds")
     }
@@ -133,7 +151,7 @@ object CLIApplication: Application {
             val (duration, _) = timer {
                 runBlock()
             }
-            console.info("Finished run in $duration in seconds")
+            console.info("Finished run in $duration seconds")
 
         } catch (exception: IOException) {
             console.error("Failed to report results due to an IO error.")
@@ -143,8 +161,32 @@ object CLIApplication: Application {
 
     }
 
+    /**
+     * Invoked while metadata is being written to disk.
+     *
+     * @param file the file where the metadata is going to be written to
+     */
+    override fun writeMetadata(file: File, block: () -> Unit) {
+
+        try {
+            console.info("Writing metadata...  ", inline = true)
+            val (duration, _) = timer {
+                block()
+            }
+            console.print("done in $duration seconds")
+
+        } catch (exception: IOException) {
+            console.print() // must print a new line here
+            console.error("Failed to metadata due to an IO error.")
+            console.error("Cause: ${exception.message ?: "No information available"}")
+            exitProcess(4)
+        }
+    }
+
 }
 
+
+// TODO @refactor - move timer to a utils file
 private fun <R> timer(block: () -> R): Pair<Double, R> {
 
     val start = Instant.now()

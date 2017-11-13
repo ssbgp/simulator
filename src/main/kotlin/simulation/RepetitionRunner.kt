@@ -1,8 +1,8 @@
 package simulation
 
-import core.routing.Node
 import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.DelayGenerator
 import core.simulator.Engine
 import core.simulator.Time
@@ -19,7 +19,7 @@ import java.time.Instant
 class RepetitionRunner<R: Route>(
         private val application: Application,
         private val topology: Topology<R>,
-        private val advertiser: Node<R>,
+        private val advertisements: List<Advertisement<R>>,
         private val threshold: Time,
         private val repetitions: Int,
         private val messageDelayGenerator: DelayGenerator,
@@ -30,10 +30,11 @@ class RepetitionRunner<R: Route>(
     /**
      * Runs the specified execution the number of times specified in the [repetitions] property.
      *
-     * The engine configurations may be modified during the run. At the end of this method the engine is always
-     * reverted to its defaults.
+     * The engine's configurations may be modified during the run. At the end of this method the
+     * engine is always reverted to its defaults.
      *
-     * @param execution        the execution that will be executed in each run
+     * @param execution the execution that will be executed in each run
+     * @param metadata  a metadata instance that may already contain some meta values
      */
     override fun run(execution: Execution<R>, metadata: Metadata) {
 
@@ -45,13 +46,15 @@ class RepetitionRunner<R: Route>(
             try {
                 repeat(times = repetitions) { repetition ->
 
-                    application.execute(repetition + 1, advertiser, messageDelayGenerator.seed) {
-                        execution.execute(topology, advertiser, threshold)
+                    application.execute(repetition + 1, advertisements, messageDelayGenerator.seed) {
+                        execution.execute(topology, advertisements, threshold)
                     }
 
                     // Cleanup for next execution
                     topology.reset()
-                    advertiser.reset()
+                    // TODO @refactor - put stubs in the topology itself to avoid having this
+                    //                  reset() method in the advertiser interface
+                    advertisements.forEach { it.advertiser.reset() }
                     Engine.messageDelayGenerator.generateNewSeed()
                 }
 
@@ -64,11 +67,12 @@ class RepetitionRunner<R: Route>(
         metadata["Start Time"] = startInstant
         metadata["Finish Time"] = Instant.now()
 
-        // TODO add application method for writing the metadata file - writing may fail
+        application.writeMetadata(metadataFile) {
 
-        KeyValueWriter(metadataFile).use {
-            for ((key, value) in metadata) {
-                it.write(key, value)
+            KeyValueWriter(metadataFile).use {
+                for ((key, value) in metadata) {
+                    it.write(key, value)
+                }
             }
         }
 
