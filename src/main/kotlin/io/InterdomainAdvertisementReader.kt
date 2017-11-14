@@ -60,7 +60,9 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
                 BGPRoute.with(parseInterdomainCost(entry.values[1], currentLine), pathOf())
             }
 
-            advertisements.put(advertiserID, AdvertisementInfo(defaultRoute, time))
+            if (advertisements.putIfAbsent(advertiserID, AdvertisementInfo(defaultRoute, time)) != null) {
+                throw ParseException("advertiser $advertiserID is defined twice", currentLine)
+            }
         }
 
     }

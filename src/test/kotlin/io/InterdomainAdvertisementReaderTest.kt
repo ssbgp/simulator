@@ -94,7 +94,27 @@ object InterdomainAdvertisementReaderTest: Spek({
         }
     }
 
-    // TODO defining the same advertiser twice throws a ParseException
 
+    given("file with entries `10 = 0 | c` and `10 = 1 | r`") {
+
+        val fileContent = lines(
+                "10 = 0 | c",
+                "10 = 1 | r"
+        )
+
+        var exception: ParseException? = null
+
+        it("throws a ParseException") {
+            InterdomainAdvertisementReader(StringReader(fileContent)).use {
+                exception = assertThrows(ParseException::class.java) {
+                    it.read()
+                }
+            }
+        }
+
+        it("indicates the error is in line 2") {
+            assertThat(exception?.lineNumber, Is(2))
+        }
+    }
 
 })
