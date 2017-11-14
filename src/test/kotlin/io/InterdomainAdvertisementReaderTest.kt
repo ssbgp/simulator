@@ -11,6 +11,8 @@ import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.junit.jupiter.api.Assertions.assertThrows
+import testing.`when`
+import testing.bgp.BGPNode
 import testing.node
 import testing.then
 import java.io.StringReader
@@ -115,6 +117,77 @@ object InterdomainAdvertisementReaderTest: Spek({
         it("indicates the error is in line 2") {
             assertThat(exception?.lineNumber, Is(2))
         }
+    }
+
+    context("file with entries `10 = 0 | c`, `15 = 1 | r`, and `5 = 2 | p`") {
+
+        val fileContent = lines(
+                "10 = 0 | c",
+                "15 = 1 | r",
+                "5 = 2 | p"
+        )
+
+        `when`("finding advertisement for advertiser 10") {
+
+            val advertisements = InterdomainAdvertisementReader(StringReader(fileContent)).use {
+                it.find(listOf(BGPNode(10)))
+            }
+
+            it("returns 1 advertisement") {
+                assertThat(advertisements.size, Is(1))
+            }
+
+            val advertisement = advertisements[0]
+
+            it("has advertiser with ID '10'") {
+                assertThat(advertisement.advertiser.id, Is(10))
+            }
+
+            it("has customer route") {
+                assertThat(advertisement.route, Is(customerRoute()))
+            }
+
+            it("has advertising time 0") {
+                assertThat(advertisement.time, Is(0))
+            }
+        }
+
+        `when`("finding advertisement for advertiser 15") {
+
+            val advertisements = InterdomainAdvertisementReader(StringReader(fileContent)).use {
+                it.find(listOf(BGPNode(15)))
+            }
+
+            it("returns 1 advertisement") {
+                assertThat(advertisements.size, Is(1))
+            }
+
+            val advertisement = advertisements[0]
+
+            it("has advertiser with ID '15'") {
+                assertThat(advertisement.advertiser.id, Is(15))
+            }
+
+            it("has peer route") {
+                assertThat(advertisement.route, Is(peerRoute()))
+            }
+
+            it("has advertising time 1") {
+                assertThat(advertisement.time, Is(1))
+            }
+        }
+
+        `when`("finding advertisement for advertisers 5 and 15") {
+
+            val advertisements = InterdomainAdvertisementReader(StringReader(fileContent)).use {
+                it.find(listOf(BGPNode(5), BGPNode(15)))
+            }
+
+            it("returns 2 advertisements") {
+                assertThat(advertisements.size, Is(2))
+            }
+        }
+
     }
 
 })
