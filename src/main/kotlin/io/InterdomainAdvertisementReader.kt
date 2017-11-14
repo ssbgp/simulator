@@ -30,6 +30,7 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
          */
         override fun onEntry(entry: KeyValueParser.Entry, currentLine: Int) {
 
+            // The ley corresponds to the advertiser ID
             val advertiserID = try {
                 entry.key.toNonNegativeInt()
             } catch (e: NumberFormatException) {
@@ -37,20 +38,20 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
             }
 
             // The first value is the advertising time - this value is NOT mandatory
-            val timeValue = try { entry.values[0] } catch (e: IndexOutOfBoundsException) { "" }
-
+            // The KeyValueParser ensure that there is at least one value always, even if it is blank
+            val timeValue = entry.values[0]
             val time = if (timeValue.isBlank()) DEFAULT_ADVERTISING_TIME else try {
                  timeValue.toNonNegativeInt()
             } catch (e: NumberFormatException) {
                 throw ParseException("advertising time must be a non-negative integer value, but was '$timeValue'")
             }
 
-            // The second value is a cost label for the default route's local preference
-            val label = try { entry.values[1] } catch (e: IndexOutOfBoundsException) { "" }
-            val defaultRoute = if (label.isBlank())
+            // The second value is a cost label for the default route's local preference - this value is NOT mandatory
+            val defaultRoute = if (entry.values.size == 1 || entry.values[1].isBlank()) {
                 DEFAULT_DEFAULT_ROUTE
-            else
-                BGPRoute.with(parseInterdomainCost(label, currentLine), pathOf())
+            } else {
+                BGPRoute.with(parseInterdomainCost(entry.values[1], currentLine), pathOf())
+            }
 
             advertisements.put(advertiserID, AdvertisementInfo(defaultRoute, time))
         }
