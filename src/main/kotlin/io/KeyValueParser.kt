@@ -26,7 +26,7 @@ import java.io.Reader
  * Entries are parsed in the same order they are described in the stream. Thus, the handler is guaranteed to be
  * notified of new entries in that exact same order.
  */
-class KeyValueParser(reader: Reader, private val handler: KeyValueParser.Handler): Closeable {
+class KeyValueParser(reader: Reader): Closeable {
 
     /**
      * Handlers are notified once a new key-value entry is parsed.
@@ -56,11 +56,12 @@ class KeyValueParser(reader: Reader, private val handler: KeyValueParser.Handler
     /**
      * Parses the stream, invoking the handler every time a new entry is parsed.
      *
+     * @param handler the handler that is notified when a new entry is parsed
      * @throws IOException    If an I/O error occurs
      * @throws ParseException if the format of the stream is not valid
      */
     @Throws(IOException::class, ParseException::class)
-    fun parse() {
+    fun parse(handler: KeyValueParser.Handler) {
 
         // Read the first line - throw error if empty
         var line: String? = reader.readLine() ?: throw ParseException("file is empty", lineNumber = 1)
@@ -70,7 +71,8 @@ class KeyValueParser(reader: Reader, private val handler: KeyValueParser.Handler
 
             // Ignore blank lines
             if (!line.isBlank()) {
-                parseLine(line, currentLine)
+                val entry = parseEntry(line, currentLine)
+                handler.onEntry(entry, currentLine)
             }
 
             line = reader.readLine()
@@ -78,7 +80,7 @@ class KeyValueParser(reader: Reader, private val handler: KeyValueParser.Handler
         }
     }
 
-    private fun parseLine(line: String, currentLine: Int) {
+    private fun parseEntry(line: String, currentLine: Int): Entry {
 
         // Each line must have a key separated from its values with an equal sign
         // e.g. node = 1
@@ -94,11 +96,7 @@ class KeyValueParser(reader: Reader, private val handler: KeyValueParser.Handler
         val key = keyAndValues[0].trim()
         val values = keyAndValues[1].split("|").map { it.trim() }.toList()
 
-        if ('|' in key) {
-
-        }
-
-        handler.onEntry(Entry(key, values), currentLine)
+        return Entry(key, values)
     }
 
     /**

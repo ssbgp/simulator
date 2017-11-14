@@ -20,7 +20,7 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Close
     constructor(file: File): this(FileReader(file))
 
     private val builder = TopologyBuilder<BGPRoute>()
-    private val parser = TopologyParser(reader, this)
+    private val parser = TopologyParser(reader)
 
     /**
      * Returns a Topology object that is represented in the input source.
@@ -33,7 +33,7 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Close
      */
     @Throws(IOException::class, ParseException::class)
     override fun read(): Topology<BGPRoute> {
-        parser.parse()
+        parser.parse(this)
         return builder.build()
     }
 
