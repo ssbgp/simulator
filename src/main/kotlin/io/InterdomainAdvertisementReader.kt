@@ -15,7 +15,7 @@ import java.io.Reader
 class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
 
     companion object {
-        val DEFAULT_ADVERTISING_TIME = 1
+        val DEFAULT_ADVERTISING_TIME = 0
         val DEFAULT_DEFAULT_ROUTE = BGPRoute.self()
     }
 
@@ -30,11 +30,17 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
          */
         override fun onEntry(entry: KeyValueParser.Entry, currentLine: Int) {
 
+            if (entry.values.size > 2) {
+                throw ParseException("only 2 values are expected for an advertiser, " +
+                        "but ${entry.values.size} were given", currentLine)
+            }
+
             // The ley corresponds to the advertiser ID
             val advertiserID = try {
                 entry.key.toNonNegativeInt()
             } catch (e: NumberFormatException) {
-                throw ParseException("advertising node ID must be a non-negative integer value, but was '${entry.key}'")
+                throw ParseException("advertising node ID must be a non-negative integer value, " +
+                        "but was '${entry.key}'", currentLine)
             }
 
             // The first value is the advertising time - this value is NOT mandatory
@@ -43,7 +49,8 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
             val time = if (timeValue.isBlank()) DEFAULT_ADVERTISING_TIME else try {
                  timeValue.toNonNegativeInt()
             } catch (e: NumberFormatException) {
-                throw ParseException("advertising time must be a non-negative integer value, but was '$timeValue'")
+                throw ParseException("advertising time must be a non-negative integer value, " +
+                        "but was '$timeValue'", currentLine)
             }
 
             // The second value is a cost label for the default route's local preference - this value is NOT mandatory

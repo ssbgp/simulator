@@ -26,7 +26,7 @@ object InterdomainAdvertisementReaderTest: Spek({
         listOf(
                 "10 = 0 | c" isParsedTo Advertisement(node(10), customerRoute(), time = 0),
                 "11 = 0 | c" isParsedTo Advertisement(node(11), customerRoute(), time = 0),
-                "10 = 15 | c" isParsedTo Advertisement(node(10), customerRoute(), time = 10),
+                "10 = 15 | c" isParsedTo Advertisement(node(10), customerRoute(), time = 15),
                 "10 = 15 | r" isParsedTo Advertisement(node(10), peerRoute(), time = 15),
                 "10 = 15 | p" isParsedTo Advertisement(node(10), providerRoute(), time = 15),
                 "10 = 15 | r+" isParsedTo Advertisement(node(10), peerplusRoute(), time = 15),
@@ -47,20 +47,20 @@ object InterdomainAdvertisementReaderTest: Spek({
 
                 then("it reads 1 advertisement") {
                     assertThat(advertisements.size, Is(1))
+                }
 
-                    then("the advertiser has ID '${advertisement.advertiser.id}'") {
-                        assertThat(advertisements, hasKey(advertisement.advertiser.id))
+                then("the advertiser has ID '${advertisement.advertiser.id}'") {
+                    assertThat(advertisements, hasKey(advertisement.advertiser.id))
+                }
 
-                        val (defaultRoute, advertisingTime) = advertisements[advertisement.advertiser.id]!!
+                val (defaultRoute, advertisingTime) = advertisements[advertisement.advertiser.id]!!
 
-                        then("the default route is '${advertisement.route}'") {
-                            assertThat(defaultRoute, Is(advertisement.route))
-                        }
+                then("the default route is '${advertisement.route}'") {
+                    assertThat(defaultRoute, Is(advertisement.route))
+                }
 
-                        then("the advertising time is '${advertisement.time}'") {
-                            assertThat(advertisingTime, Is(advertisement.time))
-                        }
-                    }
+                then("the advertising time is '${advertisement.time}'") {
+                    assertThat(advertisingTime, Is(advertisement.time))
                 }
             }
         }
@@ -77,16 +77,18 @@ object InterdomainAdvertisementReaderTest: Spek({
 
             given("invalid entry is `$line`") {
 
+                var exception: ParseException? = null
+
                 it("throws a ParseException") {
-                    val exception = InterdomainTopologyReader(StringReader(line)).use {
-                        assertThrows(ParseException::class.java) {
+                    InterdomainAdvertisementReader(StringReader(line)).use {
+                        exception = assertThrows(ParseException::class.java) {
                             it.read()
                         }
                     }
+                }
 
-                    it("indicates the error is in line 1") {
-                        assertThat(exception?.lineNumber, Is(1))
-                    }
+                it("indicates the error is in line 1") {
+                    assertThat(exception?.lineNumber, Is(1))
                 }
             }
         }
