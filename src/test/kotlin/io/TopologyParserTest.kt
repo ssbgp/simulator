@@ -261,7 +261,7 @@ object TopologyParserTest: Spek({
         }
     }
 
-    val incorrectLines = listOf(
+    val invalidLines = listOf(
             "node = a",
             "node = 10a",
             "element = 10",
@@ -270,16 +270,24 @@ object TopologyParserTest: Spek({
             "node = ",
             "node",
             "node == 10",
-            "node = 10 | 11 = 19",
+            "node = 10a",
+            "node = 10 = 19",
             "link = 10",
             "link = 10 | a",
             "link = a | 10",
-            "link = a | b"
+            "link = a | b",
+            "link = 10 | 11a",
+            "link = 10a | 11",
+            "link = 0 |  ",
+            "link = 0 |  | C",
+            "link =  | 1 | C",
+            "link =  | | C",
+            "link =  | "
     )
 
-    incorrectLines.forEach { line ->
+    invalidLines.forEach { line ->
 
-        given("file with incorrect line `$line`") {
+        given("file with invalid line `$line`") {
 
             val handler: TopologyParser.Handler = mock()
 
