@@ -6,6 +6,8 @@ import core.routing.pathOf
 import core.simulator.Advertisement
 import core.simulator.Advertiser
 import utils.toNonNegativeInt
+import java.io.File
+import java.io.FileReader
 import java.io.IOException
 import java.io.Reader
 
@@ -21,11 +23,12 @@ private val DEFAULT_DEFAULT_ROUTE = BGPRoute.self()
  */
 class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
 
+    constructor(file: File): this(FileReader(file))
+
     private class Handler(
             val advertisements: MutableMap<NodeID, AdvertisementInfo<BGPRoute>>,
             val advertisers: Map<NodeID, Advertiser<BGPRoute>>? = null
-    )
-        : KeyValueParser.Handler {
+    ): KeyValueParser.Handler {
 
         /**
          * Invoked when a new entry is parsed.
@@ -40,7 +43,7 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
                         "but ${entry.values.size} were given", currentLine)
             }
 
-            // The ley corresponds to the advertiser ID
+            // The key corresponds to the advertiser ID
             val advertiserID = try {
                 entry.key.toNonNegativeInt()
             } catch (e: NumberFormatException) {
