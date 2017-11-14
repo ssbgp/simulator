@@ -1,7 +1,7 @@
 package io
 
 import core.routing.NodeID
-import java.io.BufferedReader
+import utils.toNonNegativeInt
 import java.io.Closeable
 import java.io.IOException
 import java.io.Reader
@@ -11,7 +11,7 @@ import java.io.Reader
  *
  * @author David Fialho
  */
-class TopologyParser(reader: Reader, private val handler: TopologyParser.Handler): Closeable {
+class TopologyParser(reader: Reader): Closeable {
 
     /**
      * Handlers are notified once a new topology item (a node or a link) is parsed.
@@ -40,106 +40,83 @@ class TopologyParser(reader: Reader, private val handler: TopologyParser.Handler
 
     }
 
-    /**
-     * The underlying reader used to read the stream.
-     */
-    private val reader = BufferedReader(reader)
+    private class KeyValueHandler(val handler: TopologyParser.Handler): KeyValueParser.Handler {
+
+        /**
+         * Invoked when a new entry is parsed.
+         *
+         * @param entry       the parsed entry
+         * @param currentLine line number where the node was parsed
+         */
+        override fun onEntry(entry: KeyValueParser.Entry, currentLine: Int) {
+
+            val values = entry.values
+
+            when (entry.key.toLowerCase()) {
+                "node" -> {
+
+                    // The first value is the node ID - this value is mandatory
+                    if (values.isEmpty() || (values.size == 1 && values[0].isEmpty())) {
+                        throw ParseException("node entry is missing the ID value", currentLine)
+                    }
+
+                    val nodeID = parseNodeID(values[0], currentLine)
+
+                    // The remaining values should be parsed by the Topology Reader according to
+                    // its required specifications
+                    handler.onNodeItem(nodeID, values.subList(1, values.lastIndex + 1), currentLine)
+                }
+                "link" -> {
+
+                    // The first two values are the tail and head nodes of the link
+                    if (values.size < 2 || values[0].isBlank() || values[1].isBlank()) {
+                        throw ParseException("link entry is missing required values: tail node ID and/or head node ID",
+                                currentLine)
+                    }
+
+                    val tailID = parseNodeID(values[0], currentLine)
+                    val headID = parseNodeID(values[1], currentLine)
+
+                    handler.onLinkItem(tailID, headID, values.subList(2, values.lastIndex + 1), currentLine)
+                }
+                else -> {
+                    throw ParseException("invalid key `${entry.key}`: supported keys are 'node' or 'link'", currentLine)
+                }
+
+            }
+        }
+
+        private fun parseNodeID(value: String, currentLine: Int): Int {
+
+            try {
+                return value.toNonNegativeInt()
+            } catch (e: NumberFormatException) {
+                throw ParseException("a node ID must be a non-negative value, but was `$value`", currentLine)
+            }
+        }
+    }
 
     /**
-     * Returns a Topology object that is represented in the input source.
+     * The topology parser is based on a key-value parser.
+     * It uses this parser to handle identifying entries.
+     */
+    private val parser = KeyValueParser(reader)
+
+    /**
+     * Parses the stream invoking the handler once a new node or link is parsed.
      *
      * @throws IOException    If an I/O error occurs
      * @throws ParseException if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
-    fun parse() {
-
-        // Read the first line - throw error if empty
-        var line: String? = reader.readLine() ?: throw ParseException("Topology file is empty", lineNumber = 1)
-
-        var currentLine = 1
-        while (line != null) {
-
-            // Do not parse blank lines
-            if (!line.isBlank()) {
-                parseLine(line, currentLine)
-            }
-
-            line = reader.readLine()
-            currentLine++
-        }
-    }
-
-    private fun parseLine(line: String, currentLine: Int) {
-
-        // Each line must have a key separated from its values with an equal sign
-        // e.g. node = 1
-
-        // Split the key from the values
-        val keyAndValues = line.split("=")
-
-        if (keyAndValues.size != 2) {
-            throw ParseException("Line $currentLine$ contains multiple equal signs(=): only one is permitted per line",
-                    currentLine)
-        }
-
-        val key = keyAndValues[0].trim().toLowerCase()
-        val values = keyAndValues[1].split("|").map { it.trim().toLowerCase() }.toList()
-
-        when (key) {
-            "node" -> {
-
-                // Check there is at least one value: the node ID
-                if (values.isEmpty() || (values.size == 1 && values[0].isEmpty())) {
-                    throw ParseException("Line with `node` key is missing a value: must have at least an ID value",
-                            currentLine)
-                }
-
-                // Node ID is the first value
-                val nodeID = parseNodeID(values[0], currentLine)
-
-                handler.onNodeItem(nodeID, values.subList(1, values.lastIndex + 1), currentLine)
-            }
-            "link" -> {
-
-                // Check there is at least one value: the node ID
-                if (values.size < 2) {
-                    throw ParseException("Line with `link` is missing a value: must have at least two ID values",
-                            currentLine)
-                }
-
-                // Node ID is the first value
-                val tailID = parseNodeID(values[0], currentLine)
-                val headID = parseNodeID(values[1], currentLine)
-
-                handler.onLinkItem(tailID, headID, values.subList(2, values.lastIndex + 1), currentLine)
-            }
-            else -> {
-                throw ParseException("Invalid key `$key`: keys must be either `node` or `link`", currentLine)
-            }
-        }
-    }
-
-    private fun parseNodeID(value: String, currentLine: Int): Int {
-
-        try {
-            val intValue = value.toInt()
-            if (intValue < 0) {
-                throw NumberFormatException()
-            }
-
-            return intValue
-
-        } catch (e: NumberFormatException) {
-            throw ParseException("Failed to parse node ID from value `$value`: must be a non-negative " +
-                    "integer value", currentLine)
-        }
+    fun parse(handler: TopologyParser.Handler) {
+        parser.parse(KeyValueHandler(handler))
     }
 
     /**
      * Closes the stream and releases any system resources associated with it.
      */
     override fun close() {
-        reader.close()
+        parser.close()
     }
 }
