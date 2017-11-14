@@ -11,7 +11,7 @@ import java.io.Reader
  *
  * @author David Fialho
  */
-class TopologyParser(reader: Reader, private val handler: TopologyParser.Handler): Closeable {
+class TopologyParser(reader: Reader): Closeable {
 
     /**
      * Handlers are notified once a new topology item (a node or a link) is parsed.
@@ -40,7 +40,7 @@ class TopologyParser(reader: Reader, private val handler: TopologyParser.Handler
 
     }
 
-    private inner class KeyValueHandler: KeyValueParser.Handler {
+    private class KeyValueHandler(val handler: TopologyParser.Handler): KeyValueParser.Handler {
 
         /**
          * Invoked when a new entry is parsed.
@@ -100,7 +100,7 @@ class TopologyParser(reader: Reader, private val handler: TopologyParser.Handler
      * The topology parser is based on a key-value parser.
      * It uses this parser to handle identifying entries.
      */
-    private val parser = KeyValueParser(reader, KeyValueHandler())
+    private val parser = KeyValueParser(reader)
 
     /**
      * Parses the stream invoking the handler once a new node or link is parsed.
@@ -109,8 +109,8 @@ class TopologyParser(reader: Reader, private val handler: TopologyParser.Handler
      * @throws ParseException if a topology object can not be created due to incorrect representation
      */
     @Throws(IOException::class, ParseException::class)
-    fun parse() {
-        parser.parse()
+    fun parse(handler: TopologyParser.Handler) {
+        parser.parse(KeyValueHandler(handler))
     }
 
     /**

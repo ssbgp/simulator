@@ -26,9 +26,9 @@ object KeyValueParserTest: Spek({
             var exception: ParseException? = null
 
             it("throws a ParseException") {
-                KeyValueParser(StringReader(fileContent), handler).use {
+                KeyValueParser(StringReader(fileContent)).use {
                     exception = assertThrows(ParseException::class.java) {
-                        it.parse()
+                        it.parse(handler)
                     }
                 }
             }
@@ -64,8 +64,8 @@ object KeyValueParserTest: Spek({
 
             on("parsing the file") {
 
-                KeyValueParser(StringReader(line), handler).use {
-                    it.parse()
+                KeyValueParser(StringReader(line)).use {
+                    it.parse(handler)
                 }
 
                 it("parsed a single entry") {
@@ -89,8 +89,8 @@ object KeyValueParserTest: Spek({
 
         on("parsing the file") {
 
-            KeyValueParser(StringReader(fileContent), handler).use {
-                it.parse()
+            KeyValueParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a 2 entries") {
@@ -118,8 +118,8 @@ object KeyValueParserTest: Spek({
 
         on("parsing the file") {
 
-            KeyValueParser(StringReader(fileContent), handler).use {
-                it.parse()
+            KeyValueParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a 2 entries") {
@@ -147,8 +147,8 @@ object KeyValueParserTest: Spek({
 
         on("parsing the file") {
 
-            KeyValueParser(StringReader(fileContent), handler).use {
-                it.parse()
+            KeyValueParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a 2 entries") {
@@ -182,9 +182,9 @@ object KeyValueParserTest: Spek({
                 var exception: ParseException? = null
 
                 it("throws a ParseException") {
-                    KeyValueParser(StringReader(line), handler).use {
+                    KeyValueParser(StringReader(line)).use {
                         exception = assertThrows(ParseException::class.java) {
-                            it.parse()
+                            it.parse(handler)
                         }
                     }
                 }

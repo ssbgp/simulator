@@ -22,9 +22,9 @@ object TopologyParserTest: Spek({
             var exception: ParseException? = null
 
             it("throws a ParseException") {
-                TopologyParser(StringReader(fileContent), handler).use {
+                TopologyParser(StringReader(fileContent)).use {
                     exception = assertThrows(ParseException::class.java) {
-                        it.parse()
+                        it.parse(handler)
                     }
                 }
             }
@@ -42,8 +42,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a single node") {
@@ -67,8 +67,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a single node") {
@@ -92,8 +92,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a single node") {
@@ -117,8 +117,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a single node") {
@@ -142,8 +142,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a single link") {
@@ -167,8 +167,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed a single link") {
@@ -197,8 +197,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed in line 1 a node with ID 10 and no values") {
@@ -222,8 +222,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed in line 1 a node with ID 10 and no values") {
@@ -247,8 +247,8 @@ object TopologyParserTest: Spek({
 
         on("parsing the file") {
 
-            TopologyParser(StringReader(fileContent), handler).use {
-                it.parse()
+            TopologyParser(StringReader(fileContent)).use {
+                it.parse(handler)
             }
 
             it("parsed in line 1 a node with ID 10 and no values") {
@@ -296,9 +296,9 @@ object TopologyParserTest: Spek({
                 var exception: ParseException? = null
 
                 it("throws a ParseException") {
-                    TopologyParser(StringReader(line), handler).use {
+                    TopologyParser(StringReader(line)).use {
                         exception = assertThrows(ParseException::class.java) {
-                            it.parse()
+                            it.parse(handler)
                         }
                     }
                 }
