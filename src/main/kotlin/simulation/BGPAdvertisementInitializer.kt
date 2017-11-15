@@ -7,6 +7,8 @@ import core.routing.Topology
 import core.simulator.Advertisement
 import core.simulator.RandomDelayGenerator
 import core.simulator.Time
+import io.AdvertisementInfo
+import io.InterdomainAdvertisementReader
 import io.InterdomainTopologyReader
 import io.parseInterdomainExtender
 import ui.Application
@@ -180,7 +182,18 @@ sealed class BGPAdvertisementInitializer(
          * TODO @doc
          */
         override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
-            TODO("not implemented yet")
+            val advertiseInfo = InterdomainAdvertisementReader(advertisementsFile).use {
+                it.read()
+            }
+
+            val advertiserIDs = advertiseInfo.keys.toList()
+            val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
+                    .get(advertiserIDs)
+
+            return advertisers.map {
+                val info = advertiseInfo[it.id] ?: AdvertisementInfo(BGPRoute.self(), 0)
+                Advertisement(it, info.defaultRoute, info.time)
+            }
         }
     }
 }
