@@ -23,7 +23,7 @@ class RepetitionRunner<R: Route>(
         private val threshold: Time,
         private val repetitions: Int,
         private val messageDelayGenerator: DelayGenerator,
-        private val metadataFile: File
+        private val metadataFile: File?
 
 ): Runner<R> {
 
@@ -67,11 +67,13 @@ class RepetitionRunner<R: Route>(
         metadata["Start Time"] = startInstant
         metadata["Finish Time"] = Instant.now()
 
-        application.writeMetadata(metadataFile) {
+        if (metadataFile != null) {
+            application.writeMetadata(metadataFile) {
 
-            KeyValueWriter(metadataFile).use {
-                for ((key, value) in metadata) {
-                    it.write(key, value)
+                KeyValueWriter(metadataFile).use {
+                    for ((key, value) in metadata) {
+                        it.write(key, value)
+                    }
                 }
             }
         }

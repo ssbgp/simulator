@@ -38,6 +38,7 @@ class InputArgumentsParser {
         private val STUBS = "stubs"
         private val NODE_REPORT = "reportnodes"
         private val ADVERTISE_FILE = "advertise"
+        private val METADATA = "metadata"
     }
 
     private val options = Options()
@@ -129,6 +130,11 @@ class InputArgumentsParser {
                     .argName("advertise-file")
                     .longOpt(ADVERTISE_FILE)
                     .build())
+            addOption(Option.builder("meta")
+                    .desc("Output metadata file")
+                    .hasArg(false)
+                    .longOpt(METADATA)
+                    .build())
         }
 
     }
@@ -183,6 +189,7 @@ class InputArgumentsParser {
             val reportNodes = commandLine.hasOption(NODE_REPORT)
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
+            val outputMetadata = commandLine.hasOption(METADATA)
 
             // Select the initialization based on whether the user specified a set of advertisers or a file
             val initializer = if (it.hasOption(ADVERTISER)) {
@@ -198,6 +205,7 @@ class InputArgumentsParser {
                 this.minDelay = minDelay
                 this.maxDelay = maxDelay
                 this.reportNodes = reportNodes
+                this.outputMetadata = outputMetadata
                 this.stubsFile = stubsFile.orElseGet { null }
                 this.seed = seed
             }

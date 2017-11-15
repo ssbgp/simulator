@@ -31,6 +31,7 @@ sealed class BGPAdvertisementInitializer(
         var threshold: Time = DEFAULT_THRESHOLD,
         var reportDirectory: File = DEFAULT_REPORT_DIRECTORY,
         var reportNodes: Boolean = false,
+        var outputMetadata: Boolean = false,
 
         // Optional (without defaults)
         var seed: Long? = null,
@@ -98,7 +99,7 @@ sealed class BGPAdvertisementInitializer(
                 threshold,
                 repetitions,
                 messageDelayGenerator,
-                metadataFile
+                metadataFile = if(outputMetadata) metadataFile else null  // null tells the runner not to print metadata
         )
 
         val execution = SimpleAdvertisementExecution<BGPRoute>().apply {
