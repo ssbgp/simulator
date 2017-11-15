@@ -37,6 +37,7 @@ class InputArgumentsParser {
         private val SEED = "seed"
         private val STUBS = "stubs"
         private val NODE_REPORT = "reportnodes"
+        private val ADVERTISE_FILE = "advertise"
     }
 
     private val options = Options()
@@ -122,6 +123,12 @@ class InputArgumentsParser {
                     .hasArg(false)
                     .longOpt(NODE_REPORT)
                     .build())
+            addOption(Option.builder("D")
+                    .desc("File with advertisements")
+                    .hasArg(true)
+                    .argName("advertise-file")
+                    .longOpt(ADVERTISE_FILE)
+                    .build())
         }
 
     }
@@ -151,19 +158,40 @@ class InputArgumentsParser {
 
         commandLine.let {
 
+            //
+            // Validate options used
+            //
+
+            if (it.hasOption(ADVERTISER) && it.hasOption(ADVERTISE_FILE)) {
+                throw InputArgumentsException("options -d/--$ADVERTISER and -D/--$ADVERTISE_FILE are mutually exclusive")
+            } else if (!it.hasOption(ADVERTISER) && !it.hasOption(ADVERTISE_FILE)) {
+                throw InputArgumentsException("one option of -d/--$ADVERTISER and -D/--$ADVERTISE_FILE is required")
+            }
+
+            //
+            // Parse option values
+            //
+
             val topologyFile = getFile(it, option = TOPOLOGY_FILE).get()
-            val advertisers = getManyNonNegativeIntegers(it, option = ADVERTISER)
+            val advertisers = getManyNonNegativeIntegers(it, option = ADVERTISER, default = emptyList())
+            val advertisementsFile = getFile(it, option = ADVERTISE_FILE, default = Optional.empty())
             val repetitions = getPositiveInteger(it, option = REPETITIONS, default = 1)
             val reportDirectory = getDirectory(it, option = REPORT_DIRECTORY, default = File(System.getProperty("user.dir")))
             val threshold = getPositiveInteger(it, option = THRESHOLD, default = 1_000_000)
             val seed = getLong(it, option = SEED, default = System.currentTimeMillis())
             val stubsFile = getFile(it, option = STUBS, default = Optional.empty())
             val reportNodes = commandLine.hasOption(NODE_REPORT)
-
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
 
-            return BGPAdvertisementInitializer.with(topologyFile, advertisers).apply {
+            // Select the initialization based on whether the user specified a set of advertisers or a file
+            val initializer = if (it.hasOption(ADVERTISER)) {
+                BGPAdvertisementInitializer.with(topologyFile, advertisers)
+            } else {
+                BGPAdvertisementInitializer.with(topologyFile, advertisementsFile.get())
+            }
+
+            return initializer.apply {
                 this.repetitions = repetitions
                 this.reportDirectory = reportDirectory
                 this.threshold = threshold
