@@ -1,6 +1,7 @@
 package ui.cli
 
 import bgp.BGPRoute
+import core.routing.NodeID
 import core.simulator.Engine
 import org.apache.commons.cli.*
 import simulation.BGPAdvertisementInitializer
@@ -168,7 +169,7 @@ class InputArgumentsParser {
 
             return BGPAdvertisementInitializer(
                     topologyFile = topologyFile,
-                    advertiserIDs = advertisers.asList(),
+                    advertiserIDs = advertisers,
                     repetitions = repetitions,
                     reportDirectory = reportDirectory,
                     threshold = threshold,
@@ -214,19 +215,18 @@ class InputArgumentsParser {
 
     @Throws(InputArgumentsException::class)
     private fun getManyNonNegativeIntegers(commandLine: CommandLine, option: String,
-                                           default: Int? = null): IntArray {
+                                           default: List<NodeID>? = null): List<NodeID> {
         verifyOption(commandLine, option, default)
 
         val values = commandLine.getOptionValues(option)
 
         try {
             @Suppress("USELESS_ELVIS")
-            // 'values' can actually be null the option is not specified, see getOptionValues() doc
-            // 'default' is never null at this point!!
-            return values.map { it.toNonNegativeInt() }.toIntArray() ?: intArrayOf(default!!)
+            // Although the IDE does not recognize it, 'values' can actually be null if the option set. The
+            // documentation for getOptionValues() indicates that it returns null if the option is not set.
+            return values?.map { it.toNonNegativeInt() } ?: default!!  // never null at this point!!
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("values for '--$option' must be non-negative " +
-                    "integer values")
+            throw InputArgumentsException("values for '--$option' must be non-negative integer values")
         }
     }
 
