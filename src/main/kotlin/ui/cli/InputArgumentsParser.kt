@@ -163,7 +163,7 @@ class InputArgumentsParser {
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
 
-            return BGPAdvertisementInitializer(topologyFile, advertisers).apply {
+            return BGPAdvertisementInitializer.with(topologyFile, advertisers).apply {
                 this.repetitions = repetitions
                 this.reportDirectory = reportDirectory
                 this.threshold = threshold

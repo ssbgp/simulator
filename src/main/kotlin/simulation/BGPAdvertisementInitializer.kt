@@ -17,10 +17,9 @@ import java.io.File
  *
  * @author David Fialho
  */
-class BGPAdvertisementInitializer(
+sealed class BGPAdvertisementInitializer(
         // Mandatory
         val topologyFile: File,
-        val advertiserIDs: List<NodeID>,    // must include at least one ID
 
         // Optional (with defaults)
         var repetitions: Int = DEFAULT_REPETITIONS,
@@ -37,11 +36,18 @@ class BGPAdvertisementInitializer(
 ): Initializer<BGPRoute> {
 
     companion object {
+
         val DEFAULT_REPETITIONS = 1
         val DEFAULT_THRESHOLD = 1_000_000
         val DEFAULT_MINDELAY = 1
         val DEFAULT_MAXDELAY = 1
         val DEFAULT_REPORT_DIRECTORY = File(System.getProperty("user.dir"))  // current working directory
+
+        fun with(topologyFile: File, advertiserIDs: List<NodeID>): BGPAdvertisementInitializer =
+                BGPAdvertisementInitializer.UsingDefaultSet(topologyFile, advertiserIDs)
+
+        fun with(topologyFile: File, advertisementsFile: File): BGPAdvertisementInitializer =
+                BGPAdvertisementInitializer.UsingFile(topologyFile, advertisementsFile)
     }
 
     var minDelay: Time = minDelay
@@ -62,13 +68,6 @@ class BGPAdvertisementInitializer(
             field = value
         }
 
-    init {
-        // Verify that at least 1 advertiser ID is provided in the constructor
-        if (advertiserIDs.isEmpty()) {
-            throw IllegalArgumentException("initializer requires at least 1 advertiser ID")
-        }
-    }
-
     /**
      * Initializes a simulation. It sets up the executions to run and the runner to run them.
      */
@@ -77,11 +76,8 @@ class BGPAdvertisementInitializer(
         // If no seed is set, then a new seed is generated, based on the current time, for each new initialization
         val seed = seed ?: System.currentTimeMillis()
 
-        // The output name (excluding the extension) corresponds to the topology filename and
-        // the IDs of the advertisers. For instance, if the topology file name is `topology.nf` and
-        // the advertiser IDs are 10 and 12, then the output file name will be
-        // `topology_10-12`
-        val outputName = topologyFile.nameWithoutExtension + "_${advertiserIDs.joinToString("-")}"
+        // The subclass determines the output name
+        val outputName = initOutputName()
 
         // Append extensions according to the file type
         val basicReportFile = File(reportDirectory, outputName.plus(".basic.csv"))
@@ -98,17 +94,10 @@ class BGPAdvertisementInitializer(
             }
         }
 
-        // Find all the advertisers from the specified IDs
-        val advertisers = application.findAdvertisers(advertiserIDs) {
-            AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
-                    .get(advertiserIDs)
+        val advertisements = application.setupAdvertisements {
+            // Subclasses determine how advertisements are configured, see subclasses at the bottom of this file
+            initAdvertisements(topology)
         }
-
-        // Create advertisements for each advertiser
-        // TODO @feature - replace use of BGP's self route with a route defined by the user
-        // Here we are using the BGP self route as the advertised/default route to have the same
-        // behavior as before
-        val advertisements = advertisers.map { Advertisement(it, BGPRoute.self()) }.toList()
 
         val runner = RepetitionRunner(
                 application,
@@ -132,11 +121,78 @@ class BGPAdvertisementInitializer(
         stubsFile?.apply {
             metadata["Stubs file"] = name
         }
-        metadata["Advertiser(s)"] = advertiserIDs.joinToString()
+        metadata["Advertiser(s)"] = advertisements.map { it.advertiser.id }.joinToString()
         metadata["Minimum Delay"] = minDelay.toString()
         metadata["Maximum Delay"] = maxDelay.toString()
         metadata["Threshold"] = threshold.toString()
 
         return Pair(runner, execution)
+    }
+
+    /**
+     * TODO @doc
+     */
+    protected abstract fun initOutputName(): String
+
+    /**
+     * TODO @doc
+     */
+    protected abstract fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>>
+
+    /**
+     * TODO @doc
+     */
+    private class UsingDefaultSet(topologyFile: File, val advertiserIDs: List<NodeID>)
+        : BGPAdvertisementInitializer(topologyFile) {
+
+        init {
+            // Verify that at least 1 advertiser ID is provided in the constructor
+            if (advertiserIDs.isEmpty()) {
+                throw IllegalArgumentException("initializer requires at least 1 advertiser")
+            }
+        }
+
+        // The output name (excluding the extension) corresponds to the topology filename and
+        // the IDs of the advertisers. For instance, if the topology file name is `topology.nf` and
+        // the advertiser IDs are 10 and 12, then the output file name will be
+        // `topology_10-12`
+        override fun initOutputName(): String = topologyFile.nameWithoutExtension + "_${advertiserIDs.joinToString("-")}"
+
+        /**
+         * TODO @doc
+         */
+        override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
+
+            // Find all the advertisers from the specified IDs
+            val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
+                    .get(advertiserIDs)
+
+            // Create advertisements for each advertiser
+            // TODO @feature - replace use of BGP's self route with a route defined by the user
+            // Here we are using the BGP self route as the advertised/default route to have the same
+            // behavior as before
+            return advertisers.map { Advertisement(it, BGPRoute.self()) }.toList()
+        }
+    }
+
+    /**
+     * TODO @doc
+     */
+    private class UsingFile(topologyFile: File, val advertisementsFile: File)
+        : BGPAdvertisementInitializer(topologyFile) {
+
+        /**
+         * TODO @doc
+         */
+        override fun initOutputName(): String {
+            TODO("not implemented yet")
+        }
+
+        /**
+         * TODO @doc
+         */
+        override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
+            TODO("not implemented yet")
+        }
     }
 }
