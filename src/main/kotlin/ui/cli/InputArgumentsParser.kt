@@ -186,7 +186,7 @@ class InputArgumentsParser {
 
             // Select the initialization based on whether the user specified a set of advertisers or a file
             val initializer = if (it.hasOption(ADVERTISER)) {
-                BGPAdvertisementInitializer.with(topologyFile, advertisers)
+                BGPAdvertisementInitializer.with(topologyFile, advertisers.toSet())
             } else {
                 BGPAdvertisementInitializer.with(topologyFile, advertisementsFile.get())
             }

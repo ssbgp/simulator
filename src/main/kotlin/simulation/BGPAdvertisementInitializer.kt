@@ -45,7 +45,7 @@ sealed class BGPAdvertisementInitializer(
         val DEFAULT_MAXDELAY = 1
         val DEFAULT_REPORT_DIRECTORY = File(System.getProperty("user.dir"))  // current working directory
 
-        fun with(topologyFile: File, advertiserIDs: List<NodeID>): BGPAdvertisementInitializer =
+        fun with(topologyFile: File, advertiserIDs: Set<NodeID>): BGPAdvertisementInitializer =
                 BGPAdvertisementInitializer.UsingDefaultSet(topologyFile, advertiserIDs)
 
         fun with(topologyFile: File, advertisementsFile: File): BGPAdvertisementInitializer =
@@ -128,7 +128,7 @@ sealed class BGPAdvertisementInitializer(
     /**
      * TODO @doc
      */
-    private class UsingDefaultSet(topologyFile: File, val advertiserIDs: List<NodeID>)
+    private class UsingDefaultSet(topologyFile: File, val advertiserIDs: Set<NodeID>)
         : BGPAdvertisementInitializer(topologyFile) {
 
         init {
@@ -152,7 +152,7 @@ sealed class BGPAdvertisementInitializer(
 
             // Find all the advertisers from the specified IDs
             val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
-                    .get(advertiserIDs)
+                    .get(advertiserIDs.toList())
 
             // In this mode, nodes set the self BGP route as the default route
             // Use the advertisements file to configure different routes
