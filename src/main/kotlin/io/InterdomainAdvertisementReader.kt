@@ -3,8 +3,6 @@ package io
 import bgp.BGPRoute
 import core.routing.NodeID
 import core.routing.pathOf
-import core.simulator.Advertisement
-import core.simulator.Advertiser
 import utils.toNonNegativeInt
 import java.io.File
 import java.io.FileReader
@@ -25,10 +23,7 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
 
     constructor(file: File): this(FileReader(file))
 
-    private class Handler(
-            val advertisements: MutableMap<NodeID, AdvertisementInfo<BGPRoute>>,
-            val advertisers: Map<NodeID, Advertiser<BGPRoute>>? = null
-    ): KeyValueParser.Handler {
+    private class Handler(val advertisements: MutableMap<NodeID, AdvertisementInfo<BGPRoute>>): KeyValueParser.Handler {
 
         /**
          * Invoked when a new entry is parsed.
@@ -49,11 +44,6 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
             } catch (e: NumberFormatException) {
                 throw ParseException("advertising node ID must be a non-negative integer value, " +
                         "but was '${entry.key}'", currentLine)
-            }
-
-            // Ignore entry if accepted advertisers are defined
-            if (advertisers != null && advertiserID !in advertisers) {
-                return  // ignore this entry
             }
 
             // The first value is the advertising time - this value is NOT mandatory
@@ -94,28 +84,6 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
         val advertisements = HashMap<NodeID, AdvertisementInfo<BGPRoute>>()
         parser.parse(Handler(advertisements))
         return advertisements
-    }
-
-    /**
-     * Finds the advertisements for each advertiser in [advertisers] and returns the corresponding list of
-     * advertisements. An advertisement with the default values is chosen for advertisers without a defined
-     * advertisement.
-     */
-    @Throws(ParseException::class, IOException::class)
-    fun find(advertisers: List<Advertiser<BGPRoute>>): List<Advertisement<BGPRoute>> {
-        val advertisements = HashMap<NodeID, AdvertisementInfo<BGPRoute>>()
-        val advertisersByID = advertisers.associateBy({ it.id }, { it })
-
-        parser.parse(Handler(advertisements, advertisersByID))
-
-        return advertisers.map {
-            val info = advertisements[it.id]
-            Advertisement(
-                    advertiser = it,
-                    route = info?.defaultRoute ?: DEFAULT_DEFAULT_ROUTE,
-                    time = info?.time ?: DEFAULT_ADVERTISING_TIME
-            )
-        }
     }
 
     /**
