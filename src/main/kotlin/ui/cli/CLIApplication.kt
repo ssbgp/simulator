@@ -94,34 +94,72 @@ object CLIApplication: Application {
     override fun <R: Route> setupAdvertisements(block: () -> List<Advertisement<R>>): List<Advertisement<R>> {
 
         try {
-            console.info("Setting up advertisements...  ", inline = true)
-
-            val (duration, advertisements) = timer {
-                block()
-            }
-
-            console.print("done in $duration seconds")
+            console.info("Setting up advertisements...  ")
+            val advertisements = block()
             console.info("Advertising nodes: ${advertisements.map { it.advertiser.id }.joinToString()}")
 
             return advertisements
 
+        } catch (exception: InitializationException) {
+            console.print() // must print a new line here
+            console.error("Failed to initialize the simulation")
+            console.error("Cause: ${exception.message ?: "no information available"}")
+            exitProcess(3)
+        }
+    }
+
+    /**
+     * Invoked when reading the stubs file. It returns whatever the [block] returns.
+     *
+     * @param file  the stubs file that is going to be read
+     * @param block the block of code to read stubs file
+     * @return whatever the [block] returns.
+     */
+    override fun <T> readStubsFile(file: File?, block: () -> T): T {
+
+        return if (file == null) {
+            // File is not going to be read
+            block()
+        } else {
+            handleReadingFiles(file, block, name = "stubs")
+        }
+    }
+
+    /**
+     * Invoked when reading the advertisements file. It returns whatever the [block] returns.
+     *
+     * @param file  the advertisements file that is going to be read
+     * @param block the block of code to read stubs file
+     * @return whatever the [block] returns.
+     */
+    override fun <T> readAdvertisementsFile(file: File, block: () -> T): T =
+            handleReadingFiles(file, block, name = "advertisements")
+
+    /**
+     * Handles errors when reading input files and shows a time it took to read the file.
+     */
+    private fun <T> handleReadingFiles(file: File, block: () -> T, name: String): T {
+
+        try {
+            console.info("Reading $name file '${file.name}'...  ", inline = true)
+            val (duration, value) = timer {
+                block()
+            }
+            console.print("done in $duration seconds")
+
+            return value
+
         } catch (exception: ParseException) {
             console.print() // must print a new line here
-            console.error("Failed to parse stubs file.")
-            console.error("Cause: ${exception.message ?: "No information available"}")
+            console.error("Failed to parse $name file '${file.name}'")
+            console.error("Cause: ${exception.message ?: "no information available"}")
             exitProcess(1)
 
         } catch (exception: IOException) {
             console.print() // must print a new line here
-            console.error("Failed to read stubs file due to IO error.")
-            console.error("Cause: ${exception.message ?: "No information available"}")
-            exitProcess(2)
-
-        } catch (exception: InitializationException) {
-            console.print() // must print a new line here
-            console.error("Failed to initialize the simulation.")
-            console.error("Cause: ${exception.message ?: "No information available"}")
-            exitProcess(3)
+            console.error("Failed to access $name file '${file.name}' due to an IO error")
+            console.error("Cause: ${exception.message ?: "no information available"}")
+            exitProcess(1)
         }
     }
 

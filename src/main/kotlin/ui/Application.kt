@@ -32,6 +32,24 @@ interface Application {
     fun <R: Route> setupAdvertisements(block: () -> List<Advertisement<R>>): List<Advertisement<R>>
 
     /**
+     * Invoked when reading the stubs file. It returns whatever the [block] returns.
+     *
+     * @param file  the stubs file that is going to be read, null indicates the file was not read.
+     * @param block the block of code to read stubs file
+     * @return whatever the [block] returns.
+     */
+    fun <T> readStubsFile(file: File?, block: () -> T): T
+
+    /**
+     * Invoked when reading the advertisements file. It returns whatever the [block] returns.
+     *
+     * @param file  the advertisements file that is going to be read
+     * @param block the block of code to read stubs file
+     * @return whatever the [block] returns.
+     */
+    fun <T> readAdvertisementsFile(file: File, block: () -> T): T
+
+    /**
      * Invoked while executing each execution.
      *
      * @param executionID    the identifier of the execution

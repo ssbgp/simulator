@@ -88,7 +88,7 @@ sealed class BGPAdvertisementInitializer(
 
         val advertisements = application.setupAdvertisements {
             // Subclasses determine how advertisements are configured, see subclasses at the bottom of this file
-            initAdvertisements(topology)
+            initAdvertisements(application, topology)
         }
 
         val runner = RepetitionRunner(
@@ -127,7 +127,8 @@ sealed class BGPAdvertisementInitializer(
      *
      * @return list of initialized advertisements to occur in the simulation
      */
-    protected abstract fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>>
+    protected abstract fun initAdvertisements(application: Application, topology: Topology<BGPRoute>)
+            : List<Advertisement<BGPRoute>>
 
     // -----------------------------------------------------------------------------------------------------------------
     //
@@ -167,11 +168,14 @@ sealed class BGPAdvertisementInitializer(
          * @throws IOException if an IO error occurs
          * @return list of initialized advertisements to occur in the simulation
          */
-        override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
+        override fun initAdvertisements(application: Application, topology: Topology<BGPRoute>)
+                : List<Advertisement<BGPRoute>> {
 
             // Find all the advertisers from the specified IDs
-            val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
-                    .get(advertiserIDs.toList())
+            val advertisers = application.readStubsFile(stubsFile) {
+                AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
+                        .get(advertiserIDs.toList())
+            }
 
             // In this mode, nodes set the self BGP route as the default route
             // Use the advertisements file to configure different routes
@@ -208,14 +212,20 @@ sealed class BGPAdvertisementInitializer(
          * @throws IOException if an IO error occurs
          */
         @Throws(InitializationException::class, ParseException::class, IOException::class)
-        override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
-            val advertisingInfo = InterdomainAdvertisementReader(advertisementsFile).use {
-                it.read()
+        override fun initAdvertisements(application: Application, topology: Topology<BGPRoute>)
+                : List<Advertisement<BGPRoute>> {
+
+            val advertisingInfo = application.readAdvertisementsFile(advertisementsFile) {
+                InterdomainAdvertisementReader(advertisementsFile).use {
+                    it.read()
+                }
             }
 
-            val advertiserIDs = advertisingInfo.map { it.advertiserID }
-            val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
-                    .get(advertiserIDs)
+            // Find all the advertisers based on the IDs included in the advertisements file
+            val advertisers = application.readStubsFile(stubsFile) {
+                AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
+                        .get(advertisingInfo.map { it.advertiserID })
+            }
 
             val advertisersByID = advertisers.associateBy { it.id }
 
