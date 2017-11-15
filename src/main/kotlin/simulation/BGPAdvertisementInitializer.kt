@@ -32,6 +32,7 @@ sealed class BGPAdvertisementInitializer(
         var reportDirectory: File = DEFAULT_REPORT_DIRECTORY,
         var reportNodes: Boolean = false,
         var outputMetadata: Boolean = false,
+        var outputTrace: Boolean = false,
 
         // Optional (without defaults)
         var seed: Long? = null,
@@ -72,6 +73,7 @@ sealed class BGPAdvertisementInitializer(
         val basicReportFile = File(reportDirectory, outputName.plus(".basic.csv"))
         val nodesReportFile = File(reportDirectory, outputName.plus(".nodes.csv"))
         val metadataFile = File(reportDirectory, outputName.plus(".meta.txt"))
+        val traceFile = File(reportDirectory, outputName.plus(".trace.txt"))
 
         // Setup the message delay generator
         val messageDelayGenerator = try {
@@ -107,6 +109,10 @@ sealed class BGPAdvertisementInitializer(
 
             if (reportNodes) {
                 dataCollectors.add(NodeDataCollector(nodesReportFile))
+            }
+
+            if (outputTrace) {
+                dataCollectors.add(TraceReporter(traceFile))
             }
         }
 
