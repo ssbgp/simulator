@@ -154,10 +154,8 @@ sealed class BGPAdvertisementInitializer(
             val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
                     .get(advertiserIDs)
 
-            // Create advertisements for each advertiser
-            // TODO @feature - replace use of BGP's self route with a route defined by the user
-            // Here we are using the BGP self route as the advertised/default route to have the same
-            // behavior as before
+            // In this mode, nodes set the self BGP route as the default route
+            // Use the advertisements file to configure different routes
             return advertisers.map { Advertisement(it, BGPRoute.self()) }.toList()
         }
     }
