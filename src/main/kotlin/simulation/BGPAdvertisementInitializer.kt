@@ -126,7 +126,11 @@ sealed class BGPAdvertisementInitializer(
     protected abstract fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>>
 
     /**
-     * TODO @doc
+     * Initialization based on a set of pre-defined advertiser IDs. Each ID is mapped to an advertiser. An advertiser
+     * can be obtained from the topology or from a stubs file.
+     *
+     * It generates a single advertisement for each advertiser, with a default route corresponding to the self BGP
+     * route, and an advertising time of 0.
      */
     private class UsingDefaultSet(topologyFile: File, val advertiserIDs: Set<NodeID>)
         : BGPAdvertisementInitializer(topologyFile) {
@@ -161,7 +165,11 @@ sealed class BGPAdvertisementInitializer(
     }
 
     /**
-     * TODO @doc
+     * Initialization based on an advertisements file. This file describes the set of advertisements to occur in each
+     * simulation execution.
+     *
+     * The advertiser IDs described in the advertisements file are mapped to actual advertisers. An advertiser
+     * can be obtained from the topology or from a stubs file.
      */
     private class UsingFile(topologyFile: File, val advertisementsFile: File)
         : BGPAdvertisementInitializer(topologyFile) {
