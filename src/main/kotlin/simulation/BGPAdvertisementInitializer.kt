@@ -9,9 +9,11 @@ import core.simulator.RandomDelayGenerator
 import core.simulator.Time
 import io.InterdomainAdvertisementReader
 import io.InterdomainTopologyReader
+import io.ParseException
 import io.parseInterdomainExtender
 import ui.Application
 import java.io.File
+import java.io.IOException
 
 /**
  * Created on 09-11-2017
@@ -120,9 +122,18 @@ sealed class BGPAdvertisementInitializer(
     }
 
     /**
-     * TODO @doc
+     * Subclasses should use this method to initialize advertisements to occur in the simulation. The way these are
+     * defined is dependent on the implementation.
+     *
+     * @return list of initialized advertisements to occur in the simulation
      */
     protected abstract fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>>
+
+    // -----------------------------------------------------------------------------------------------------------------
+    //
+    //  Subclasses
+    //
+    // -----------------------------------------------------------------------------------------------------------------
 
     /**
      * Initialization based on a set of pre-defined advertiser IDs. Each ID is mapped to an advertiser. An advertiser
@@ -149,7 +160,12 @@ sealed class BGPAdvertisementInitializer(
         override val outputName: String = topologyFile.nameWithoutExtension + "_${advertiserIDs.joinToString("-")}"
 
         /**
-         * TODO @doc
+         * A single advertisement is created for each advertiser specified in the ID set.
+         *
+         * @throws InitializationException if the advertisers can not be found in the topology or stubs file
+         * @throws ParseException if the stubs file format is invalid
+         * @throws IOException if an IO error occurs
+         * @return list of initialized advertisements to occur in the simulation
          */
         override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
 
@@ -184,8 +200,14 @@ sealed class BGPAdvertisementInitializer(
                 "${topologyFile.nameWithoutExtension}-${advertisementsFile.nameWithoutExtension}"
 
         /**
-         * TODO @doc
+         * Advertisements are obtained from an advertisements file
+         *
+         * @return list of initialized advertisements to occur in the simulation
+         * @throws InitializationException if the advertisers can not be found in the topology or stubs file
+         * @throws ParseException if the advertisements file format or the stubs file format are invalid
+         * @throws IOException if an IO error occurs
          */
+        @Throws(InitializationException::class, ParseException::class, IOException::class)
         override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
             val advertisingInfo = InterdomainAdvertisementReader(advertisementsFile).use {
                 it.read()
