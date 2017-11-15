@@ -74,17 +74,6 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     }
 
     /**
-     * Processes the data after all raw data has been collected. It should be called after an execution.
-     */
-    override fun processData() {
-        // If a node never exports a route then it will not be included in [terminationTimes]. In that case the
-        // termination time of that node is 0
-
-        // The average termination time corresponds to the mean of the termination times of all nodes
-        data.avgTerminationTime = terminationTimes.values.sum().div(nodeCount.toDouble())
-    }
-
-    /**
      * Reports the currently collected data.
      *
      * @throws IOException If an I/O error occurs
@@ -146,9 +135,16 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
      */
     override fun notify(notification: EndNotification) {
 
+        // Count the nodes that were left disconnected when the simulation ended
         data.disconnectedCount = notification.topology.nodes
                 .filterNot { it.protocol.selectedRoute.isValid() }
                 .count()
+
+        // If a node never exports a route then it will not be included in [terminationTimes]. In that case the
+        // termination time of that node is 0
+
+        // The average termination time corresponds to the mean of the termination times of all nodes
+        data.avgTerminationTime = terminationTimes.values.sum().div(nodeCount.toDouble())
     }
 
     // endregion

@@ -39,11 +39,6 @@ interface DataCollector {
     fun unregister()
 
     /**
-     * Processes the data after all raw data has been collected. It should be called after an execution.
-     */
-    fun processData()
-
-    /**
      * Reports the currently collected data.
      */
     fun report()

@@ -47,7 +47,6 @@ class SimpleAdvertisementExecution<R: Route>: Execution<R> {
             Engine.simulate(topology, advertisements, threshold)
         }
 
-        data.processData()
         data.report()
     }
 }
