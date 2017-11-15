@@ -1,7 +1,6 @@
 package io
 
 import bgp.BGPRoute
-import core.routing.NodeID
 import core.routing.pathOf
 import utils.toNonNegativeInt
 import java.io.File
@@ -23,7 +22,7 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
 
     constructor(file: File): this(FileReader(file))
 
-    private class Handler(val advertisements: MutableMap<NodeID, AdvertisementInfo<BGPRoute>>): KeyValueParser.Handler {
+    private class Handler(val advertisements: MutableList<AdvertisementInfo<BGPRoute>>): KeyValueParser.Handler {
 
         /**
          * Invoked when a new entry is parsed.
@@ -63,9 +62,7 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
                 BGPRoute.with(parseInterdomainCost(entry.values[1], currentLine), pathOf())
             }
 
-            if (advertisements.putIfAbsent(advertiserID, AdvertisementInfo(defaultRoute, time)) != null) {
-                throw ParseException("advertiser $advertiserID is defined twice", currentLine)
-            }
+            advertisements.add(AdvertisementInfo(advertiserID, defaultRoute, time))
         }
 
     }
@@ -80,8 +77,8 @@ class InterdomainAdvertisementReader(reader: Reader): AutoCloseable {
      * @return a list of advertisements read from the stream
      */
     @Throws(ParseException::class, IOException::class)
-    fun read(): Map<NodeID, AdvertisementInfo<BGPRoute>> {
-        val advertisements = HashMap<NodeID, AdvertisementInfo<BGPRoute>>()
+    fun read(): List<AdvertisementInfo<BGPRoute>> {
+        val advertisements = ArrayList<AdvertisementInfo<BGPRoute>>()
         parser.parse(Handler(advertisements))
         return advertisements
     }

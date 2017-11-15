@@ -7,7 +7,6 @@ import core.routing.Topology
 import core.simulator.Advertisement
 import core.simulator.RandomDelayGenerator
 import core.simulator.Time
-import io.AdvertisementInfo
 import io.InterdomainAdvertisementReader
 import io.InterdomainTopologyReader
 import io.parseInterdomainExtender
@@ -188,17 +187,19 @@ sealed class BGPAdvertisementInitializer(
          * TODO @doc
          */
         override fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>> {
-            val advertiseInfo = InterdomainAdvertisementReader(advertisementsFile).use {
+            val advertisingInfo = InterdomainAdvertisementReader(advertisementsFile).use {
                 it.read()
             }
 
-            val advertiserIDs = advertiseInfo.keys.toList()
+            val advertiserIDs = advertisingInfo.map { it.advertiserID }
             val advertisers = AdvertiserDB(topology, stubsFile, BGP(), ::parseInterdomainExtender)
                     .get(advertiserIDs)
 
-            return advertisers.map {
-                val info = advertiseInfo[it.id] ?: AdvertisementInfo(BGPRoute.self(), 0)
-                Advertisement(it, info.defaultRoute, info.time)
+            val advertisersByID = advertisers.associateBy { it.id }
+
+            return advertisingInfo.map {
+                val advertiser = advertisersByID[it.advertiserID] ?: throw IllegalStateException("can not happen")
+                Advertisement(advertiser, it.defaultRoute, it.time)
             }
         }
     }

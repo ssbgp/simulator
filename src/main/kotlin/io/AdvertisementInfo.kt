@@ -1,5 +1,6 @@
 package io
 
+import core.routing.NodeID
 import core.routing.Route
 import core.simulator.Time
 
@@ -8,4 +9,4 @@ import core.simulator.Time
  *
  * @author David Fialho
  */
-data class AdvertisementInfo<out R: Route>(val defaultRoute: R, val time: Time)
+data class AdvertisementInfo<out R: Route>(val advertiserID: NodeID, val defaultRoute: R, val time: Time)

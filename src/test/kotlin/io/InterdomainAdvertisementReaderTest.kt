@@ -5,7 +5,6 @@ import bgp.policies.interdomain.*
 import core.routing.Route
 import core.simulator.Advertisement
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.hasKey
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.given
@@ -49,18 +48,18 @@ object InterdomainAdvertisementReaderTest: Spek({
                     assertThat(advertisements.size, Is(1))
                 }
 
+                val info = advertisements[0]
+
                 then("the advertiser has ID '${advertisement.advertiser.id}'") {
-                    assertThat(advertisements, hasKey(advertisement.advertiser.id))
+                    assertThat(info.advertiserID, Is(advertisement.advertiser.id))
                 }
 
-                val (defaultRoute, advertisingTime) = advertisements[advertisement.advertiser.id]!!
-
                 then("the default route is '${advertisement.route}'") {
-                    assertThat(defaultRoute, Is(advertisement.route))
+                    assertThat(info.defaultRoute, Is(advertisement.route))
                 }
 
                 then("the advertising time is '${advertisement.time}'") {
-                    assertThat(advertisingTime, Is(advertisement.time))
+                    assertThat(info.time, Is(advertisement.time))
                 }
             }
         }
@@ -102,18 +101,36 @@ object InterdomainAdvertisementReaderTest: Spek({
                 "10 = 1 | r"
         )
 
-        var exception: ParseException? = null
-
-        it("throws a ParseException") {
-            InterdomainAdvertisementReader(StringReader(fileContent)).use {
-                exception = assertThrows(ParseException::class.java) {
-                    it.read()
-                }
-            }
+        val advertisements = InterdomainAdvertisementReader(StringReader(fileContent)).use {
+            it.read()
         }
 
-        it("indicates the error is in line 2") {
-            assertThat(exception?.lineNumber, Is(2))
+        it("reads 2 advertisements") {
+            assertThat(advertisements.size, Is(2))
+        }
+
+        it("reads one advertisement with advertiser ID 10") {
+            assertThat(advertisements[0].advertiserID, Is(10))
+        }
+
+        it("reads one advertisement with a customer route") {
+            assertThat(advertisements[0].defaultRoute, Is(customerRoute()))
+        }
+
+        it("reads one advertisement with advertising time 0") {
+            assertThat(advertisements[0].time, Is(0))
+        }
+
+        it("reads another advertisement with advertiser ID 10") {
+            assertThat(advertisements[1].advertiserID, Is(10))
+        }
+
+        it("reads another advertisement with a peer route") {
+            assertThat(advertisements[1].defaultRoute, Is(peerRoute()))
+        }
+
+        it("reads another advertisement with advertising time 1") {
+            assertThat(advertisements[1].time, Is(1))
         }
     }
 
