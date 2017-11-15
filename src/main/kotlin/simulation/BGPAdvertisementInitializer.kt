@@ -23,8 +23,8 @@ sealed class BGPAdvertisementInitializer(
 
         // Optional (with defaults)
         var repetitions: Int = DEFAULT_REPETITIONS,
-        minDelay: Time = DEFAULT_MINDELAY,
-        maxDelay: Time = DEFAULT_MAXDELAY,
+        var minDelay: Time = DEFAULT_MINDELAY,
+        var maxDelay: Time = DEFAULT_MAXDELAY,
         var threshold: Time = DEFAULT_THRESHOLD,
         var reportDirectory: File = DEFAULT_REPORT_DIRECTORY,
         var reportNodes: Boolean = false,
@@ -50,24 +50,6 @@ sealed class BGPAdvertisementInitializer(
                 BGPAdvertisementInitializer.UsingFile(topologyFile, advertisementsFile)
     }
 
-    var minDelay: Time = minDelay
-        set(value) {
-            if (value > maxDelay) {
-                throw InitializationException("minimum delay must be lower than or equal to maximum delay")
-            }
-
-            field = value
-        }
-
-    var maxDelay: Time = maxDelay
-        set(value) {
-            if (value < minDelay) {
-                throw InitializationException("maximum delay must be higher than or equal to minimum delay")
-            }
-
-            field = value
-        }
-
     /**
      * Initializes a simulation. It sets up the executions to run and the runner to run them.
      */
@@ -85,7 +67,11 @@ sealed class BGPAdvertisementInitializer(
         val metadataFile = File(reportDirectory, outputName.plus(".meta.txt"))
 
         // Setup the message delay generator
-        val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
+        val messageDelayGenerator = try {
+            RandomDelayGenerator.with(minDelay, maxDelay, seed)
+        } catch (e: IllegalArgumentException) {
+            throw InitializationException(e.message)
+        }
 
         // Load the topology
         val topology: Topology<BGPRoute> = application.loadTopology(topologyFile) {
