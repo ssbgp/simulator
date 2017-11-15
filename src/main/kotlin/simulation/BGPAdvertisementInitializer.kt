@@ -19,20 +19,20 @@ import java.io.File
  */
 class BGPAdvertisementInitializer(
         // Mandatory
-        private val topologyFile: File,
-        private val advertiserIDs: List<NodeID>,    // must include at least one ID
-        private val reportNodes: Boolean,
+        val topologyFile: File,
+        val advertiserIDs: List<NodeID>,    // must include at least one ID
 
         // Optional (with defaults)
-        private val repetitions: Int?,
-        private val minDelay: Time?,
-        private val maxDelay: Time?,
-        private val threshold: Time?,
-        private val reportDirectory: File?,
-        private val seed: Long?,
+        var repetitions: Int = DEFAULT_REPETITIONS,
+        minDelay: Time = DEFAULT_MINDELAY,
+        maxDelay: Time = DEFAULT_MAXDELAY,
+        var threshold: Time = DEFAULT_THRESHOLD,
+        var reportDirectory: File = DEFAULT_REPORT_DIRECTORY,
+        var reportNodes: Boolean = false,
 
         // Optional (without defaults)
-        private val stubsFile: File?
+        var seed: Long? = null,
+        var stubsFile: File? = null
 
 ): Initializer<BGPRoute> {
 
@@ -43,6 +43,24 @@ class BGPAdvertisementInitializer(
         val DEFAULT_MAXDELAY = 1
         val DEFAULT_REPORT_DIRECTORY = File(System.getProperty("user.dir"))  // current working directory
     }
+
+    var minDelay: Time = minDelay
+        set(value) {
+            if (value > maxDelay) {
+                throw InitializationException("minimum delay must be lower than or equal to maximum delay")
+            }
+
+            field = value
+        }
+
+    var maxDelay: Time = maxDelay
+        set(value) {
+            if (value < minDelay) {
+                throw InitializationException("maximum delay must be higher than or equal to minimum delay")
+            }
+
+            field = value
+        }
 
     init {
         // Verify that at least 1 advertiser ID is provided in the constructor
@@ -56,12 +74,7 @@ class BGPAdvertisementInitializer(
      */
     override fun initialize(application: Application, metadata: Metadata): Pair<Runner<BGPRoute>, Execution<BGPRoute>> {
 
-        // Set default values for parameters that have no set value
-        val repetitions = repetitions ?: DEFAULT_REPETITIONS
-        val minDelay = minDelay ?: DEFAULT_MINDELAY
-        val maxDelay = maxDelay ?: DEFAULT_MAXDELAY
-        val threshold = threshold ?: DEFAULT_THRESHOLD
-        val reportDirectory = reportDirectory ?: DEFAULT_REPORT_DIRECTORY
+        // If no seed is set, then a new seed is generated, based on the current time, for each new initialization
         val seed = seed ?: System.currentTimeMillis()
 
         // The output name (excluding the extension) corresponds to the topology filename and
@@ -116,8 +129,8 @@ class BGPAdvertisementInitializer(
         }
 
         metadata["Topology file"] = topologyFile.name
-        if (stubsFile != null) {
-            metadata["Stubs file"] = stubsFile.name
+        stubsFile?.apply {
+            metadata["Stubs file"] = name
         }
         metadata["Advertiser(s)"] = advertiserIDs.joinToString()
         metadata["Minimum Delay"] = minDelay.toString()

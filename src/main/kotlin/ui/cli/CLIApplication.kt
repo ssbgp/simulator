@@ -1,6 +1,5 @@
 package ui.cli
 
-import core.routing.Node
 import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
@@ -35,14 +34,19 @@ object CLIApplication: Application {
             runner.run(execution, metadata)
 
         } catch (e: InputArgumentsException) {
-            console.error("Input arguments are invalid.")
-            console.error("Cause: ${e.message ?: "No information available."}")
+            console.error("Input arguments are invalid")
+            console.error("Cause: ${e.message ?: "No information available"}")
             console.info("Try the '-h' option to see more information")
+            exitProcess(1)
+
+        } catch (e: InitializationException) {
+            console.error("Initialization failed")
+            console.error("Cause: ${e.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (e: Exception) {
             console.error("Program was interrupted due to unexpected error: ${e.javaClass.simpleName}")
-            console.error("Cause: ${e.message ?: "No information available."}")
+            console.error("Cause: ${e.message ?: "No information available"}")
             exitProcess(1)
         }
     }

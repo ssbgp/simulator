@@ -158,27 +158,21 @@ class InputArgumentsParser {
             val threshold = getPositiveInteger(it, option = THRESHOLD, default = 1_000_000)
             val seed = getLong(it, option = SEED, default = System.currentTimeMillis())
             val stubsFile = getFile(it, option = STUBS, default = Optional.empty())
+            val reportNodes = commandLine.hasOption(NODE_REPORT)
 
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
 
-            if (maxDelay < minDelay) {
-                throw InputArgumentsException("Maximum delay must equal to or greater than the minimum delay: " +
-                        "min=$minDelay > max=$maxDelay")
+            return BGPAdvertisementInitializer(topologyFile, advertisers).apply {
+                this.repetitions = repetitions
+                this.reportDirectory = reportDirectory
+                this.threshold = threshold
+                this.minDelay = minDelay
+                this.maxDelay = maxDelay
+                this.reportNodes = reportNodes
+                this.stubsFile = stubsFile.orElseGet { null }
+                this.seed = seed
             }
-
-            return BGPAdvertisementInitializer(
-                    topologyFile = topologyFile,
-                    advertiserIDs = advertisers,
-                    repetitions = repetitions,
-                    reportDirectory = reportDirectory,
-                    threshold = threshold,
-                    minDelay = minDelay,
-                    maxDelay = maxDelay,
-                    stubsFile = stubsFile.orElseGet { null },
-                    reportNodes = commandLine.hasOption(NODE_REPORT),
-                    seed = seed
-            )
         }
     }
 
