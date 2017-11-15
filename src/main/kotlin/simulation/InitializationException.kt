@@ -7,4 +7,4 @@ package simulation
  *
  * Thrown by an initializer when an error occurs during the initialization.
  */
-class InitializationException(message: String): Exception(message)
+class InitializationException(message: String?): Exception(message)

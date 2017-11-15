@@ -21,7 +21,7 @@ typealias NodeID = Int
  *
  * @property id The ID of the node. This ID uniquely identifies it inside a topology
  */
-class Node<R : Route>(val id: NodeID, val protocol: Protocol<R>) : Advertiser<R> {
+class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Advertiser<R> {
 
     /**
      * Collection containing the in-neighbors of this node.

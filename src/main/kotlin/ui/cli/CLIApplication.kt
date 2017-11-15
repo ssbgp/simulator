@@ -1,11 +1,8 @@
 package ui.cli
 
-import core.routing.Node
-import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
-import core.simulator.Advertiser
 import core.simulator.Engine
 import io.ParseException
 import simulation.InitializationException
@@ -35,14 +32,19 @@ object CLIApplication: Application {
             runner.run(execution, metadata)
 
         } catch (e: InputArgumentsException) {
-            console.error("Input arguments are invalid.")
-            console.error("Cause: ${e.message ?: "No information available."}")
+            console.error("Input arguments are invalid")
+            console.error("Cause: ${e.message ?: "No information available"}")
             console.info("Try the '-h' option to see more information")
+            exitProcess(1)
+
+        } catch (e: InitializationException) {
+            console.error("Initialization failed")
+            console.error("Cause: ${e.message ?: "No information available"}")
             exitProcess(1)
 
         } catch (e: Exception) {
             console.error("Program was interrupted due to unexpected error: ${e.javaClass.simpleName}")
-            console.error("Cause: ${e.message ?: "No information available."}")
+            console.error("Cause: ${e.message ?: "No information available"}")
             exitProcess(1)
         }
     }
@@ -83,25 +85,25 @@ object CLIApplication: Application {
     }
 
     /**
-     * Invoked when determining which nodes will be advertisers. Some of these nodes may be
-     * stubs, which implies accessing the filesystem, which may throw some IO error.
+     * Invoked when setting up the advertisements to occur in the simulation. This may imply accessing the filesystem,
+     * which may throw some IO error.
      *
-     * @param ids   the IDs of the advertising nodes
-     * @param block the block of code to find the advertising nodes
-     * @return a list containing the advertisers found
+     * @param block the block of code to setup advertisements
+     * @return a list containing the advertisements already setup
      */
-    override fun <R: Route> findAdvertisers(ids: List<NodeID>,
-                                            block: () -> List<Advertiser<R>>): List<Advertiser<R>> {
+    override fun <R: Route> setupAdvertisements(block: () -> List<Advertisement<R>>): List<Advertisement<R>> {
 
         try {
-            console.info("Looking for advertisers (${ids.joinToString()})...  ", inline = true)
+            console.info("Setting up advertisements...  ", inline = true)
 
-            val (duration, advertisers) = timer {
+            val (duration, advertisements) = timer {
                 block()
             }
 
-            console.print("found in $duration seconds")
-            return advertisers
+            console.print("done in $duration seconds")
+            console.info("Advertising nodes: ${advertisements.map { it.advertiser.id }.joinToString()}")
+
+            return advertisements
 
         } catch (exception: ParseException) {
             console.print() // must print a new line here
@@ -121,7 +123,6 @@ object CLIApplication: Application {
             console.error("Cause: ${exception.message ?: "No information available"}")
             exitProcess(3)
         }
-
     }
 
     /**

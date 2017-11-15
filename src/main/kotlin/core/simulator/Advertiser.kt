@@ -1,5 +1,6 @@
 package core.simulator
 
+import core.routing.NodeID
 import core.routing.Route
 
 /**
@@ -10,6 +11,11 @@ import core.routing.Route
  * An advertiser is some entity that can advertise destinations.
  */
 interface Advertiser<in R: Route> {
+
+    /**
+     * Each advertiser is associated with a unique ID.
+     */
+    val id: NodeID
 
     /**
      * Advertises some destination.

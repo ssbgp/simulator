@@ -1,6 +1,7 @@
 package ui.cli
 
 import bgp.BGPRoute
+import core.routing.NodeID
 import core.simulator.Engine
 import org.apache.commons.cli.*
 import simulation.BGPAdvertisementInitializer
@@ -36,6 +37,7 @@ class InputArgumentsParser {
         private val SEED = "seed"
         private val STUBS = "stubs"
         private val NODE_REPORT = "reportnodes"
+        private val ADVERTISE_FILE = "advertise"
     }
 
     private val options = Options()
@@ -121,6 +123,12 @@ class InputArgumentsParser {
                     .hasArg(false)
                     .longOpt(NODE_REPORT)
                     .build())
+            addOption(Option.builder("D")
+                    .desc("File with advertisements")
+                    .hasArg(true)
+                    .argName("advertise-file")
+                    .longOpt(ADVERTISE_FILE)
+                    .build())
         }
 
     }
@@ -150,34 +158,49 @@ class InputArgumentsParser {
 
         commandLine.let {
 
+            //
+            // Validate options used
+            //
+
+            if (it.hasOption(ADVERTISER) && it.hasOption(ADVERTISE_FILE)) {
+                throw InputArgumentsException("options -d/--$ADVERTISER and -D/--$ADVERTISE_FILE are mutually exclusive")
+            } else if (!it.hasOption(ADVERTISER) && !it.hasOption(ADVERTISE_FILE)) {
+                throw InputArgumentsException("one option of -d/--$ADVERTISER and -D/--$ADVERTISE_FILE is required")
+            }
+
+            //
+            // Parse option values
+            //
+
             val topologyFile = getFile(it, option = TOPOLOGY_FILE).get()
-            val advertisers = getManyNonNegativeIntegers(it, option = ADVERTISER)
+            val advertisers = getManyNonNegativeIntegers(it, option = ADVERTISER, default = emptyList())
+            val advertisementsFile = getFile(it, option = ADVERTISE_FILE, default = Optional.empty())
             val repetitions = getPositiveInteger(it, option = REPETITIONS, default = 1)
             val reportDirectory = getDirectory(it, option = REPORT_DIRECTORY, default = File(System.getProperty("user.dir")))
             val threshold = getPositiveInteger(it, option = THRESHOLD, default = 1_000_000)
             val seed = getLong(it, option = SEED, default = System.currentTimeMillis())
             val stubsFile = getFile(it, option = STUBS, default = Optional.empty())
-
+            val reportNodes = commandLine.hasOption(NODE_REPORT)
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
 
-            if (maxDelay < minDelay) {
-                throw InputArgumentsException("Maximum delay must equal to or greater than the minimum delay: " +
-                        "min=$minDelay > max=$maxDelay")
+            // Select the initialization based on whether the user specified a set of advertisers or a file
+            val initializer = if (it.hasOption(ADVERTISER)) {
+                BGPAdvertisementInitializer.with(topologyFile, advertisers.toSet())
+            } else {
+                BGPAdvertisementInitializer.with(topologyFile, advertisementsFile.get())
             }
 
-            return BGPAdvertisementInitializer(
-                    topologyFile = topologyFile,
-                    advertiserIDs = advertisers.asList(),
-                    repetitions = repetitions,
-                    reportDirectory = reportDirectory,
-                    threshold = threshold,
-                    minDelay = minDelay,
-                    maxDelay = maxDelay,
-                    stubsFile = stubsFile.orElseGet { null },
-                    reportNodes = commandLine.hasOption(NODE_REPORT),
-                    seed = seed
-            )
+            return initializer.apply {
+                this.repetitions = repetitions
+                this.reportDirectory = reportDirectory
+                this.threshold = threshold
+                this.minDelay = minDelay
+                this.maxDelay = maxDelay
+                this.reportNodes = reportNodes
+                this.stubsFile = stubsFile.orElseGet { null }
+                this.seed = seed
+            }
         }
     }
 
@@ -214,19 +237,18 @@ class InputArgumentsParser {
 
     @Throws(InputArgumentsException::class)
     private fun getManyNonNegativeIntegers(commandLine: CommandLine, option: String,
-                                           default: Int? = null): IntArray {
+                                           default: List<NodeID>? = null): List<NodeID> {
         verifyOption(commandLine, option, default)
 
         val values = commandLine.getOptionValues(option)
 
         try {
             @Suppress("USELESS_ELVIS")
-            // 'values' can actually be null the option is not specified, see getOptionValues() doc
-            // 'default' is never null at this point!!
-            return values.map { it.toNonNegativeInt() }.toIntArray() ?: intArrayOf(default!!)
+            // Although the IDE does not recognize it, 'values' can actually be null if the option set. The
+            // documentation for getOptionValues() indicates that it returns null if the option is not set.
+            return values?.map { it.toNonNegativeInt() } ?: default!!  // never null at this point!!
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("values for '--$option' must be non-negative " +
-                    "integer values")
+            throw InputArgumentsException("values for '--$option' must be non-negative integer values")
         }
     }
 

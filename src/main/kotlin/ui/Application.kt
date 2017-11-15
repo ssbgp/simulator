@@ -1,11 +1,8 @@
 package ui
 
-import core.routing.Node
-import core.routing.NodeID
 import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
-import core.simulator.Advertiser
 import java.io.File
 
 /**
@@ -26,15 +23,13 @@ interface Application {
     fun <R: Route> loadTopology(topologyFile: File, block: () -> Topology<R>): Topology<R>
 
     /**
-     * Invoked when determining which nodes will be advertisers. Some of these nodes may be
-     * stubs, which implies accessing the filesystem, which may throw some IO error.
+     * Invoked when setting up the advertisements to occur in the simulation. This may imply accessing the filesystem,
+     * which may throw some IO error.
      *
-     * @param ids   the IDs of the advertising nodes
-     * @param block the block of code to find the advertising nodes
-     * @return a list containing the advertisers found
+     * @param block the block of code to setup advertisements
+     * @return a list containing the advertisements already setup
      */
-    fun <R: Route> findAdvertisers(ids: List<NodeID>,
-                                   block: () -> List<Advertiser<R>>): List<Advertiser<R>>
+    fun <R: Route> setupAdvertisements(block: () -> List<Advertisement<R>>): List<Advertisement<R>>
 
     /**
      * Invoked while executing each execution.
