@@ -51,15 +51,18 @@ sealed class BGPAdvertisementInitializer(
     }
 
     /**
+     * This is the base output name for the report files. The base output name does no include the extension.
+     * Subclasses should provide a name depending on their specifications.
+     */
+    abstract val outputName: String
+
+    /**
      * Initializes a simulation. It sets up the executions to run and the runner to run them.
      */
     override fun initialize(application: Application, metadata: Metadata): Pair<Runner<BGPRoute>, Execution<BGPRoute>> {
 
         // If no seed is set, then a new seed is generated, based on the current time, for each new initialization
         val seed = seed ?: System.currentTimeMillis()
-
-        // The subclass determines the output name
-        val outputName = initOutputName()
 
         // Append extensions according to the file type
         val basicReportFile = File(reportDirectory, outputName.plus(".basic.csv"))
@@ -118,11 +121,6 @@ sealed class BGPAdvertisementInitializer(
     /**
      * TODO @doc
      */
-    protected abstract fun initOutputName(): String
-
-    /**
-     * TODO @doc
-     */
     protected abstract fun initAdvertisements(topology: Topology<BGPRoute>): List<Advertisement<BGPRoute>>
 
     /**
@@ -138,11 +136,12 @@ sealed class BGPAdvertisementInitializer(
             }
         }
 
-        // The output name (excluding the extension) corresponds to the topology filename and
-        // the IDs of the advertisers. For instance, if the topology file name is `topology.nf` and
-        // the advertiser IDs are 10 and 12, then the output file name will be
-        // `topology_10-12`
-        override fun initOutputName(): String = topologyFile.nameWithoutExtension + "_${advertiserIDs.joinToString("-")}"
+        /**
+         * The output name (excluding the extension) corresponds to the topology filename and the IDs of the
+         * advertisers. For instance, if the topology file name is `topology.topo` and the advertiser IDs are 10 and
+         * 12, then the output file name will be `topology_10-12`.
+         */
+        override val outputName: String = topologyFile.nameWithoutExtension + "_${advertiserIDs.joinToString("-")}"
 
         /**
          * TODO @doc
@@ -168,11 +167,14 @@ sealed class BGPAdvertisementInitializer(
         : BGPAdvertisementInitializer(topologyFile) {
 
         /**
-         * TODO @doc
+         * The output name (excluding the extension) corresponds to the topology filename appended with the
+         * advertisements file name.
+         *
+         * For instance, if the topology file name is `topology.topo` and the advertisements file name is
+         * `advertisements.adv`, then the output base name is `topology-advertisements`
          */
-        override fun initOutputName(): String {
-            TODO("not implemented yet")
-        }
+        override val outputName: String =
+                "${topologyFile.nameWithoutExtension}-${advertisementsFile.nameWithoutExtension}"
 
         /**
          * TODO @doc
