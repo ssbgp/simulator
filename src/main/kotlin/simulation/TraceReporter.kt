@@ -162,6 +162,26 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
 
     private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
 
-    private fun align(value: Any, length: Int = 7): String = value.toString().padEnd(length)
+    private fun align(value: Any, length: Int = 7): String {
+
+        val builder = StringBuilder(length)
+
+        val text = value.toString()
+        val remainder = length - text.length
+        val padding = remainder / 2
+
+        // Add padding to the left
+        for (i in 1..(padding))
+            builder.append(' ')
+
+        // Add the text at the center
+        builder.append(text)
+
+        // Add padding to the right
+        for (i in 1..(padding + remainder % 2))
+            builder.append(' ')
+
+        return builder.toString()
+    }
 
 }
