@@ -18,6 +18,10 @@ import org.hamcrest.Matchers.`is` as Is
  */
 object SSBGPWithInterdomainRoutingTests : Spek({
 
+    beforeEachTest {
+        Engine.resetToDefaults()
+    }
+
     given("loop topology with customer to destination and peer+ around the cycle") {
 
         val topology = bgpTopology {
@@ -44,7 +48,7 @@ object SSBGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminates") {
                 assertThat(terminated,
@@ -108,7 +112,7 @@ object SSBGPWithInterdomainRoutingTests : Spek({
 
         on("simulating with node 0 as the destination") {
 
-            val terminated = Engine.simulate(topology, node[0], threshold = 1000)
+            val terminated = simulate(topology, node[0], threshold = 1000)
 
             it("terminates") {
                 assertThat(terminated, Is(true))

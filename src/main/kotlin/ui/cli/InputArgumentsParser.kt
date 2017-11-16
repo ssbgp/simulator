@@ -1,12 +1,12 @@
 package ui.cli
 
-import bgp.BGP
+import bgp.BGPRoute
+import core.routing.NodeID
 import core.simulator.Engine
-import core.simulator.RandomDelayGenerator
-import io.InterdomainTopologyReaderHandler
-import io.parseInterdomainExtender
 import org.apache.commons.cli.*
-import simulation.*
+import simulation.BGPAdvertisementInitializer
+import simulation.Initializer
+import utils.toNonNegativeInt
 import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
@@ -19,23 +19,29 @@ import kotlin.system.exitProcess
  */
 class InputArgumentsParser {
 
-    private val MAIN_COMMAND = "ssbgp-simulator"
+    companion object {
+        private val MAIN_COMMAND = "ssbgp-simulator"
 
-    // Information Options
-    private val HELP = "help"
-    private val VERSION = "version"
+        // Information Options
+        private val HELP = "help"
+        private val VERSION = "version"
 
-    // Execution Options
-    private val TOPOLOGY_FILE = "topology"
-    private val DESTINATION = "destination"
-    private val REPETITIONS = "repetitions"
-    private val REPORT_DIRECTORY = "output"
-    private val MIN_DELAY = "mindelay"
-    private val MAX_DELAY = "maxdelay"
-    private val THRESHOLD = "threshold"
-    private val SEED = "seed"
-    private val STUBS = "stubs"
-    private val NODE_REPORT = "reportnodes"
+        // Execution Options
+        private val TOPOLOGY_FILE = "topology"
+        private val ADVERTISER = "advertiser"
+        private val REPETITIONS = "repetitions"
+        private val REPORT_DIRECTORY = "output"
+        private val MIN_DELAY = "mindelay"
+        private val MAX_DELAY = "maxdelay"
+        private val THRESHOLD = "threshold"
+        private val SEED = "seed"
+        private val STUBS = "stubs"
+        private val NODE_REPORT = "reportnodes"
+        private val ADVERTISE_FILE = "advertise"
+        private val METADATA = "metadata"
+        private val TRACE = "trace"
+        private val MRAI = "mrai"
+    }
 
     private val options = Options()
 
@@ -65,10 +71,10 @@ class InputArgumentsParser {
                     .longOpt(TOPOLOGY_FILE)
                     .build())
             addOption(Option.builder("d")
-                    .desc("ID of destination node")
-                    .hasArg(true)
-                    .argName("destination")
-                    .longOpt(DESTINATION)
+                    .desc("ID(s) of node(s) advertising a destination")
+                    .hasArgs()
+                    .argName("advertisers")
+                    .longOpt(ADVERTISER)
                     .build())
             addOption(Option.builder("c")
                     .desc("Number of executions to run [default: 1]")
@@ -120,12 +126,34 @@ class InputArgumentsParser {
                     .hasArg(false)
                     .longOpt(NODE_REPORT)
                     .build())
+            addOption(Option.builder("D")
+                    .desc("File with advertisements")
+                    .hasArg(true)
+                    .argName("advertise-file")
+                    .longOpt(ADVERTISE_FILE)
+                    .build())
+            addOption(Option.builder("meta")
+                    .desc("Output metadata file")
+                    .hasArg(false)
+                    .longOpt(METADATA)
+                    .build())
+            addOption(Option.builder("tr")
+                    .desc("Output a trace with the simulation events to a file")
+                    .hasArg(false)
+                    .longOpt(TRACE)
+                    .build())
+            addOption(Option.builder("mrai")
+                    .desc("Force the MRAI value for all nodes")
+                    .hasArg(true)
+                    .argName("<mrai>")
+                    .longOpt(MRAI)
+                    .build())
         }
 
     }
 
     @Throws(InputArgumentsException::class)
-    fun parse(args: Array<String>): Pair<Runner, Execution> {
+    fun parse(args: Array<String>): Initializer<BGPRoute> {
 
         val commandLine = try {
             DefaultParser().parse(options, args)
@@ -149,59 +177,55 @@ class InputArgumentsParser {
 
         commandLine.let {
 
+            //
+            // Validate options used
+            //
+
+            if (it.hasOption(ADVERTISER) && it.hasOption(ADVERTISE_FILE)) {
+                throw InputArgumentsException("options -d/--$ADVERTISER and -D/--$ADVERTISE_FILE are mutually exclusive")
+            } else if (!it.hasOption(ADVERTISER) && !it.hasOption(ADVERTISE_FILE)) {
+                throw InputArgumentsException("one option of -d/--$ADVERTISER and -D/--$ADVERTISE_FILE is required")
+            }
+
+            //
+            // Parse option values
+            //
+
             val topologyFile = getFile(it, option = TOPOLOGY_FILE).get()
-            val destination = getNonNegativeInteger(it, option = DESTINATION)
+            val advertisers = getManyNonNegativeIntegers(it, option = ADVERTISER, default = emptyList())
+            val advertisementsFile = getFile(it, option = ADVERTISE_FILE, default = Optional.empty())
             val repetitions = getPositiveInteger(it, option = REPETITIONS, default = 1)
             val reportDirectory = getDirectory(it, option = REPORT_DIRECTORY, default = File(System.getProperty("user.dir")))
             val threshold = getPositiveInteger(it, option = THRESHOLD, default = 1_000_000)
             val seed = getLong(it, option = SEED, default = System.currentTimeMillis())
             val stubsFile = getFile(it, option = STUBS, default = Optional.empty())
-
+            val reportNodes = commandLine.hasOption(NODE_REPORT)
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
+            val outputMetadata = commandLine.hasOption(METADATA)
+            val outputTrace = commandLine.hasOption(TRACE)
 
-            if (maxDelay < minDelay) {
-                throw InputArgumentsException("Maximum delay must equal to or greater than the minimum delay: " +
-                        "min=$minDelay > max=$maxDelay")
-            }
-
-            // If the topology filename is `topology.nf` and the destination is 10 the report filename
-            // is `topology_10.basic.csv`
-            val outputName = topologyFile.nameWithoutExtension
-
-            val basicReportFile = File(reportDirectory, outputName.plus("_$destination.basic.csv"))
-            val nodesReportFile = File(reportDirectory, outputName.plus("_$destination.nodes.csv"))
-            val metadataFile = File(reportDirectory, outputName.plus("_$destination.meta.txt"))
-
-            val topologyReader = InterdomainTopologyReaderHandler(topologyFile)
-            val messageDelayGenerator = RandomDelayGenerator.with(minDelay, maxDelay, seed)
-
-            val stubDB = if (stubsFile.isPresent) {
-                StubDB(stubsFile.get(), BGP(), ::parseInterdomainExtender)
+            // Select the initialization based on whether the user specified a set of advertisers or a file
+            val initializer = if (it.hasOption(ADVERTISER)) {
+                BGPAdvertisementInitializer.with(topologyFile, advertisers.toSet())
             } else {
-                null
+                BGPAdvertisementInitializer.with(topologyFile, advertisementsFile.get())
             }
 
-            val runner = RepetitionRunner(
-                    topologyFile,
-                    topologyReader,
-                    destination,
-                    repetitions,
-                    messageDelayGenerator,
-                    stubDB,
-                    threshold,
-                    metadataFile
-            )
-
-            val execution = SimpleAdvertisementExecution().apply {
-                dataCollectors.add(BasicDataCollector(basicReportFile))
-
-                if (commandLine.hasOption(NODE_REPORT)) {
-                    dataCollectors.add(NodeDataCollector(nodesReportFile))
-                }
+            return initializer.apply {
+                this.repetitions = repetitions
+                this.reportDirectory = reportDirectory
+                this.threshold = threshold
+                this.minDelay = minDelay
+                this.maxDelay = maxDelay
+                this.reportNodes = reportNodes
+                this.outputMetadata = outputMetadata
+                this.outputTrace = outputTrace
+                this.stubsFile = stubsFile.orElseGet { null }
+                this.seed = seed
+                if (it.hasOption(MRAI))
+                    this.forcedMRAI = getNonNegativeInteger(it, MRAI)
             }
-
-            return Pair(runner, execution)
         }
     }
 
@@ -237,24 +261,34 @@ class InputArgumentsParser {
     }
 
     @Throws(InputArgumentsException::class)
+    private fun getManyNonNegativeIntegers(commandLine: CommandLine, option: String,
+                                           default: List<NodeID>? = null): List<NodeID> {
+        verifyOption(commandLine, option, default)
+
+        val values = commandLine.getOptionValues(option)
+
+        try {
+            @Suppress("USELESS_ELVIS")
+            // Although the IDE does not recognize it, 'values' can actually be null if the option set. The
+            // documentation for getOptionValues() indicates that it returns null if the option is not set.
+            return values?.map { it.toNonNegativeInt() } ?: default!!  // never null at this point!!
+        } catch (numberError: NumberFormatException) {
+            throw InputArgumentsException("values for '--$option' must be non-negative integer values")
+        }
+    }
+
+    @Throws(InputArgumentsException::class)
     private fun getNonNegativeInteger(commandLine: CommandLine, option: String, default: Int? = null): Int {
         verifyOption(commandLine, option, default)
 
         val value = commandLine.getOptionValue(option)
 
         try {
-            val intValue = value?.toInt() ?: default!!  // See note below
+            return value?.toNonNegativeInt() ?: default!!  // See note below
             // Note: the verifyOption method would throw exception if the option was ot defined and default was null
 
-            if (intValue < 0) {
-                // Handle error in th
-                throw NumberFormatException()
-            }
-
-            return intValue
-
         } catch (numberError: NumberFormatException) {
-            throw InputArgumentsException("Parameter '$option' must be a non-negative integer value: was '$value'")
+            throw InputArgumentsException("value for '--$option' must be a non-negative integer value")
         }
     }
 

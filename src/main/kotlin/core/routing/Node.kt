@@ -1,5 +1,6 @@
 package core.routing
 
+import core.simulator.Advertiser
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.MessageReceivedNotification
 import core.simulator.notifications.MessageSentNotification
@@ -20,7 +21,7 @@ typealias NodeID = Int
  *
  * @property id The ID of the node. This ID uniquely identifies it inside a topology
  */
-class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
+class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Advertiser<R> {
 
     /**
      * Collection containing the in-neighbors of this node.
@@ -39,10 +40,13 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
     }
 
     /**
-     * Starts the protocol deployed by this node.
+     * This node advertises a destination according to the specification of the deployed protocol.
+     * It sets a default route for the destination. This route maybe sent to neighbors.
+     *
+     * @param defaultRoute the default route to set for the destination
      */
-    fun start() {
-        protocol.start(this)
+    override fun advertise(defaultRoute: R) {
+        protocol.advertise(this, defaultRoute)
     }
 
     /**
@@ -82,7 +86,7 @@ class Node<R: Route>(val id: NodeID, val protocol: Protocol<R>) {
     /**
      * Resets the node state.
      */
-    fun reset() {
+    override fun reset() {
         protocol.reset()
         inNeighbors.forEach { it.exporter.reset() }
     }

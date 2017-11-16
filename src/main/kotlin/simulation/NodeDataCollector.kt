@@ -44,13 +44,6 @@ class NodeDataCollector(private val reporter: NodeDataReporter) :
     }
 
     /**
-     * Processes the data after all raw data has been collected. It should be called after an execution.
-     */
-    override fun processData() {
-        // nothing to do here
-    }
-
-    /**
      * Reports the currently collected data.
      *
      * @throws IOException If an I/O error occurs

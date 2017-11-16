@@ -1,7 +1,6 @@
 package core.simulator
 
-import java.lang.System
-import java.util.Random
+import java.util.*
 
 /**
  * Created on 22-07-2017
@@ -31,14 +30,17 @@ private constructor(override val min: Time, override val max: Time, seed: Long):
          * @param min  the minimum delay value the generator will generate. Must be higher than 0
          * @param max  the maximum delay value the generator will generate. Must be higher than or equal to 'min'
          * @param seed the seed used to generate the random delays. If none is provided it uses the system current time
-         * @throws IllegalStateException if 'max' is lower than 'min' or if 'min' is lower than 0.
+         * @throws IllegalArgumentException if 'max' is lower than 'min' or if 'min' is lower than 0.
          */
         @Throws(IllegalStateException::class)
         fun with(min: Time, max: Time, seed: Long = System.currentTimeMillis()): RandomDelayGenerator {
 
-            if (min < 0 || max < min) {
-                throw IllegalArgumentException("Maximum delay can not be lower than minimum and minimum must be a " +
-                        "non-negative value")
+            if (min < 0) {
+                throw IllegalArgumentException("minimum must be a non-negative value, but was $min")
+            }
+
+            if (max < min) {
+                throw IllegalArgumentException("maximum delay can not be lower than minimum ($max < $min)")
             }
 
             return RandomDelayGenerator(min, max, seed)

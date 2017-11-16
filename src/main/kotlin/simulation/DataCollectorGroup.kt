@@ -34,13 +34,6 @@ class DataCollectorGroup: DataCollector {
     }
 
     /**
-     * Processes the data after all raw data has been collected. It should be called after an execution.
-     */
-    override fun processData() {
-        collectors.forEach { it.processData() }
-    }
-
-    /**
      * Reports collected data from all collectors in the group.
      */
     override fun report() {

@@ -1,7 +1,8 @@
 package simulation
 
-import core.routing.Node
+import core.routing.Route
 import core.routing.Topology
+import core.simulator.Advertisement
 import core.simulator.Engine
 import core.simulator.Time
 import java.io.IOException
@@ -11,29 +12,41 @@ import java.io.IOException
  *
  * @author David Fialho
  */
-class SimpleAdvertisementExecution: Execution {
+class SimpleAdvertisementExecution<R: Route>: Execution<R> {
 
     val dataCollectors = DataCollectorGroup()
 
     /**
      * Executes a simulation, collects data from it, and reports the results.
      *
-     * To collect data, before calling this method the data collectors to be used must be specified, by adding each
-     * collector to the data collector group of this execution.
+     * To collect data, before calling this method the data collectors to be used must be specified,
+     * by adding each collector to the data collector group of this execution.
      *
      * @throws IOException If an I/O error occurs
      */
     @Throws(IOException::class)
-    override fun execute(topology: Topology<*>, destination: Node<*>, threshold: Time) {
+    override fun execute(topology: Topology<R>, advertisement: Advertisement<R>, threshold: Time) {
+        execute(topology, listOf(advertisement), threshold)
+    }
+
+    /**
+     * Executes a simulation, collects data from it, and reports the results.
+     *
+     * To collect data, before calling this method the data collectors to be used must be specified,
+     * by adding each collector to the data collector group of this execution.
+     *
+     * @throws IOException If an I/O error occurs
+     */
+    @Throws(IOException::class)
+    override fun execute(topology: Topology<R>, advertisements: List<Advertisement<R>>,
+                         threshold: Time) {
 
         dataCollectors.clear()
 
         val data = dataCollectors.collect {
-            Engine.simulate(topology, destination, threshold)
+            Engine.simulate(topology, advertisements, threshold)
         }
 
-        data.processData()
         data.report()
     }
-
 }

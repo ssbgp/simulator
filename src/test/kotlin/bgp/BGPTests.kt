@@ -2,8 +2,8 @@ package bgp
 
 import com.nhaarman.mockito_kotlin.*
 import core.routing.*
-import core.simulator.Time
 import core.simulator.Engine
+import core.simulator.Time
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.context
@@ -107,7 +107,7 @@ object BGPTests : Spek({
             beforeEachTest {
                 // Keep the protocol state clean after each test
                 protocol.reset()
-                protocol.routingTable.update(neighbor, BGPRoute.with(10, pathOf(BGPNode(0), neighbor)))
+                protocol.process(node, neighbor, BGPRoute.with(10, pathOf(BGPNode(0), neighbor)))
             }
 
             `when`("node imports an invalid route") {
@@ -547,9 +547,9 @@ object BGPTests : Spek({
                     verify(node, times(1)).send(exportedRoute)
                 }
 
-                it("does NOT start a new MRAI timer") {
+                it("does start a new MRAI timer") {
                     assertThat(protocol.mraiTimer.expired,
-                            Is(true))
+                            Is(false))
                 }
             }
         }
