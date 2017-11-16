@@ -53,7 +53,7 @@ class NodeDataReporter(private val outputFile: File): Reporter<NodeDataSet> {
                 it.printRecord(
                         simulation,
                         nodeID,
-                        selectedRoute.localPref,
+                        selectedRoute.localPref.toInterdomainLabel(),
                         selectedRoute.asPath.nextHop()?.id,
                         selectedRoute.asPath.size,
                         data.terminationTimes[nodeID]

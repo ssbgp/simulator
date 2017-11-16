@@ -1,14 +1,10 @@
 package simulation
 
-import bgp.BGPRoute
 import bgp.notifications.*
-import bgp.policies.interdomain.*
-import core.routing.Node
-import core.routing.Path
-import core.routing.Route
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.StartListener
 import core.simulator.notifications.StartNotification
+import io.pretty
 import java.io.BufferedWriter
 import java.io.Closeable
 import java.io.File
@@ -162,32 +158,6 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
                 write("${align(time)}| DETECT | ${align(node.pretty(), nodeColumnSize)} |\n")
             }
         }
-    }
-
-    //
-    //  Helper functions to prettify some objects
-    //
-
-    private fun <R: Route> Node<R>.pretty(): String = id.toString()
-
-    private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
-
-    private fun BGPRoute.pretty(): String {
-
-        if (this === BGPRoute.invalid() || this === BGPRoute.self()) {
-            return toString()
-        }
-
-        val cost = when (localPref) {
-            LOCAL_PREF_PEERPLUS -> "r+"
-            LOCAL_PREF_PEERSTAR -> "r*"
-            LOCAL_PREF_CUSTOMER -> "c"
-            LOCAL_PREF_PEER     -> "r"
-            LOCAL_PREF_PROVIDER -> "p"
-            else -> localPref.toString()
-        }
-
-        return "($cost, ${asPath.pretty()})"
     }
 
     //
