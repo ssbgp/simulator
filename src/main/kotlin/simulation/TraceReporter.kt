@@ -2,13 +2,13 @@ package simulation
 
 import bgp.BGPRoute
 import bgp.notifications.*
-import bgp.policies.interdomain.*
 import core.routing.Node
 import core.routing.Path
 import core.routing.Route
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.StartListener
 import core.simulator.notifications.StartNotification
+import io.toInterdomainLabel
 import java.io.BufferedWriter
 import java.io.Closeable
 import java.io.File
@@ -178,16 +178,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
             return toString()
         }
 
-        val cost = when (localPref) {
-            peerplusLocalPreference -> "r+"
-            peerstarLocalPreference -> "r*"
-            customerLocalPreference -> "c"
-            peerLocalPreference -> "r"
-            providerLocalPreference -> "p"
-            else -> localPref.toString()
-        }
-
-        return "($cost, ${asPath.pretty()})"
+        return "(${localPref.toInterdomainLabel()}, ${asPath.pretty()})"
     }
 
     //
