@@ -12,6 +12,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.junit.jupiter.api.Assertions.assertThrows
 import testing.`when`
 import testing.bgp.BGPNode
+import testing.then
 import java.io.StringReader
 import org.hamcrest.Matchers.`is` as Is
 
@@ -140,6 +141,23 @@ object InterdomainTopologyReaderTest: Spek({
                 it("indicates the error is in line 1") {
                     assertThat(exception?.lineNumber, Is(1))
                 }
+            }
+        }
+
+        `when`("a fixed MRAI value is set") {
+
+            val content = lines(
+                    "node = 1 | BGP | 5000",
+                    "node = 2 | BGP | 1234"
+            )
+            val topology = InterdomainTopologyReader(StringReader(content), forcedMRAI = 10).use {
+                it.read()
+            }
+
+            then("all nodes are initialized with that MRAI value") {
+                topology.nodes.asSequence()
+                        .map { it.protocol as BGP }
+                        .forEach { assertThat(it.mrai, Is(10)) }
             }
         }
     }

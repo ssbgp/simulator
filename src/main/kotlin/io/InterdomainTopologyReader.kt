@@ -2,6 +2,7 @@ package io
 
 import bgp.*
 import core.routing.*
+import core.simulator.Time
 import utils.toNonNegativeInt
 import java.io.*
 
@@ -10,17 +11,19 @@ import java.io.*
  *
  * @author David Fialho
  */
-class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Closeable {
+class InterdomainTopologyReader(reader: Reader, private val forcedMRAI: Time? = null)
+    : TopologyReader<BGPRoute>, Closeable {
 
     /**
      * Provides option to create a reader with a file object.
      */
     @Throws(FileNotFoundException::class)
-    constructor(file: File): this(FileReader(file))
+    constructor(file: File, forcedMRAI: Time? = null): this(FileReader(file), forcedMRAI)
 
     private val parser = TopologyParser(reader)
 
-    private class InterdomainHandler(val builder: TopologyBuilder<BGPRoute>): TopologyParser.Handler {
+    private inner class InterdomainHandler(val builder: TopologyBuilder<BGPRoute>)
+        : TopologyParser.Handler {
 
         /**
          * Invoked when reading the stream when a new node item is read.
@@ -36,12 +39,15 @@ class InterdomainTopologyReader(reader: Reader): TopologyReader<BGPRoute>, Close
             }
 
             val protocolLabel = values[0]
-            val mrai = try {
+
+            // Use the "forced MRAI" value if set. Otherwise, use the value specified in the topology file.
+            val mrai = forcedMRAI ?: try {
                 values[1].toNonNegativeInt()
             } catch (e: NumberFormatException) {
                 throw ParseException("MRAI must be a non-negative integer number, but was ${values[1]}", currentLine)
             }
 
+            // TODO @refactor - make this case sensitive
             val protocol = when (protocolLabel.toLowerCase()) {
                 "bgp" -> BGP(mrai)
                 "ssbgp" -> SSBGP(mrai)
