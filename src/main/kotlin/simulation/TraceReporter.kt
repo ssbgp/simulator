@@ -1,6 +1,11 @@
 package simulation
 
+import bgp.BGPRoute
 import bgp.notifications.*
+import bgp.policies.interdomain.*
+import core.routing.Node
+import core.routing.Path
+import core.routing.Route
 import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.StartListener
 import core.simulator.notifications.StartNotification
@@ -86,7 +91,9 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      */
     override fun notify(notification: LearnNotification) {
         simulationWriter?.apply {
-            write("${notification.time}: $notification\n")
+            notification.apply {
+                write("$time: LEARN node=${node.pretty()} route=${route.pretty()} neighbor=${neighbor.pretty()}\n")
+            }
         }
     }
 
@@ -95,7 +102,9 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      */
     override fun notify(notification: ExportNotification) {
         simulationWriter?.apply {
-            write("${notification.time}: $notification\n")
+            notification.apply {
+                write("$time: EXPORT node=${node.pretty()} route=${route.pretty()}\n")
+            }
         }
     }
 
@@ -104,7 +113,10 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      */
     override fun notify(notification: SelectNotification) {
         simulationWriter?.apply {
-            write("${notification.time}: $notification\n")
+            notification.apply {
+                write("$time: SELECT node=${node.pretty()} new-route=${selectedRoute.pretty()} " +
+                        "old-route=${previousRoute.pretty()}\n")
+            }
         }
     }
 
@@ -113,8 +125,30 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      */
     override fun notify(notification: DetectNotification) {
         simulationWriter?.apply {
-            write("${notification.time}: $notification\n")
+            notification.apply {
+                write("$time: DETECT node=${node.pretty()}\n")
+            }
         }
     }
+
+    private fun <R: Route> Node<R>.pretty(): String = id.toString()
+
+    private fun BGPRoute.pretty(): String {
+
+        val cost = when (localPref) {
+            LOCAL_PREF_PEERPLUS -> "r+"
+            LOCAL_PREF_PEERSTAR -> "r*"
+            LOCAL_PREF_CUSTOMER -> "c"
+            LOCAL_PREF_PEER     -> "r"
+            LOCAL_PREF_PROVIDER -> "p"
+            BGPRoute.invalid().localPref -> "•"
+            BGPRoute.self().localPref -> "◦"
+            else -> localPref.toString()
+        }
+
+        return "($cost, ${asPath.pretty()})"
+    }
+
+    private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
 
 }
