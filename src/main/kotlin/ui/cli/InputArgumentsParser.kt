@@ -40,6 +40,7 @@ class InputArgumentsParser {
         private val ADVERTISE_FILE = "advertise"
         private val METADATA = "metadata"
         private val TRACE = "trace"
+        private val MRAI = "mrai"
     }
 
     private val options = Options()
@@ -141,6 +142,12 @@ class InputArgumentsParser {
                     .hasArg(false)
                     .longOpt(TRACE)
                     .build())
+            addOption(Option.builder("mrai")
+                    .desc("Force the MRAI value for all nodes")
+                    .hasArg(true)
+                    .argName("<mrai>")
+                    .longOpt(MRAI)
+                    .build())
         }
 
     }
@@ -216,6 +223,8 @@ class InputArgumentsParser {
                 this.outputTrace = outputTrace
                 this.stubsFile = stubsFile.orElseGet { null }
                 this.seed = seed
+                if (it.hasOption(MRAI))
+                    this.forcedMRAI = getNonNegativeInteger(it, MRAI)
             }
         }
     }
@@ -265,6 +274,21 @@ class InputArgumentsParser {
             return values?.map { it.toNonNegativeInt() } ?: default!!  // never null at this point!!
         } catch (numberError: NumberFormatException) {
             throw InputArgumentsException("values for '--$option' must be non-negative integer values")
+        }
+    }
+
+    @Throws(InputArgumentsException::class)
+    private fun getNonNegativeInteger(commandLine: CommandLine, option: String, default: Int? = null): Int {
+        verifyOption(commandLine, option, default)
+
+        val value = commandLine.getOptionValue(option)
+
+        try {
+            return value?.toNonNegativeInt() ?: default!!  // See note below
+            // Note: the verifyOption method would throw exception if the option was ot defined and default was null
+
+        } catch (numberError: NumberFormatException) {
+            throw InputArgumentsException("value for '--$option' must be a non-negative integer value")
         }
     }
 

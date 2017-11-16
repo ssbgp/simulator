@@ -36,7 +36,8 @@ sealed class BGPAdvertisementInitializer(
 
         // Optional (without defaults)
         var seed: Long? = null,
-        var stubsFile: File? = null
+        var stubsFile: File? = null,
+        var forcedMRAI: Time? = null
 
 ): Initializer<BGPRoute> {
 
@@ -84,7 +85,7 @@ sealed class BGPAdvertisementInitializer(
 
         // Load the topology
         val topology: Topology<BGPRoute> = application.loadTopology(topologyFile) {
-            InterdomainTopologyReader(topologyFile).use {
+            InterdomainTopologyReader(topologyFile, forcedMRAI).use {
                 it.read()
             }
         }
