@@ -136,14 +136,16 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
 
     private fun BGPRoute.pretty(): String {
 
+        if (this === BGPRoute.invalid() || this === BGPRoute.self()) {
+            return toString()
+        }
+
         val cost = when (localPref) {
             LOCAL_PREF_PEERPLUS -> "r+"
             LOCAL_PREF_PEERSTAR -> "r*"
             LOCAL_PREF_CUSTOMER -> "c"
             LOCAL_PREF_PEER     -> "r"
             LOCAL_PREF_PROVIDER -> "p"
-            BGPRoute.invalid().localPref -> "•"
-            BGPRoute.self().localPref -> "◦"
             else -> localPref.toString()
         }
 
