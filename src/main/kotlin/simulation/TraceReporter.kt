@@ -92,7 +92,8 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: LearnNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("$time: LEARN node=${node.pretty()} route=${route.pretty()} neighbor=${neighbor.pretty()}\n")
+                write("${align(time)}: LEARN  node=${node.pretty()} route=${route.pretty()} " +
+                        "neighbor=${neighbor.pretty()}\n")
             }
         }
     }
@@ -103,7 +104,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: ExportNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("$time: EXPORT node=${node.pretty()} route=${route.pretty()}\n")
+                write("${align(time)}: EXPORT node=${node.pretty()} route=${route.pretty()}\n")
             }
         }
     }
@@ -114,7 +115,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: SelectNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("$time: SELECT node=${node.pretty()} new-route=${selectedRoute.pretty()} " +
+                write("${align(time)}: SELECT node=${node.pretty()} new-route=${selectedRoute.pretty()} " +
                         "old-route=${previousRoute.pretty()}\n")
             }
         }
@@ -126,7 +127,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: DetectNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("$time: DETECT node=${node.pretty()}\n")
+                write("${align(time)}: DETECT node=${node.pretty()}\n")
             }
         }
     }
@@ -150,5 +151,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     }
 
     private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
+
+    private fun align(value: Any): String = value.toString().padEnd(7)
 
 }
