@@ -12,32 +12,41 @@ import core.routing.emptyPath
  * This file contains methods to construct interdomain routes.
  */
 
+
+// LOCAL-PREFs for each interdomain route
+val peerplusLocalPreference: Int = 500000
+val peerstarLocalPreference: Int = 400000
+val customerLocalPreference: Int = 300000
+val peerLocalPreference: Int = 200000
+val providerLocalPreference: Int = 100000
+
+
 /**
  * Returns a peer+ route.
  */
 fun peerplusRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
-        = BGPRoute.with(localPref = LOCAL_PREF_PEERPLUS - siblingHops, asPath = asPath)
+        = BGPRoute.with(localPref = peerplusLocalPreference - siblingHops, asPath = asPath)
 
 /**
  * Returns a peer* route.
  */
 fun peerstarRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
-        = BGPRoute.with(localPref = LOCAL_PREF_PEERSTAR - siblingHops, asPath = asPath)
+        = BGPRoute.with(localPref = peerstarLocalPreference - siblingHops, asPath = asPath)
 
 /**
  * Returns a customer route.
  */
 fun customerRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
-        = BGPRoute.with(localPref = LOCAL_PREF_CUSTOMER - siblingHops, asPath = asPath)
+        = BGPRoute.with(localPref = customerLocalPreference - siblingHops, asPath = asPath)
 
 /**
  * Returns a peer route.
  */
 fun peerRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
-        = BGPRoute.with(localPref = LOCAL_PREF_PEER - siblingHops, asPath = asPath)
+        = BGPRoute.with(localPref = peerLocalPreference - siblingHops, asPath = asPath)
 
 /**
  * Returns a provider route.
  */
 fun providerRoute(siblingHops: Int = 0, asPath: Path = emptyPath())
-        = BGPRoute.with(localPref = LOCAL_PREF_PROVIDER - siblingHops, asPath = asPath)
+        = BGPRoute.with(localPref = providerLocalPreference - siblingHops, asPath = asPath)

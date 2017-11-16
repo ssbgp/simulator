@@ -179,11 +179,11 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
         }
 
         val cost = when (localPref) {
-            LOCAL_PREF_PEERPLUS -> "r+"
-            LOCAL_PREF_PEERSTAR -> "r*"
-            LOCAL_PREF_CUSTOMER -> "c"
-            LOCAL_PREF_PEER     -> "r"
-            LOCAL_PREF_PROVIDER -> "p"
+            peerplusLocalPreference -> "r+"
+            peerstarLocalPreference -> "r*"
+            customerLocalPreference -> "c"
+            peerLocalPreference -> "r"
+            providerLocalPreference -> "p"
             else -> localPref.toString()
         }
 
