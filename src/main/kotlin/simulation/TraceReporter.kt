@@ -34,8 +34,9 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      */
     private var simulationWriter: BufferedWriter? = null
     private var simulationNumber = 0
+    private var nodeColumnSize = 4
 
-    /**
+            /**
      * Adds the collector as a listener for notifications the collector needs to listen to collect data.
      */
     override fun register() {
@@ -84,6 +85,13 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
 
         simulationWriter?.close()
         simulationWriter = BufferedWriter(FileWriter(simulationOutputFile))
+
+        val maxNodeLength = notification.topology.nodes.map { it.id }.max().toString().length
+        nodeColumnSize = maxOf(4, maxNodeLength)
+
+        simulationWriter?.apply {
+            write("${align("Time")}| Event  | ${align("Node", nodeColumnSize)} | Routing Information\n")
+        }
     }
 
     /**
@@ -92,7 +100,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: LearnNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("${align(time)}| LEARN  | node=${node.pretty()} | route=${route.pretty()}, " +
+                write("${align(time)}| LEARN  | ${align(node.pretty(), nodeColumnSize)} | route=${route.pretty()}, " +
                         "neighbor=${neighbor.pretty()}\n")
             }
         }
@@ -104,7 +112,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: ExportNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("${align(time)}| EXPORT | node=${node.pretty()} | route=${route.pretty()}\n")
+                write("${align(time)}| EXPORT | ${align(node.pretty(), nodeColumnSize)} | route=${route.pretty()}\n")
             }
         }
     }
@@ -115,8 +123,8 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: SelectNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("${align(time)}| SELECT | node=${node.pretty()} | new-route=${selectedRoute.pretty()}, " +
-                        "old-route=${previousRoute.pretty()}\n")
+                write("${align(time)}| SELECT | ${align(node.pretty(), nodeColumnSize)} | " +
+                        "new-route=${selectedRoute.pretty()}, " + "old-route=${previousRoute.pretty()}\n")
             }
         }
     }
@@ -127,7 +135,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: DetectNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("${align(time)}| DETECT | node=${node.pretty()} |\n")
+                write("${align(time)}| DETECT | ${align(node.pretty(), nodeColumnSize)} |\n")
             }
         }
     }
@@ -154,6 +162,6 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
 
     private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
 
-    private fun align(value: Any): String = value.toString().padEnd(7)
+    private fun align(value: Any, length: Int = 7): String = value.toString().padEnd(length)
 
 }
