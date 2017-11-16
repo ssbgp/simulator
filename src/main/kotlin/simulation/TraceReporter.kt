@@ -10,6 +10,7 @@ import core.simulator.notifications.BasicNotifier
 import core.simulator.notifications.StartListener
 import core.simulator.notifications.StartNotification
 import java.io.BufferedWriter
+import java.io.Closeable
 import java.io.File
 import java.io.FileWriter
 
@@ -20,10 +21,9 @@ import java.io.FileWriter
  *
  * TODO @doc
  * TODO @optimization - try different methods of writing that may speedup the simulation process
- * TODO @refactor - print much nicer messages for each event!!
  */
 class TraceReporter(outputFile: File): DataCollector, StartListener,
-        LearnListener, ExportListener, SelectListener, DetectListener {
+        LearnListener, ExportListener, SelectListener, DetectListener, Closeable {
 
     private val baseOutputFile = outputFile
 
@@ -34,6 +34,11 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      */
     private var simulationWriter: BufferedWriter? = null
     private var simulationNumber = 0
+
+    /**
+     * Stores the size for the "Node" column. This depends on the size of longest node ID.
+     * By default, it is set to fit the word "Node" included in the header.
+     */
     private var nodeColumnSize = 4
 
             /**
@@ -56,7 +61,18 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeSelectListener(this)
         BGPNotifier.removeDetectListener(this)
+
+        // Unregister must always be called before discarding the trace reporter
+        // Thus, it is a go way to ensure that the current writer is closed to
+        close()
+    }
+
+    /**
+     * Closes the underlying writer.
+     */
+    override fun close() {
         simulationWriter?.close()
+        simulationWriter = null
     }
 
     /**
@@ -78,17 +94,25 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      * Invoked to notify the listener of a new start notification.
      */
     override fun notify(notification: StartNotification) {
+        // Keeping track of the number of simulations is important to ensure that the tracing output from a new
+        // simulation does not overwrite the previous one
         simulationNumber++
 
+        // The trace output of each simulation is written to its own file
         val simulationOutputFile = File(baseOutputFile.parent, baseOutputFile.nameWithoutExtension +
                 "$simulationNumber.${baseOutputFile.extension}")
 
+        // Close writer used for a previous simulation and create a new one for the new simulation
         simulationWriter?.close()
         simulationWriter = BufferedWriter(FileWriter(simulationOutputFile))
 
-        val maxNodeLength = notification.topology.nodes.map { it.id }.max().toString().length
-        nodeColumnSize = maxOf(4, maxNodeLength)
+        // Look for all node IDs to determine which one has the longest ID number
+        val maxIDSize = notification.topology.nodes.asSequence().map { it.id }.max() ?: 0
 
+        // Node column size corresponds to longest between the word "Node" and the longest node ID
+        nodeColumnSize = maxOf(4, maxIDSize)
+
+        // Write headers
         simulationWriter?.apply {
             write("${align("Time")}| Event  | ${align("Node", nodeColumnSize)} | Routing Information\n")
         }
@@ -140,7 +164,13 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
         }
     }
 
+    //
+    //  Helper functions to prettify some objects
+    //
+
     private fun <R: Route> Node<R>.pretty(): String = id.toString()
+
+    private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
 
     private fun BGPRoute.pretty(): String {
 
@@ -160,7 +190,9 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
         return "($cost, ${asPath.pretty()})"
     }
 
-    private fun Path.pretty(): String = joinToString(transform = {it.pretty()})
+    //
+    //  Helper functions to help align the information shown in the messages
+    //
 
     private fun align(value: Any, length: Int = 7): String {
 
