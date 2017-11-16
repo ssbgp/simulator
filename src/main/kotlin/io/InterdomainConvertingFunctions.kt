@@ -127,5 +127,7 @@ fun Int.toInterdomainLabel(): String = when (this) {
     customerLocalPreference -> "c"
     peerLocalPreference -> "r"
     providerLocalPreference -> "p"
+    BGPRoute.invalid().localPref -> BGPRoute.invalid().toString()
+    BGPRoute.self().localPref -> BGPRoute.self().toString()
     else -> this.toString()
 }
