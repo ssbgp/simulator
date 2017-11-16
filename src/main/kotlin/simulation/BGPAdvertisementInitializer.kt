@@ -125,6 +125,9 @@ sealed class BGPAdvertisementInitializer(
         metadata["Minimum Delay"] = minDelay.toString()
         metadata["Maximum Delay"] = maxDelay.toString()
         metadata["Threshold"] = threshold.toString()
+        forcedMRAI?.apply {
+            metadata["MRAI"] = forcedMRAI.toString()
+        }
 
         return Pair(runner, execution)
     }
