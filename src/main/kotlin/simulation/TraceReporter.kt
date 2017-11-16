@@ -100,8 +100,8 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: LearnNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("${align(time)}| LEARN  | ${align(node.pretty(), nodeColumnSize)} | route=${route.pretty()}, " +
-                        "neighbor=${neighbor.pretty()}\n")
+                write("${align(time)}| LEARN  | ${align(node.pretty(), nodeColumnSize)} | ${route.pretty()} " +
+                        "via ${neighbor.pretty()}\n")
             }
         }
     }
@@ -112,7 +112,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     override fun notify(notification: ExportNotification) {
         simulationWriter?.apply {
             notification.apply {
-                write("${align(time)}| EXPORT | ${align(node.pretty(), nodeColumnSize)} | route=${route.pretty()}\n")
+                write("${align(time)}| EXPORT | ${align(node.pretty(), nodeColumnSize)} | ${route.pretty()}\n")
             }
         }
     }
@@ -124,7 +124,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
         simulationWriter?.apply {
             notification.apply {
                 write("${align(time)}| SELECT | ${align(node.pretty(), nodeColumnSize)} | " +
-                        "new-route=${selectedRoute.pretty()}, " + "old-route=${previousRoute.pretty()}\n")
+                        "${selectedRoute.pretty()} over ${previousRoute.pretty()}\n")
             }
         }
     }
