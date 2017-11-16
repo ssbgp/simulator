@@ -39,6 +39,7 @@ class InputArgumentsParser {
         private val NODE_REPORT = "reportnodes"
         private val ADVERTISE_FILE = "advertise"
         private val METADATA = "metadata"
+        private val TRACE = "trace"
     }
 
     private val options = Options()
@@ -135,6 +136,11 @@ class InputArgumentsParser {
                     .hasArg(false)
                     .longOpt(METADATA)
                     .build())
+            addOption(Option.builder("tr")
+                    .desc("Output a trace with the simulation events to a file")
+                    .hasArg(false)
+                    .longOpt(TRACE)
+                    .build())
         }
 
     }
@@ -190,6 +196,7 @@ class InputArgumentsParser {
             val minDelay = getPositiveInteger(it, option = MIN_DELAY, default = 1)
             val maxDelay = getPositiveInteger(it, option = MAX_DELAY, default = 1)
             val outputMetadata = commandLine.hasOption(METADATA)
+            val outputTrace = commandLine.hasOption(TRACE)
 
             // Select the initialization based on whether the user specified a set of advertisers or a file
             val initializer = if (it.hasOption(ADVERTISER)) {
@@ -206,6 +213,7 @@ class InputArgumentsParser {
                 this.maxDelay = maxDelay
                 this.reportNodes = reportNodes
                 this.outputMetadata = outputMetadata
+                this.outputTrace = outputTrace
                 this.stubsFile = stubsFile.orElseGet { null }
                 this.seed = seed
             }
