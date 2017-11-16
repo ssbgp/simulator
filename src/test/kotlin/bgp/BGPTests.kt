@@ -107,7 +107,7 @@ object BGPTests : Spek({
             beforeEachTest {
                 // Keep the protocol state clean after each test
                 protocol.reset()
-                protocol.routingTable.update(neighbor, BGPRoute.with(10, pathOf(BGPNode(0), neighbor)))
+                protocol.process(node, neighbor, BGPRoute.with(10, pathOf(BGPNode(0), neighbor)))
             }
 
             `when`("node imports an invalid route") {
