@@ -18,6 +18,10 @@ import org.hamcrest.Matchers.`is` as Is
  */
 object SSBGPWithInterdomainRoutingTests : Spek({
 
+    beforeEachTest {
+        Engine.resetToDefaults()
+    }
+
     given("loop topology with customer to destination and peer+ around the cycle") {
 
         val topology = bgpTopology {
