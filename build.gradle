@@ -2,7 +2,7 @@ group 'ssbgp'
 version properties.get('application.version')
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.1.60'
     ext.dokka_version = '0.9.15'
     ext.junit_version = '1.0.0-M4'
     ext.junit5_version = '5.0.0-M4'
