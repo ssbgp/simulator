@@ -1,11 +1,12 @@
 package core.simulator
 
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.equalTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Assertions.assertThrows
 
 /**
@@ -15,78 +16,76 @@ import org.junit.jupiter.api.Assertions.assertThrows
  */
 object SchedulerTests : Spek({
 
-    given("an empty scheduler that has never had an event") {
+    given("a new scheduler") {
 
-        beforeGroup {
-            Scheduler.reset()
-        }
+        val scheduler = Scheduler()
 
         it("has no events") {
-            assertThat(Scheduler.hasEvents(), `is`(false))
+            assertThat(scheduler.hasEvents(), `is`(false))
         }
 
         it("throws an exception when trying to get the next event") {
-            assertThrows(NoSuchElementException::class.java) { ->
-                Scheduler.nextEvent()
+            assertThrows(NoSuchElementException::class.java) {
+                scheduler.nextEvent()
             }
         }
 
         it("has time of 0") {
-            assertThat(Scheduler.time, equalTo(0))
+            assertThat(scheduler.time, equalTo(0))
         }
 
         on("scheduling a new event to occur at time 10") {
 
-            Scheduler.schedule(event(id = 0), timestamp = 10)
+            scheduler.schedule(event(id = 0), timestamp = 10)
 
             it("has events") {
-                assertThat(Scheduler.hasEvents(), `is`(true))
+                assertThat(scheduler.hasEvents(), `is`(true))
             }
 
             it("it returns the scheduled event when trying to get the next event") {
-                assertThat(Scheduler.nextEvent(), `is`(event(id = 0)))
+                assertThat(scheduler.nextEvent(), `is`(event(id = 0)))
             }
 
             it("has time of 10") {
-                assertThat(Scheduler.time, `is`(10))
+                assertThat(scheduler.time, `is`(10))
             }
 
             it("no longer has events in the queue") {
-                assertThat(Scheduler.hasEvents(), `is`(false))
+                assertThat(scheduler.hasEvents(), `is`(false))
             }
 
         }
 
         on("scheduling an event at time 15") {
 
-            Scheduler.schedule(event(id = 1), timestamp = 15)
+            scheduler.schedule(event(id = 1), timestamp = 15)
         }
 
         on("and scheduling another event at time 20") {
 
-            Scheduler.schedule(event(id = 2), timestamp = 20)
+            scheduler.schedule(event(id = 2), timestamp = 20)
 
             it("has events") {
-                assertThat(Scheduler.hasEvents(), `is`(true))
+                assertThat(scheduler.hasEvents(), `is`(true))
             }
 
             it("has time of 10") {
-                assertThat(Scheduler.time, `is`(10))
+                assertThat(scheduler.time, `is`(10))
             }
         }
 
         on("trying to get the next event") {
 
             it("returns the event scheduled at time 15") {
-                assertThat(Scheduler.nextEvent(), `is`(event(id = 1)))
+                assertThat(scheduler.nextEvent(), `is`(event(id = 1)))
             }
 
             it("still has events") {
-                assertThat(Scheduler.hasEvents(), `is`(true))
+                assertThat(scheduler.hasEvents(), `is`(true))
             }
 
             it("has time of 15") {
-                assertThat(Scheduler.time, `is`(15))
+                assertThat(scheduler.time, `is`(15))
             }
 
         }
@@ -95,7 +94,7 @@ object SchedulerTests : Spek({
 
             it("throws an IllegalArgumentException") {
                 assertThrows(IllegalArgumentException::class.java) { ->
-                    Scheduler.schedule(event(id = 3), timestamp = 10)
+                    scheduler.schedule(event(id = 3), timestamp = 10)
                 }
             }
         }
@@ -103,7 +102,7 @@ object SchedulerTests : Spek({
         on("scheduling another event at time 15: equal to the current time") {
 
             it("does not throw any exception") {
-                Scheduler.schedule(event(id = 4), timestamp = 15)
+                scheduler.schedule(event(id = 4), timestamp = 15)
             }
         }
     }
@@ -112,24 +111,22 @@ object SchedulerTests : Spek({
 
     given("a scheduler with time 10 and containing an event to occur at time 20") {
 
-        beforeGroup {
-            Scheduler.reset()
-        }
+        val scheduler = Scheduler()
 
-        Scheduler.schedule(event(id = 0), timestamp = 10)
-        Scheduler.nextEvent()   // remove the event with timestamp 10, which updates the Scheduler time to 10
-        Scheduler.schedule(event(id = 1), timestamp = 20)
+        scheduler.schedule(event(id = 0), timestamp = 10)
+        scheduler.nextEvent()   // remove the event with timestamp 10, which updates the Scheduler time to 10
+        scheduler.schedule(event(id = 1), timestamp = 20)
 
         on("scheduling an event at time 15 and trying to get the next event") {
 
-            Scheduler.schedule(event(id = 2), timestamp = 15)
+            scheduler.schedule(event(id = 2), timestamp = 15)
 
             it("returns the event scheduled to time 15") {
-                assertThat(Scheduler.nextEvent(), `is`(event(id = 2)))
+                assertThat(scheduler.nextEvent(), `is`(event(id = 2)))
             }
 
             it("has time 15") {
-                assertThat(Scheduler.time, `is`(15))
+                assertThat(scheduler.time, `is`(15))
             }
         }
 
@@ -140,7 +137,7 @@ object SchedulerTests : Spek({
 //region Fake implementation of an Event
 
 /**
- * Fake implementation of an event used for testing the Scheduler.
+ * Fake implementation of an event used for testing the scheduler.
  *
  * It defines an ID property that can be used to identify each event in the tests. It is specially useful in
  * assertion error reports.

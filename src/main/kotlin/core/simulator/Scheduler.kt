@@ -7,7 +7,7 @@ import java.util.*
  *
  * @author David Fialho
  */
-object Scheduler {
+class Scheduler {
 
     /**
      * A scheduled event associates a timestamp with an event. The timestamp is used by the scheduler to determine

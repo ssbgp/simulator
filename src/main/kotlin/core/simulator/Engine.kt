@@ -18,7 +18,7 @@ object Engine {
     /**
      * This variable holds the scheduler that is being used in the simulations.
      */
-    var scheduler = Scheduler
+    var scheduler = Scheduler()
 
     /**
      * This is the delay generator used to generate the delays for the messages.
@@ -31,7 +31,7 @@ object Engine {
      * Resets the engine to the defaults.
      */
     fun resetToDefaults() {
-        scheduler = Scheduler
+        scheduler = Scheduler()
         messageDelayGenerator = ZeroDelayGenerator
     }
 

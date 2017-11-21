@@ -24,9 +24,9 @@ class Exporter<R: Route> {
     fun export(message: Message<R>): Time {
 
         val delay = Engine.messageDelayGenerator.nextDelay()
-        val deliverTime = maxOf(Scheduler.time + delay, lastDeliverTime) + 1
+        val deliverTime = maxOf(Engine.scheduler.time + delay, lastDeliverTime) + 1
 
-        Scheduler.schedule(ExportEvent(message), deliverTime)
+        Engine.scheduler.schedule(ExportEvent(message), deliverTime)
         lastDeliverTime = deliverTime
 
         return deliverTime
