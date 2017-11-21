@@ -55,10 +55,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * @param route the route to be sent
      */
     fun send(route: R) {
-
-        for (neighbor in inNeighbors) {
-            send(route, neighbor)
-        }
+        inNeighbors.forEach { send(route, it) }
     }
 
     /**
@@ -66,7 +63,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      *
      * @param route the route to be sent
      */
-    fun send(route: R, neighbor: Neighbor<R>) {
+    private fun send(route: R, neighbor: Neighbor<R>) {
         val message = Message(this, neighbor.node, route, neighbor.extender)
 
         neighbor.exporter.export(message)
@@ -109,11 +106,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
     /**
      * Follows the equals/hashCode contract.
      */
-    override fun hashCode(): Int {
-        return id
-    }
+    override fun hashCode(): Int = id
 
-    override fun toString(): String {
-        return "Node($id)"
-    }
+    override fun toString(): String = "Node($id)"
 }
