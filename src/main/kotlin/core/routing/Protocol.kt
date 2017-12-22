@@ -1,7 +1,20 @@
 package core.routing
 
 /**
- * This is the basic interface for a protocol implementation.
+ * Created on 19-07-17
+ *
+ * @author David Fialho
+ *
+ * This is the basic interface for any protocol implementation. All protocol implementations must
+ * implement this interface.
+ *
+ * Routing protocols may require knowledge about in-neighbors. Depending on the protocol
+ * implementation, this neighbors may need to be stored/organized in different ways for the
+ * protocol to run more efficiently. To allow that level of customization, the protocol itself
+ * stores the in-neighbors, not the node deploying the protocol.
+ *
+ * @property inNeighbors collection of all in-neighbors of the node deploying this protocol
+ * @property selectedRoute route selected by this protocol
  */
 interface Protocol<R: Route> {
 
@@ -11,28 +24,25 @@ interface Protocol<R: Route> {
     val inNeighbors: Collection<Neighbor<R>>
 
     /**
-     * The route selected by the protocol.
+     * The route selected by the protocol. This route may change during a simulation execution.
      */
     val selectedRoute: R
 
     /**
-     * Adds a new in-neighbor for the protocol to consider.
+     * Adds a new in-neighbor for the protocol to take into account.
      */
     fun addInNeighbor(neighbor: Neighbor<R>)
 
     /**
-     * Makes [node] advertise a destination and sets [defaultRoute] as the default route to reach that destination.
-     *
-     * @param node         the node to advertise destination
-     * @param defaultRoute the default route to reach the destination
+     * Have [node] advertise a destination and set [defaultRoute] as its default route to reach
+     * that destination. The [defaultRoute] is processed as a newly received route.
      */
     fun advertise(node: Node<R>, defaultRoute: R)
 
     /**
-     * Processes an incoming routing message.
+     * Have the protocol process and incoming [message].
      *
-     * This method is invoked by the node using this protocol when it receives a new routing message that must be
-     * processed.
+     * The receiving node calls this method when it receives a message.
      */
     fun process(message: Message<R>)
 

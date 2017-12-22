@@ -5,19 +5,23 @@ package core.routing
  *
  * @author David Fialho
  *
- * Routes are pieces of routing information that associate a set of attributes with a destination. Usually, nodes
- * exchange routes with their neighbors in other to provide connectivity to one another.
+ * A Route associates a set attributes with a destination. In a routing protocol, nodes exchange
+ * routes between each other to provide connectivity to each other. The ultimate goal of a
+ * routing protocol is to have each node select one or more routes to each that destination.
  *
- * Routes may be invalid. An invalid route indicates that there is no electable route to the destination via some
- * neighbor, which means that an invalid route should NEVER be elected by a node. Routes can be checked for validity
- * through the isInvalid() method included in the Route interface.
+ * Different routing protocols include different attributes in the exchanged routes. Thus, each
+ * protocol implements their own route. This is the base interface for all route implementations.
+ * Implementations of the Route interface should be always immutable!!
  *
- * Implementations of the Route interface should be always immutable!
+ * Routes may be invalid. An invalid route indicates that there is no electable route to the
+ * destination. A node selecting an invalid route, indicates the node did not had any valid
+ * candidate route to reach the destination. To check whether or not a route is valid, use the
+ * [isValid] method.
  */
 interface Route {
 
     /**
-     * Returns true if a route is valid or false if otherwise.
+     * Returns true if this route is valid or false if otherwise.
      */
     fun isValid(): Boolean
 

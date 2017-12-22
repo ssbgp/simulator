@@ -16,10 +16,16 @@ typealias NodeID = Int
  *
  * @author David Fialho
  *
- * A node is the fundamental component of a topology @see Topology. A node is some entity that is able to speak with
- * other nodes using a common protocol.
+ * A node is the fundamental element of a topology. It can represent any entity that is able to
+ * speak with other nodes through a common routing protocol.
  *
- * @property id The ID of the node. This ID uniquely identifies it inside a topology
+ * Each node has unique ID. This ID is only unique for nodes within the same topology.
+ *
+ * The protocol deployed at each node does not need be exactly the same. The only requirement is
+ * that the routes exchanged are of the same type.
+ *
+ * @property id       the ID of the node, which uniquely identifies it inside a topology
+ * @property protocol the protocol deployed by this node
  */
 class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Advertiser<R> {
 
@@ -30,9 +36,9 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
         get() = protocol.inNeighbors
 
     /**
-     * Sets a new in-neighbor for this node.
+     * Adds a new in-neighbor to this node.
      *
-     * @param neighbor the in-neighbor node
+     * @param neighbor the in-neighbor node to add
      * @param extender the extender used to map routes from this node to the in-neighbor
      */
     fun addInNeighbor(neighbor: Node<R>, extender: Extender<R>) {
@@ -40,28 +46,22 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
     }
 
     /**
-     * This node advertises a destination according to the specification of the deployed protocol.
-     * It sets a default route for the destination. This route maybe sent to neighbors.
-     *
-     * @param defaultRoute the default route to set for the destination
+     * Have this node set [defaultRoute] as its default route and advertise it to in-neighbors
+     * according to its deployed protocol specifications.
      */
     override fun advertise(defaultRoute: R) {
         protocol.advertise(this, defaultRoute)
     }
 
     /**
-     * Sends a message containing the route [route] to all in-neighbors of this node.
-     *
-     * @param route the route to be sent
+     * Have this node send a message containing the given [route] to all of its in-neighbors.
      */
     fun send(route: R) {
         inNeighbors.forEach { send(route, it) }
     }
 
     /**
-     * Sends a message containing the route [route] to the specified neighbor.
-     *
-     * @param route the route to be sent
+     * Have this node send a messages containing the given [route] to a [neighbor].
      */
     private fun send(route: R, neighbor: Neighbor<R>) {
         val message = Message(this, neighbor.node, route, neighbor.extender)
@@ -71,17 +71,18 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
     }
 
     /**
-     * Receives a message from an out-neighbor of this node.
-     * This method should be invoked when a new message is expected to arrive to this node and be processed by it.
+     * Have this node receive a [message] from an out-neighbor. The [message] is passed through
+     * the routing protocol deployed by this node and processed.
+     *
+     * The simulator should invoke this method when it wants to have a message arrive at some node.
      */
     fun receive(message: Message<R>) {
-
         BasicNotifier.notifyMessageReceived(MessageReceivedNotification(message))
         protocol.process(message)
     }
 
     /**
-     * Resets the node state.
+     * Resets this node's state.
      */
     override fun reset() {
         protocol.reset()
@@ -90,7 +91,8 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
 
     /**
      * Two nodes are considered equal if they have exactly the same ID.
-     * Subclasses of node should not override this method.
+     *
+     * Subclasses of node should NOT override this method.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
