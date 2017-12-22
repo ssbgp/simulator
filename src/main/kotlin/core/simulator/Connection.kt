@@ -2,6 +2,8 @@ package core.simulator
 
 import core.routing.Message
 import core.routing.Route
+import core.simulator.notifications.MessageSentNotification
+import core.simulator.notifications.Notifier
 
 /**
  * Created on 22-07-2017
@@ -29,8 +31,6 @@ class Connection<R: Route> {
      * obtained from the delay generator [Engine.messageDelayGenerator].
      *
      * !! It adds an event to the scheduler [Engine.scheduler] !!
-     *
-     * @return the deliver time of [message]
      */
     fun send(message: Message<R>): Time {
 
@@ -40,6 +40,7 @@ class Connection<R: Route> {
         Engine.scheduler.schedule(MessageEvent(message), deliverTime)
         lastDeliverTime = deliverTime
 
+        Notifier.notify(MessageSentNotification(message))
         return deliverTime
     }
 

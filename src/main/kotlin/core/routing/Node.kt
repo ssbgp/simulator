@@ -67,7 +67,6 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
         val message = Message(this, neighbor.node, route, neighbor.extender)
 
         neighbor.connection.send(message)
-        Notifier.notify(MessageSentNotification(message))
     }
 
     /**
