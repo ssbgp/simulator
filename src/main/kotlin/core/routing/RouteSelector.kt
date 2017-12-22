@@ -43,6 +43,17 @@ class RouteSelector<R : Route> private constructor(
         forceReselect: Boolean = true
 ) {
 
+    // Stores the currently selected route
+    private var selectedRoute: R = table.invalidRoute
+    // Stores the currently selected neighbor
+    private var selectedNeighbor: Node<R>? = null
+
+    /**
+     * Keeps record of the neighbors that are disabled.
+     */
+    private val mutableDisabledNeighbors = HashSet<Node<R>>()
+    val disabledNeighbors: Collection<Node<R>> get() = mutableDisabledNeighbors
+
     init {
         if (forceReselect) {
             reselect()
@@ -75,17 +86,6 @@ class RouteSelector<R : Route> private constructor(
         }
 
     }
-
-    // Stores the currently selected route
-    private var selectedRoute: R = table.invalidRoute
-    // Stores the currently selected neighbor
-    private var selectedNeighbor: Node<R>? = null
-
-    /**
-     * Keeps record of the neighbors that are disabled.
-     */
-    private val mutableDisabledNeighbors = HashSet<Node<R>>()
-    val disabledNeighbors: Collection<Node<R>> get() = mutableDisabledNeighbors
 
     /**
      * Returns the currently selected route
