@@ -19,19 +19,19 @@ open class NotificationCollector: StartListener, EndListener, ThresholdReachedLi
     val messageReceivedNotifications = ArrayList<MessageReceivedNotification>()
 
     open fun register() {
-        BasicNotifier.addStartListener(this)
-        BasicNotifier.addEndListener(this)
-        BasicNotifier.addThresholdReachedListener(this)
-        BasicNotifier.addMessageSentListener(this)
-        BasicNotifier.addMessageReceivedListener(this)
+        Notifier.addStartListener(this)
+        Notifier.addEndListener(this)
+        Notifier.addThresholdReachedListener(this)
+        Notifier.addMessageSentListener(this)
+        Notifier.addMessageReceivedListener(this)
     }
 
     open fun unregister() {
-        BasicNotifier.removeStartListener(this)
-        BasicNotifier.removeEndListener(this)
-        BasicNotifier.removeThresholdReachedListener(this)
-        BasicNotifier.removeMessageSentListener(this)
-        BasicNotifier.removeMessageReceivedListener(this)
+        Notifier.removeStartListener(this)
+        Notifier.removeEndListener(this)
+        Notifier.removeThresholdReachedListener(this)
+        Notifier.removeMessageSentListener(this)
+        Notifier.removeMessageReceivedListener(this)
     }
 
     final override fun notify(notification: StartNotification) {

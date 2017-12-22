@@ -1,7 +1,7 @@
 package simulation
 
 import bgp.notifications.*
-import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.Notifier
 import core.simulator.notifications.StartListener
 import core.simulator.notifications.StartNotification
 import io.pretty
@@ -41,7 +41,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      * Adds the collector as a listener for notifications the collector needs to listen to collect data.
      */
     override fun register() {
-        BasicNotifier.addStartListener(this)
+        Notifier.addStartListener(this)
         BGPNotifier.addLearnListener(this)
         BGPNotifier.addExportListener(this)
         BGPNotifier.addSelectListener(this)
@@ -52,7 +52,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      * Removes the collector from all notifiers
      */
     override fun unregister() {
-        BasicNotifier.removeStartListener(this)
+        Notifier.removeStartListener(this)
         BGPNotifier.removeLearnListener(this)
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeSelectListener(this)

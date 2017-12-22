@@ -53,24 +53,24 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
      * Adds the collector as a listener for notifications the collector needs to listen to collect data.
      */
     override fun register() {
-        BasicNotifier.addStartListener(this)
-        BasicNotifier.addMessageSentListener(this)
+        Notifier.addStartListener(this)
+        Notifier.addMessageSentListener(this)
         BGPNotifier.addExportListener(this)
         BGPNotifier.addDetectListener(this)
-        BasicNotifier.addThresholdReachedListener(this)
-        BasicNotifier.addEndListener(this)
+        Notifier.addThresholdReachedListener(this)
+        Notifier.addEndListener(this)
     }
 
     /**
      * Removes the collector from all notifiers
      */
     override fun unregister() {
-        BasicNotifier.removeStartListener(this)
-        BasicNotifier.removeMessageSentListener(this)
+        Notifier.removeStartListener(this)
+        Notifier.removeMessageSentListener(this)
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeDetectListener(this)
-        BasicNotifier.removeThresholdReachedListener(this)
-        BasicNotifier.removeEndListener(this)
+        Notifier.removeThresholdReachedListener(this)
+        Notifier.removeEndListener(this)
     }
 
     /**

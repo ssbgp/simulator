@@ -2,7 +2,7 @@ package core.simulator
 
 import core.routing.Route
 import core.routing.Topology
-import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.Notifier
 import core.simulator.notifications.EndNotification
 import core.simulator.notifications.StartNotification
 import core.simulator.notifications.ThresholdReachedNotification
@@ -52,7 +52,7 @@ object Engine {
      * [threshold] value is not specified, then the simulation will run until the scheduler has
      * no more events to process.
      *
-     * During the simulation the notifiers (@see [BasicNotifier]) may send some notifications,
+     * During the simulation the notifiers (@see [Notifier]) may send some notifications,
      * which provide information about routing events and the progress of the simulation.
      *
      * Warning: before running the simulation, the scheduler is reset!!
@@ -71,7 +71,7 @@ object Engine {
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
-        BasicNotifier.notify(StartNotification(messageDelayGenerator.seed, topology))
+        Notifier.notify(StartNotification(messageDelayGenerator.seed, topology))
 
         // Schedule advertisements specified in the strategy
         for (advertisement in advertisements) {
@@ -89,7 +89,7 @@ object Engine {
             // This verification needs to be performed after obtaining the next event because the
             // scheduler's time is updated when performing that action
             if (currentTime() >= threshold) {
-                BasicNotifier.notify(ThresholdReachedNotification(threshold))
+                Notifier.notify(ThresholdReachedNotification(threshold))
                 terminatedBeforeThreshold = false
                 break
             }
@@ -98,7 +98,7 @@ object Engine {
         }
 
         // Notify listeners the simulation ended
-        BasicNotifier.notify(EndNotification(topology))
+        Notifier.notify(EndNotification(topology))
 
         return terminatedBeforeThreshold
     }
@@ -111,7 +111,7 @@ object Engine {
      * [threshold] value is not specified, then the simulation will run until the scheduler has
      * no more events to process.
      *
-     * During the simulation the notifiers (@see [BasicNotifier]) may send some notifications,
+     * During the simulation the notifiers (@see [Notifier]) may send some notifications,
      * which provide information about routing events and the progress of the simulation.
      *
      * Warning: before running the simulation, the scheduler is reset!!

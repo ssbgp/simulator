@@ -29,8 +29,8 @@ class NodeDataCollector(private val reporter: NodeDataReporter) :
      * Adds the collector as a listener for notifications the collector needs to listen to collect data.
      */
     override fun register() {
-        BasicNotifier.addStartListener(this)
-        BasicNotifier.addEndListener(this)
+        Notifier.addStartListener(this)
+        Notifier.addEndListener(this)
         BGPNotifier.addExportListener(this)
     }
 
@@ -38,8 +38,8 @@ class NodeDataCollector(private val reporter: NodeDataReporter) :
      * Removes the collector from all notifiers
      */
     override fun unregister() {
-        BasicNotifier.removeStartListener(this)
-        BasicNotifier.removeEndListener(this)
+        Notifier.removeStartListener(this)
+        Notifier.removeEndListener(this)
         BGPNotifier.removeExportListener(this)
     }
 

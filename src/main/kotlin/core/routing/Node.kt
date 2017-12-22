@@ -1,7 +1,7 @@
 package core.routing
 
 import core.simulator.Advertiser
-import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.Notifier
 import core.simulator.notifications.MessageReceivedNotification
 import core.simulator.notifications.MessageSentNotification
 
@@ -67,7 +67,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
         val message = Message(this, neighbor.node, route, neighbor.extender)
 
         neighbor.connection.send(message)
-        BasicNotifier.notify(MessageSentNotification(message))
+        Notifier.notify(MessageSentNotification(message))
     }
 
     /**
@@ -77,7 +77,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * The simulator should invoke this method when it wants to have a message arrive at some node.
      */
     fun receive(message: Message<R>) {
-        BasicNotifier.notify(MessageReceivedNotification(message))
+        Notifier.notify(MessageReceivedNotification(message))
         protocol.process(message)
     }
 
