@@ -22,17 +22,17 @@ object Engine {
 
     /**
      * This is the delay generator used to generate the delays for the messages.
-     * By default, it uses a ZeroDelayGenerator
+     * By default, it uses a NoDelayGenerator
      * This should be changed to a different generator to obtain different behavior.
      */
-    var messageDelayGenerator: DelayGenerator = ZeroDelayGenerator
+    var messageDelayGenerator: DelayGenerator = NoDelayGenerator
 
     /**
      * Resets the engine to the defaults.
      */
     fun resetToDefaults() {
         scheduler = Scheduler()
-        messageDelayGenerator = ZeroDelayGenerator
+        messageDelayGenerator = NoDelayGenerator
     }
 
     /**
