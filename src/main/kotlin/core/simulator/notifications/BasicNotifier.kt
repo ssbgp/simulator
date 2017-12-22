@@ -4,8 +4,19 @@ package core.simulator.notifications
  * Created on 25-07-2017.
  *
  * @author David Fialho
+ *
+ * The [BasicNotifier] is responsible for having each notification reach each listener listening
+ * for that type of notification. The [BasicNotifier] supports only the notifications included on
+ * this package. Listeners need to registered with the [BasicNotifier] to receive notifications.
+ *
+ * It provides three methods for each type of notification:
+ *
+ *   - add:    Called by a listener receive a specific type of notifications
+ *   - remove: Called by a listener to stop receiving a specific type of notifications
+ *   - notify: Called by the simulator during the simulation to send a notification to listeners
+ *
  */
-object BasicNotifier: Notifier {
+object BasicNotifier : Notifier {
 
     //region Lists containing the registered listeners
 
@@ -20,29 +31,25 @@ object BasicNotifier: Notifier {
     //region Start notification
 
     /**
-     * Registers a new start listener.
-     *
-     * @param listener start listener to register.
+     * Tell the notifier that [listener] wants to receive start notifications. Afterwards, the
+     * [listener] will receive all start notifications.
      */
     fun addStartListener(listener: StartListener) {
         startListeners.add(listener)
     }
 
     /**
-     * Unregisters a new start listener.
-     *
-     * @param listener start listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive start notifications.
+     * Afterwards, the [listener] will no longer receive start notifications.
      */
     fun removeStartListener(listener: StartListener) {
         startListeners.remove(listener)
     }
 
     /**
-     * Sends a start notification to each start listener.
-     *
-     * @param notification the start notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to start notifications.
      */
-    fun notifyStart(notification: StartNotification) {
+    fun notify(notification: StartNotification) {
         startListeners.forEach { it.notify(notification) }
     }
 
@@ -51,29 +58,25 @@ object BasicNotifier: Notifier {
     //region End notification
 
     /**
-     * Registers a new end listener.
-     *
-     * @param listener end listener to register.
+     * Tell the notifier that [listener] wants to receive end notifications. Afterwards, the
+     * [listener] will receive all end notifications.
      */
     fun addEndListener(listener: EndListener) {
         endListeners.add(listener)
     }
 
     /**
-     * Unregisters a new end listener.
-     *
-     * @param listener end listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive end notifications.
+     * Afterwards, the [listener] will no longer receive end notifications.
      */
     fun removeEndListener(listener: EndListener) {
         endListeners.remove(listener)
     }
 
     /**
-     * Sends a end notification to each end listener.
-     *
-     * @param notification the end notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to end notifications.
      */
-    fun notifyEnd(notification: EndNotification) {
+    fun notify(notification: EndNotification) {
         endListeners.forEach { it.notify(notification) }
     }
 
@@ -82,29 +85,25 @@ object BasicNotifier: Notifier {
     //region Threshold reached notification
 
     /**
-     * Registers a new threshold reached listener.
-     *
-     * @param listener threshold reached listener to register.
+     * Tell the notifier that [listener] wants to receive threshold reached notifications.
+     * Afterwards, the [listener] will receive all threshold reached notifications.
      */
     fun addThresholdReachedListener(listener: ThresholdReachedListener) {
         thresholdReachedListeners.add(listener)
     }
 
     /**
-     * Unregisters a new threshold reached listener.
-     *
-     * @param listener threshold reached listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive threshold reached notifications.
+     * Afterwards, the [listener] will no longer receive threshold reached notifications.
      */
     fun removeThresholdReachedListener(listener: ThresholdReachedListener) {
         thresholdReachedListeners.remove(listener)
     }
 
     /**
-     * Sends a threshold reached notification to each threshold reached listener.
-     *
-     * @param notification the threshold reached notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to threshold reached notifications.
      */
-    fun notifyThresholdReached(notification: ThresholdReachedNotification) {
+    fun notify(notification: ThresholdReachedNotification) {
         thresholdReachedListeners.forEach { it.notify(notification) }
     }
 
@@ -113,29 +112,25 @@ object BasicNotifier: Notifier {
     //region Message sent notification
 
     /**
-     * Registers a new message sent listener.
-     *
-     * @param listener message sent listener to register.
+     * Tell the notifier that [listener] wants to receive message sent notifications. Afterwards,
+     * the [listener] will receive all message sent notifications.
      */
     fun addMessageSentListener(listener: MessageSentListener) {
         messageSentListeners.add(listener)
     }
 
     /**
-     * Unregisters a new message sent listener.
-     *
-     * @param listener message sent listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive message sent notifications.
+     * Afterwards, the [listener] will no longer receive message sent notifications.
      */
     fun removeMessageSentListener(listener: MessageSentListener) {
         messageSentListeners.remove(listener)
     }
 
     /**
-     * Sends a message sent notification to each message sent listener.
-     *
-     * @param notification the message sent notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to message sent notifications.
      */
-    fun notifyMessageSent(notification: MessageSentNotification) {
+    fun notify(notification: MessageSentNotification) {
         messageSentListeners.forEach { it.notify(notification) }
     }
 
@@ -166,7 +161,7 @@ object BasicNotifier: Notifier {
      *
      * @param notification the message received notification to send to each registered listener.
      */
-    fun notifyMessageReceived(notification: MessageReceivedNotification) {
+    fun notify(notification: MessageReceivedNotification) {
         messageReceivedListeners.forEach { it.notify(notification) }
     }
 

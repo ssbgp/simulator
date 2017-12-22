@@ -71,7 +71,7 @@ object Engine {
         // Ensure the scheduler is completely clean before starting the simulation
         scheduler.reset()
 
-        BasicNotifier.notifyStart(StartNotification(messageDelayGenerator.seed, topology))
+        BasicNotifier.notify(StartNotification(messageDelayGenerator.seed, topology))
 
         // Schedule advertisements specified in the strategy
         for (advertisement in advertisements) {
@@ -89,7 +89,7 @@ object Engine {
             // This verification needs to be performed after obtaining the next event because the
             // scheduler's time is updated when performing that action
             if (currentTime() >= threshold) {
-                BasicNotifier.notifyThresholdReached(ThresholdReachedNotification(threshold))
+                BasicNotifier.notify(ThresholdReachedNotification(threshold))
                 terminatedBeforeThreshold = false
                 break
             }
@@ -98,7 +98,7 @@ object Engine {
         }
 
         // Notify listeners the simulation ended
-        BasicNotifier.notifyEnd(EndNotification(topology))
+        BasicNotifier.notify(EndNotification(topology))
 
         return terminatedBeforeThreshold
     }

@@ -5,6 +5,6 @@ package core.simulator.notifications
  *
  * @author David Fialho
  *
- * Tag interface for all notifiers.
+ * Tag interface for notifiers.
  */
 interface Notifier

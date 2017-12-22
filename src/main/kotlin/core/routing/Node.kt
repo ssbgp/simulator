@@ -67,7 +67,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
         val message = Message(this, neighbor.node, route, neighbor.extender)
 
         neighbor.connection.send(message)
-        BasicNotifier.notifyMessageSent(MessageSentNotification(message))
+        BasicNotifier.notify(MessageSentNotification(message))
     }
 
     /**
@@ -77,7 +77,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * The simulator should invoke this method when it wants to have a message arrive at some node.
      */
     fun receive(message: Message<R>) {
-        BasicNotifier.notifyMessageReceived(MessageReceivedNotification(message))
+        BasicNotifier.notify(MessageReceivedNotification(message))
         protocol.process(message)
     }
 
