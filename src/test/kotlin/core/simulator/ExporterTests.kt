@@ -24,14 +24,14 @@ object ExporterTests : Spek({
      */
     fun message(): Message<Route> = Message(node(1), node(2), invalidRoute(), someExtender())
 
-    given("a new exporter using a RandomDelayGenerator") {
+    given("a new connection using a RandomDelayGenerator") {
 
         afterGroup {
             // Ensure engine is reset to default after finishing the test group
             Engine.resetToDefaults()
         }
 
-        val exporter = Exporter<Route>()
+        val connection = Connection<Route>()
         Engine.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
 
         on("exporting 100 messages") {
@@ -39,7 +39,7 @@ object ExporterTests : Spek({
             val times = ArrayList<Int>()
 
             for (i in 1..100) {
-                times.add(exporter.export(message()))
+                times.add(connection.send(message()))
             }
 
             it("keeps the deliver time of each message higher than the previous one") {

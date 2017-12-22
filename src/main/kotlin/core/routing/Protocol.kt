@@ -35,7 +35,7 @@ interface Protocol<R: Route> {
 
     /**
      * Have [node] advertise a destination and set [defaultRoute] as its default route to reach
-     * that destination. The [defaultRoute] is processed as a newly received route.
+     * that destination.
      */
     fun advertise(node: Node<R>, defaultRoute: R)
 

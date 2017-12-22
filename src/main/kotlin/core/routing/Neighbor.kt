@@ -1,6 +1,6 @@
 package core.routing
 
-import core.simulator.Exporter
+import core.simulator.Connection
 
 /**
  * Created on 19-07-17
@@ -9,14 +9,12 @@ import core.simulator.Exporter
  *
  * Data class containing all the attributes that define a neighbor.
  *
- * All nodes have a set of neighbors. A neighbor is another node in the topology.
- *
- * @property node     the neighbor node
- * @property extender the extender to map routes exported from the local node to neighbor [node]
- * @property exporter the exporter to export routes from the local node to neighbor [node]
+ * @property node       the reference to the neighboring node
+ * @property extender   the extender to map routes exported from the local node to neighboring node
+ * @property connection the connection with neighbor [node], used to send messages to the neighbor
  */
 data class Neighbor<R: Route>(
         val node: Node<R>,
         val extender: Extender<R>,
-        val exporter: Exporter<R> = Exporter()
+        val connection: Connection<R> = Connection()
 )

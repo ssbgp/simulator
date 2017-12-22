@@ -66,7 +66,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
     private fun send(route: R, neighbor: Neighbor<R>) {
         val message = Message(this, neighbor.node, route, neighbor.extender)
 
-        neighbor.exporter.export(message)
+        neighbor.connection.send(message)
         BasicNotifier.notifyMessageSent(MessageSentNotification(message))
     }
 
@@ -86,7 +86,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      */
     override fun reset() {
         protocol.reset()
-        inNeighbors.forEach { it.exporter.reset() }
+        inNeighbors.forEach { it.connection.reset() }
     }
 
     /**

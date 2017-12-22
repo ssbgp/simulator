@@ -46,7 +46,7 @@ object BGPTests : Spek({
 
                 protocol.process(node, neighbor, importedRoute = BGPRoute.invalid())
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -86,7 +86,7 @@ object BGPTests : Spek({
                 val importedRoute = BGPRoute.with(localPref = 10, asPath = pathOf(BGPNode(0), node, neighbor))
                 protocol.process(node, neighbor, importedRoute)
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -203,7 +203,7 @@ object BGPTests : Spek({
 
                 protocol.process(node, neighbor, importedRoute = BGPRoute.invalid())
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -243,7 +243,7 @@ object BGPTests : Spek({
                 val importedRoute = BGPRoute.with(localPref = 5, asPath = pathOf(BGPNode(0), neighbor))
                 protocol.process(node, neighbor, importedRoute)
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -263,7 +263,7 @@ object BGPTests : Spek({
                 val importedRoute = BGPRoute.with(localPref = 20, asPath = pathOf(BGPNode(0), node, neighbor))
                 protocol.process(node, neighbor, importedRoute)
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -389,7 +389,7 @@ object BGPTests : Spek({
 
                 protocol.process(node, neighbor, importedRoute = BGPRoute.invalid())
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -429,7 +429,7 @@ object BGPTests : Spek({
                 val importedRoute = BGPRoute.with(localPref = 7, asPath = pathOf(BGPNode(0), neighbor))
                 protocol.process(node, neighbor, importedRoute)
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -449,7 +449,7 @@ object BGPTests : Spek({
                 val importedRoute = BGPRoute.with(localPref = 20, asPath = pathOf(BGPNode(0), node, neighbor))
                 protocol.process(node, neighbor, importedRoute)
 
-                it("does not export any route") {
+                it("does not send any route") {
                     verify(node, never()).send(any())
                 }
 
@@ -495,7 +495,7 @@ object BGPTests : Spek({
             }
         }
 
-        given("the MRAI timer has expired after previous export") {
+        given("the MRAI timer has expired after previous send") {
 
             val protocol = BGP(mrai = 10)
             val node = SpyBGPNode(protocol)
