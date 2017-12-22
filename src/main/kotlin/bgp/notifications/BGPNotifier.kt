@@ -21,29 +21,25 @@ object BGPNotifier: Notifier {
     //region Learn notification
 
     /**
-     * Registers a new learn listener.
-     *
-     * @param listener learn listener to register.
+     * Tell the notifier that [listener] wants to receive learn notifications. Afterwards, the
+     * [listener] will receive all learn notifications.
      */
     fun addLearnListener(listener: LearnListener) {
         learnListeners.add(listener)
     }
 
     /**
-     * Unregisters a new learn listener.
-     *
-     * @param listener learn listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive learn notifications.
+     * Afterwards, the [listener] will no longer receive learn notifications.
      */
     fun removeLearnListener(listener: LearnListener) {
         learnListeners.remove(listener)
     }
 
     /**
-     * Sends a learn notification to each learn listener.
-     *
-     * @param notification the learn notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to learn notifications.
      */
-    fun notifyLearn(notification: LearnNotification) {
+    fun notify(notification: LearnNotification) {
         learnListeners.forEach { it.notify(notification) }
     }
 
@@ -52,29 +48,25 @@ object BGPNotifier: Notifier {
     //region Detect notification
 
     /**
-     * Registers a new detect listener.
-     *
-     * @param listener detect listener to register.
+     * Tell the notifier that [listener] wants to receive detect notifications. Afterwards, the
+     * [listener] will receive all detect notifications.
      */
     fun addDetectListener(listener: DetectListener) {
         detectListeners.add(listener)
     }
 
     /**
-     * Unregisters a new detect listener.
-     *
-     * @param listener detect listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive detect notifications.
+     * Afterwards, the [listener] will no longer receive detect notifications.
      */
     fun removeDetectListener(listener: DetectListener) {
         detectListeners.remove(listener)
     }
 
     /**
-     * Sends a detect notification to each detect listener.
-     *
-     * @param notification the detect notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to detect notifications.
      */
-    fun notifyDetect(notification: DetectNotification) {
+    fun notify(notification: DetectNotification) {
         detectListeners.forEach { it.notify(notification) }
     }
 
@@ -83,29 +75,25 @@ object BGPNotifier: Notifier {
     //region Select notification
 
     /**
-     * Registers a new select listener.
-     *
-     * @param listener select listener to register.
+     * Tell the notifier that [listener] wants to receive select notifications. Afterwards, the
+     * [listener] will receive all select notifications.
      */
     fun addSelectListener(listener: SelectListener) {
         selectListeners.add(listener)
     }
 
     /**
-     * Unregisters a new select listener.
-     *
-     * @param listener select listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive select notifications.
+     * Afterwards, the [listener] will no longer receive select notifications.
      */
     fun removeSelectListener(listener: SelectListener) {
         selectListeners.remove(listener)
     }
 
     /**
-     * Sends a select notification to each select listener.
-     *
-     * @param notification the select notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to select notifications.
      */
-    fun notifySelect(notification: SelectNotification) {
+    fun notify(notification: SelectNotification) {
         selectListeners.forEach { it.notify(notification) }
     }
 
@@ -114,29 +102,25 @@ object BGPNotifier: Notifier {
     //region Export notification
 
     /**
-     * Registers a new export listener.
-     *
-     * @param listener export listener to register.
+     * Tell the notifier that [listener] wants to receive export notifications. Afterwards, the
+     * [listener] will receive all export notifications.
      */
     fun addExportListener(listener: ExportListener) {
         exportListeners.add(listener)
     }
 
     /**
-     * Unregisters a new export listener.
-     *
-     * @param listener export listener to unregister.
+     * Tell the notifier that [listener] no longer wants to receive export notifications.
+     * Afterwards, the [listener] will no longer receive export notifications.
      */
     fun removeExportListener(listener: ExportListener) {
         exportListeners.remove(listener)
     }
 
     /**
-     * Sends a export notification to each export listener.
-     *
-     * @param notification the export notification to send to each registered listener.
+     * Sends [notification] to all listeners listening to export notifications.
      */
-    fun notifyExport(notification: ExportNotification) {
+    fun notify(notification: ExportNotification) {
         exportListeners.forEach { it.notify(notification) }
     }
 

@@ -99,7 +99,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         val previousSelectedRoute = routingTable.getSelectedRoute()
 
         val learnedRoute = learn(node, neighbor, importedRoute)
-        BGPNotifier.notifyLearn(LearnNotification(node, learnedRoute, neighbor))
+        BGPNotifier.notify(LearnNotification(node, learnedRoute, neighbor))
 
         val updated = routingTable.update(neighbor, learnedRoute)
 
@@ -109,7 +109,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         if (wasSelectedRouteUpdated) {
 
             val selectedRoute = routingTable.getSelectedRoute()
-            BGPNotifier.notifySelect(
+            BGPNotifier.notify(
                     SelectNotification(node, selectedRoute, previousSelectedRoute))
 
             export(node)
@@ -172,7 +172,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
 
         // Export the route currently selected
         node.send(selectedRoute)
-        BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
+        BGPNotifier.notify(ExportNotification(node, selectedRoute))
         lastExportedRoute = selectedRoute
 
         if (mrai > 0) {
