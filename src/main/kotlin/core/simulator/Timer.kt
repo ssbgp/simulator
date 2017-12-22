@@ -5,21 +5,16 @@ package core.simulator
  *
  * @author David Fialho
  *
+ *
+ *
  * A time starts in expired mode
  * The timer performs the specified action action whe it expires.
+ *
+ * @property isRunning flag indicating whether or not the timer is running
  */
 interface Timer {
 
-    // Flag indicating if the time has expired or not
-    val expired: Boolean
-
-    /**
-     * Starts the timer if the timer has not expired. The timer is set to 'not expired' after calling start().
-     *
-     * @throws IllegalStateException if the timer has not expired yet
-     */
-    @Throws(IllegalStateException::class)
-    fun start()
+    val isRunning: Boolean
 
     /**
      * Cancels the timer if the timer as not expired yet.
@@ -49,43 +44,35 @@ interface Timer {
      * Timer implementation that represented an enabled timer. That is, it is a timer that actually works. Sew the
      * DisabledTimer below to understand what it means to say a timer is enabled/disabled.
      */
-    private class EnabledTimer(val duration: Time, private val action: () -> Unit) : Timer {
+    private class EnabledTimer(duration: Time, private val action: () -> Unit) : Timer {
 
-        // At first the timer is set as expired to indicate that is available to be started
-        override var expired = true
+        override var isRunning: Boolean = true
             private set
 
-        // Flags used to indicate if a timer was canceled
-        private var canceled = false
+        private var isCanceled = false
 
-        /**
-         * Starts the timer. Started timer will expire 'duration' units of time from now.
-         */
-        @Throws(IllegalStateException::class)
-        override fun start() {
-
-            if (!expired) throw IllegalStateException("Can not start an expired timer")
-
+        init {
             Engine.scheduler.scheduleFromNow(TimerExpiredEvent(this), duration)
-            expired = false
         }
 
         /**
-         * Avoids the action of the time being performed when the timer expires. If the timer has already expired
-         * then it does nothing.
+         * Cancels the timer. If called before the timer expired, then the action of the timer is
+         * not executed when this timer does expire. After calling [cancel] the timer stops running.
          */
         override fun cancel() {
-            if (!expired) canceled = true
+            isCanceled = true
+            isRunning = false
         }
 
         /**
-         * Should be called when the timer expires. It calls the action and sets the timer as 'expired'.
+         * Called when the timer expires to perform [action]. The [action] is performed if the
+         * timer was not canceled.
          */
         override fun onExpired() {
-
-            expired = true
-            if (!canceled) action()
-            canceled = false
+            if (!isCanceled) {
+                isRunning = false
+                action()
+            }
         }
 
     }
@@ -97,22 +84,11 @@ interface Timer {
      */
     private object DisabledTimer : Timer {
 
-        // A disabled timer is never expired
-        override val expired: Boolean = true
+        // A disabled timer never runs
+        override val isRunning: Boolean = false
 
-        /**
-         * Does not start anything.
-         */
-        override fun start() = Unit
-
-        /**
-         * Does nothing because a disabled timer itself does nothing.
-         */
         override fun cancel() = Unit
 
-        /**
-         * Does nothing, because this should never be called.
-         */
         override fun onExpired() = Unit
 
     }

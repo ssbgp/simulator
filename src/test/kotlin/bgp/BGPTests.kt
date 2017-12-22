@@ -490,8 +490,8 @@ object BGPTests : Spek({
             }
 
             it("starts a new MRAI timer") {
-                assertThat(protocol.mraiTimer.expired,
-                        Is(false))
+                assertThat(protocol.mraiTimer.isRunning,
+                        Is(true))
             }
         }
 
@@ -516,8 +516,8 @@ object BGPTests : Spek({
             }
 
             it("starts a new MRAI timer") {
-                assertThat(protocol.mraiTimer.expired,
-                        Is(false))
+                assertThat(protocol.mraiTimer.isRunning,
+                        Is(true))
             }
         }
 
@@ -548,8 +548,8 @@ object BGPTests : Spek({
                 }
 
                 it("does start a new MRAI timer") {
-                    assertThat(protocol.mraiTimer.expired,
-                            Is(false))
+                    assertThat(protocol.mraiTimer.isRunning,
+                            Is(true))
                 }
             }
         }
