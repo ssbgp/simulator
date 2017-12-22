@@ -77,7 +77,6 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * The simulator should invoke this method when it wants to have a message arrive at some node.
      */
     fun receive(message: Message<R>) {
-        Notifier.notify(MessageReceivedNotification(message))
         protocol.process(message)
     }
 
