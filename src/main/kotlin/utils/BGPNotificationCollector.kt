@@ -9,17 +9,14 @@ import core.simulator.notifications.Notification
  * @author David Fialho
  */
 class BGPNotificationCollector(val withOutput: Boolean): NotificationCollector(),
-        ImportListener, LearnListener, DetectListener, SelectListener, ExportListener,
-        ReEnableListener {
+        LearnListener, DetectListener, SelectListener, ExportListener {
 
     //region Lists containing all notifications
 
-    val importNotifications = ArrayList<ImportNotification>()
     val learnNotifications = ArrayList<LearnNotification>()
     val detectNotifications = ArrayList<DetectNotification>()
     val selectNotifications = ArrayList<SelectNotification>()
     val exportNotifications = ArrayList<ExportNotification>()
-    val reEnableNotifications = ArrayList<ReEnableNotification>()
 
     //endregion
 
@@ -27,33 +24,24 @@ class BGPNotificationCollector(val withOutput: Boolean): NotificationCollector()
 
     override fun register() {
         super.register()
-        BGPNotifier.addImportListener(this)
         BGPNotifier.addLearnListener(this)
         BGPNotifier.addDetectListener(this)
         BGPNotifier.addSelectListener(this)
         BGPNotifier.addExportListener(this)
-        BGPNotifier.addReEnableListener(this)
 
     }
 
     override fun unregister() {
         super.unregister()
-        BGPNotifier.removeImportListener(this)
         BGPNotifier.removeLearnListener(this)
         BGPNotifier.removeDetectListener(this)
         BGPNotifier.removeSelectListener(this)
         BGPNotifier.removeExportListener(this)
-        BGPNotifier.removeReEnableListener(this)
     }
 
     //endregion
 
     //region Notify methods
-
-    override fun notify(notification: ImportNotification) {
-        importNotifications.add(notification)
-        print(notification)
-    }
 
     override fun notify(notification: LearnNotification) {
         learnNotifications.add(notification)
@@ -74,12 +62,6 @@ class BGPNotificationCollector(val withOutput: Boolean): NotificationCollector()
         exportNotifications.add(notification)
         print(notification)
     }
-
-    override fun notify(notification: ReEnableNotification) {
-        reEnableNotifications.add(notification)
-        print(notification)
-    }
-
     private fun print(notification: Notification) {
         if (withOutput) {
             println("time=${notification.time}: $notification")

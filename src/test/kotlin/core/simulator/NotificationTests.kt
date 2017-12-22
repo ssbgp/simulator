@@ -55,10 +55,6 @@ object NotificationsTests: Spek({
                 assertThat(collector.messageReceivedNotifications.size, Is(1))
             }
 
-            it("issues import notification once") {
-                assertThat(collector.importNotifications.size, Is(1))
-            }
-
             it("issues learn notification twice") {
                 assertThat(collector.learnNotifications.size, Is(2))
             }
@@ -110,10 +106,6 @@ object NotificationsTests: Spek({
 
             it("issues message received notification once") {
                 assertThat(collector.messageReceivedNotifications.size, Is(8))
-            }
-
-            it("issues import notification 8 times") {
-                assertThat(collector.importNotifications.size, Is(8))
             }
 
             it("issues learn notification 9 times") {

@@ -81,10 +81,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      * @param message the message to be processed
      */
     override fun process(message: Message<BGPRoute>) {
-
         val importedRoute = import(message.sender, message.route, message.extender)
-        BGPNotifier.notifyImport(ImportNotification(message.recipient, importedRoute, message.sender))
-
         process(message.recipient, message.sender, importedRoute)
     }
 
