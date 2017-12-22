@@ -5,26 +5,19 @@ package core.simulator
  *
  * @author David Fialho
  *
+ * A [Timer] is used to schedule an action to be performed after some period of time.
+ * Timer objects are one-time use objects. That is, a timer starts immediately after it is
+ * created and it can only be started once. After expiring, that object is completely useless.
  *
- *
- * A time starts in expired mode
- * The timer performs the specified action action whe it expires.
+ * There are two [Timer] implementations: EnabledTimer and DisabledTimer. The former is the
+ * actual implementation of timer. The latter is just a dummy implementation to represent a timer
+ * that is disabled, thus, never runs.
  *
  * @property isRunning flag indicating whether or not the timer is running
  */
-interface Timer {
+sealed class Timer {
 
-    val isRunning: Boolean
-
-    /**
-     * Cancels the timer if the timer as not expired yet.
-     */
-    fun cancel()
-
-    /**
-     * Should be called when the timer expires.
-     */
-    fun onExpired()
+    abstract val isRunning: Boolean
 
     companion object Factory {
 
@@ -41,10 +34,16 @@ interface Timer {
     }
 
     /**
-     * Timer implementation that represented an enabled timer. That is, it is a timer that actually works. Sew the
-     * DisabledTimer below to understand what it means to say a timer is enabled/disabled.
+     * Cancels the timer if the timer as not expired yet.
      */
-    private class EnabledTimer(duration: Time, private val action: () -> Unit) : Timer {
+    abstract fun cancel()
+
+    /**
+     * Should be called when the timer expires.
+     */
+    abstract fun onExpired()
+
+    private class EnabledTimer(duration: Time, private val action: () -> Unit) : Timer() {
 
         override var isRunning: Boolean = true
             private set
@@ -77,12 +76,7 @@ interface Timer {
 
     }
 
-    /**
-     * A disabled timer is a timer that does not work. That is, calling start does not start any timer.
-     * Providing this timer implementation to an object is the same thing as saying that the timer used by that
-     * object is disabled.
-     */
-    private object DisabledTimer : Timer {
+    private object DisabledTimer : Timer() {
 
         // A disabled timer never runs
         override val isRunning: Boolean = false
