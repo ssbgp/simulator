@@ -11,13 +11,13 @@ package core.routing
  * with their neighbors. A routing message
  *
  * @property sender   the node that sent the message
- * @property receiver the node to receive the message
+ * @property recipient the node to receive the message
  * @property route    the route sent by the sender
- * @property extender the extender used to map [route] to the learned route at the [receiver]
+ * @property extender the extender used to map [route] to the learned route at the [recipient]
  */
 data class Message<R: Route>(
         val sender: Node<R>,
-        val receiver: Node<R>,
+        val recipient: Node<R>,
         val route: R,
         val extender: Extender<R>
 )

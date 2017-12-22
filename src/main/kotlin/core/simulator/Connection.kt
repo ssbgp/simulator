@@ -37,7 +37,7 @@ class Connection<R: Route> {
         val delay = Engine.messageDelayGenerator.nextDelay()
         val deliverTime = maxOf(Engine.scheduler.time + delay, lastDeliverTime) + 1
 
-        Engine.scheduler.schedule(ExportEvent(message), deliverTime)
+        Engine.scheduler.schedule(MessageEvent(message), deliverTime)
         lastDeliverTime = deliverTime
 
         return deliverTime

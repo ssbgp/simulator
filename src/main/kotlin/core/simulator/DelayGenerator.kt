@@ -4,22 +4,17 @@ package core.simulator
  * Created on 22-07-2017
  *
  * @author David Fialho
+ *
+ * Interface for delay generators. All delay generator classes should implement this interface.
+ *
+ * @property seed the seed used to generate the delays
+ * @property min  the minimum delay value the generator will generate
+ * @property max  the maximum delay value the generator will generate
  */
 interface DelayGenerator {
 
-    /**
-     * The seed used to generate the delays.
-     */
     val seed: Long
-
-    /**
-     * Minimum delay that the generator will generate.
-     */
     val min: Time
-
-    /**
-     * Maximum delay that the generator will generate.
-     */
     val max: Time
 
     /**
@@ -28,16 +23,13 @@ interface DelayGenerator {
     fun nextDelay(): Time
 
     /**
-     * Resets the delay generator.
-     *
-     * The general contract of reset is that it alters the state of the delay generator object so as to be in
-     * exactly the same state as if it had just been created and set to use the specified seed. Thus, future calls to
-     * nextDelay() should return the same values as if the generator was just created.
+     * Resets the delay generator. As a result, after calling [reset] the generator will generate
+     * the same sequence of delays it generated after being created.
      */
     fun reset()
 
     /**
-     * Generates a new seed for the delay generator and sets the new seed as the generator's seed.
+     * Generates a new seed. From this point on, delays will be generated from the new seed.
      */
     fun generateNewSeed()
 
