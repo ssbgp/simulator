@@ -1,13 +1,8 @@
 package core.routing
 
 /**
- * Created on 21-07-2017
- *
- * @author David Fialho
- *
- * A route selector is responsible for selecting the most preferred route in a routing [table],
- * according to a [compare] function. This way, the selection logic is separated from the storage
- * logic.
+ * A RouteSelector is responsible for selecting the most preferred route in a routing [table],
+ * according to a [compare] function.
  *
  * The [compare] function should take two routes and return an integer value to indicate their
  * order:
@@ -22,20 +17,16 @@ package core.routing
  * possible. Warning: DO NOT update the routing table outside of the selector, since doing this
  * will hide routes from the selector, which will probably lead to unexpected behavior.
  *
- * The constructor takes the routing table holding the routes, a forceSelect flag, and a compare method. If the force
- * reselect flag is set to true it will force the selector to reselect the route/neighbor based on the initial routes of
- * the given table. By default, the flag is set to true. This flag should be set to false if and only if you are
- * sure the table contains only invalid routes. The compare method should take to routes and compare their
- * preferences. It should as a common compare method which returns a positive value if the left route has higher
- * preference than the right route, 0 if they have the same preference and a negative value if the left route has a
- * lower preference than the right route.
- *
  * @property table the underlying routing table that actually stores the routes
  *
  * @constructor Creates a new selector around the given [table]. It should not be used directly.
  * Use the factory methods instead.
  * @param forceReselect if true, then the selector inspects all routes in the table and selects
  * the most preferred route. Otherwise, the selector starts off with no selected route.
+ *
+ * Created on 21-07-2017
+ *
+ * @author David Fialho
  */
 class RouteSelector<R : Route> private constructor(
         val table: RoutingTable<R>,

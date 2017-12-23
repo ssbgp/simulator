@@ -1,20 +1,28 @@
 package core.routing
 
 /**
- * Created on 21-07-2017
+ * A RoutingTable is a data structure that associates neighbors to routes.
  *
- * @author David Fialho
+ * A routing table stores an entry for each neighbor. Each entry stores a candidate route and a set
+ * of attributes. Currently, the only attribute supported is a flag indicating whether or not the
+ * corresponding neighbor was enabled or not.
  *
- * The routing table is a data structure to store routes available at a node. For each neighbor,
- * it stores a candidate route and some attributes. Currently, the only attribute supported is a
- * flag indicating whether or not the corresponding neighbor was enabled or not.
+ * A routing table can hold a single type of route given by [R]. Given that different route
+ * implementations have different definitions for an invalid route, the routing table requires a
+ * [invalidRoute] to use as invalid route. The [invalidRoute] is assigned to a neighbor when the
+ * table does not hold any candidate route for that neighbor.
  *
- * By default, all neighbors are assigned the [invalidRoute] and are enabled.
+ * By default, all neighbors are associated with the [invalidRoute] and are enabled.
  *
- * It does not perform any route selection operations. For that @see [RouteSelector].
+ * The routing table does not perform any selection operations over its routes. For that see
+ * [RouteSelector].
  *
  * @property invalidRoute the route to use as invalid route
  * @property size         the number of route entries stored in this routing table
+ *
+ * Created on 21-07-2017
+ *
+ * @author David Fialho
  */
 class RoutingTable<R: Route> private constructor(
         val invalidRoute: R,

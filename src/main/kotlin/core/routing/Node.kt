@@ -1,9 +1,6 @@
 package core.routing
 
 import core.simulator.Advertiser
-import core.simulator.notifications.Notifier
-import core.simulator.notifications.MessageReceivedNotification
-import core.simulator.notifications.MessageSentNotification
 
 /**
  * Alias used for node IDs
@@ -12,20 +9,20 @@ import core.simulator.notifications.MessageSentNotification
 typealias NodeID = Int
 
 /**
- * Created on 19-07-17
+ * A Node is the fundamental element of a topology.
  *
- * @author David Fialho
- *
- * A node is the fundamental element of a topology. It can represent any entity that is able to
- * speak with other nodes through a common routing protocol.
+ * A node can represent any entity that is able to speak with other nodes through a common
+ * routing protocol. The protocol deployed at each node does not need be exactly the same. The
+ * only requirement is that the routes exchanged are of the same type.
  *
  * Each node has unique ID. This ID is only unique for nodes within the same topology.
  *
- * The protocol deployed at each node does not need be exactly the same. The only requirement is
- * that the routes exchanged are of the same type.
- *
  * @property id       the ID of the node, which uniquely identifies it inside a topology
  * @property protocol the protocol deployed by this node
+ *
+ * Created on 19-07-17
+ *
+ * @author David Fialho
  */
 class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Advertiser<R> {
 

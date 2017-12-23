@@ -1,12 +1,9 @@
 package core.routing
 
 /**
- * Created on 21-07-2017
+ * A Path is a sequence of nodes that form a path in a network.
  *
- * @author David Fialho
- *
- * A Path is a sequence of nodes that form a path in a network. Nodes appended to a path are
- * kept in the same order as they are added.
+ * Nodes appended to a path are kept in the same order as they are added.
  *
  * Path instances are immutable! All operations that would modify a path (@see [Path.append]) do
  * not actually modify that path instance. Instead, they generate a new instance with the
@@ -20,6 +17,10 @@ package core.routing
  * order. It does not perform any operations that require knowing the type of route.
  *
  * @property size the number of nodes in the path
+ *
+ * Created on 21-07-2017
+ *
+ * @author David Fialho
  */
 class Path internal constructor(private val nodes: List<Node<*>>) : Iterable<Node<*>> {
 

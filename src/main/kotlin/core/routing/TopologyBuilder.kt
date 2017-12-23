@@ -11,16 +11,19 @@ class ElementExistsException(message: String) : Exception(message)
 class ElementNotFoundException(message: String) : Exception(message)
 
 /**
+ * A builder for building topologies.
+ *
+ * The [Topology] class is immutable. However, building a topology is usually a multi-step
+ * process, because it requires defining all nodes it contains and the interconnections between
+ * them. This builder enables doing just that. It is implemented following the builder pattern.
+ *
+ * It provides methods to add nodes by ID and to define the connections between them. Finally, it
+ * includes a [build] method, which builds a topology according to the information passed to the
+ * builder.
+ *
  * Created on 21-07-2017
  *
  * @author David Fialho
- *
- * A builder for a topology. The [Topology] class is immutable. This builder must used to build
- * topologies.
- *
- * This class is implemented following the builder pattern. It provides methods to build a topology
- * incrementally and a [build] method to create the topology instance based on the builder's
- * current state.
  */
 class TopologyBuilder<R : Route> {
 

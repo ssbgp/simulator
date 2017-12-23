@@ -1,12 +1,9 @@
 package core.routing
 
 /**
- * Created on 19-07-17
+ * Base interface for any protocol implementation.
  *
- * @author David Fialho
- *
- * This is the basic interface for any protocol implementation. All protocol implementations must
- * implement this interface.
+ * All protocol implementations must implement this interface.
  *
  * Routing protocols may require knowledge about in-neighbors. Depending on the protocol
  * implementation, this neighbors may need to be stored/organized in different ways for the
@@ -15,6 +12,10 @@ package core.routing
  *
  * @property inNeighbors collection of all in-neighbors of the node deploying this protocol
  * @property selectedRoute route selected by this protocol
+ *
+ * Created on 19-07-17
+ *
+ * @author David Fialho
  */
 interface Protocol<R: Route> {
 

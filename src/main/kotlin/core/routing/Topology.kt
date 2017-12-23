@@ -1,22 +1,23 @@
 package core.routing
 
 /**
- * Created on 16-07-2017.
- *
- * @author David Fialho
- *
- * Topology is an high-level abstraction of a network composed of nodes and their interconnections.
+ * A Topology is an high-level abstraction of a network composed of nodes and their
+ * interconnections.
  *
  * The topology class is immutable. That is, nodes and links can not be added or removed from the
  * topology. A topology must be built using a topology builder, @see [TopologyBuilder].
  *
- * Each node in a topology is uniquely identified by its ID. Nodes can be accessed using the
- * Topology's get operator.
+ * Each node in a topology is uniquely identified by its ID. The topology provides access to its
+ * nodes from an ID through its [get] operator.
  *
  * @property size      the number of nodes in the topology
  * @property linkCount the number of links in the topology
  * @property nodes     collection containing all nodes in the topology in no particular order
  * @property links     collection containing all links in the topology in no particular order
+ *
+ * Created on 16-07-2017.
+ *
+ * @author David Fialho
  */
 class Topology<R : Route>(private val idToNode: Map<NodeID, Node<R>>) {
 
