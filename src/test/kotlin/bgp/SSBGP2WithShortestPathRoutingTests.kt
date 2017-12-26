@@ -1,7 +1,7 @@
 package bgp
 
 import core.routing.pathOf
-import core.simulator.Engine
+import core.simulator.Simulator
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.nullValue
 import org.jetbrains.spek.api.Spek
@@ -29,7 +29,7 @@ object SSBGP2WithShortestPathRoutingTests: Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.reset()
         }
 
@@ -106,7 +106,7 @@ object SSBGP2WithShortestPathRoutingTests: Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.reset()
         }
 
@@ -167,7 +167,7 @@ object SSBGP2WithShortestPathRoutingTests: Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.reset()
         }
 
@@ -226,7 +226,7 @@ object SSBGP2WithShortestPathRoutingTests: Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.reset()
         }
 

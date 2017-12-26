@@ -27,12 +27,11 @@ object ExporterTests : Spek({
     given("a new connection using a RandomDelayGenerator") {
 
         afterGroup {
-            // Ensure engine is reset to default after finishing the test group
-            Engine.resetToDefaults()
+            Simulator.resetToDefaults()
         }
 
         val connection = Connection<Route>()
-        Engine.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
+        Simulator.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
 
         on("exporting 100 messages") {
 

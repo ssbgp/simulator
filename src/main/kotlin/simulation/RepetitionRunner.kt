@@ -4,7 +4,7 @@ import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
 import core.simulator.DelayGenerator
-import core.simulator.Engine
+import core.simulator.Simulator
 import core.simulator.Time
 import io.KeyValueWriter
 import ui.Application
@@ -30,8 +30,8 @@ class RepetitionRunner<R: Route>(
     /**
      * Runs the specified execution the number of times specified in the [repetitions] property.
      *
-     * The engine's configurations may be modified during the run. At the end of this method the
-     * engine is always reverted to its defaults.
+     * The simulator's configurations may be modified during the run. At the end of this method the
+     * simulator is always reverted to its defaults.
      *
      * @param execution the execution that will be executed in each run
      * @param metadata  a metadata instance that may already contain some meta values
@@ -39,7 +39,7 @@ class RepetitionRunner<R: Route>(
     override fun run(execution: Execution<R>, metadata: Metadata) {
 
         val startInstant = Instant.now()
-        Engine.messageDelayGenerator = messageDelayGenerator
+        Simulator.messageDelayGenerator = messageDelayGenerator
 
         application.run {
 
@@ -55,12 +55,12 @@ class RepetitionRunner<R: Route>(
                     // TODO @refactor - put stubs in the topology itself to avoid having this
                     //                  reset() method in the advertiser interface
                     advertisements.forEach { it.advertiser.reset() }
-                    Engine.messageDelayGenerator.generateNewSeed()
+                    Simulator.messageDelayGenerator.generateNewSeed()
                 }
 
             } finally {
-                // Make sure that the engine is always reverted to the defaults after running
-                Engine.resetToDefaults()
+                // Make sure that the simulator is always reverted to the defaults after running
+                Simulator.resetToDefaults()
             }
         }
 

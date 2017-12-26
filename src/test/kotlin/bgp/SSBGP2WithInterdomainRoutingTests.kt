@@ -2,7 +2,7 @@ package bgp
 
 import bgp.policies.interdomain.customerRoute
 import bgp.policies.interdomain.peerplusRoute
-import core.simulator.Engine
+import core.simulator.Simulator
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -37,7 +37,7 @@ object SSBGP2WithInterdomainRoutingTests: Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.reset()
         }
 
@@ -98,7 +98,7 @@ object SSBGP2WithInterdomainRoutingTests: Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.reset()
         }
 

@@ -30,7 +30,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.protocol.reset() }
         }
 
@@ -107,7 +107,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.protocol.reset() }
         }
 
@@ -168,7 +168,7 @@ object SSBGPWithShortestPathRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.protocol.reset() }
         }
 

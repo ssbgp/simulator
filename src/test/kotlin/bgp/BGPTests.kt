@@ -2,7 +2,7 @@ package bgp
 
 import com.nhaarman.mockito_kotlin.*
 import core.routing.*
-import core.simulator.Engine
+import core.simulator.Simulator
 import core.simulator.Time
 import org.hamcrest.MatcherAssert.assertThat
 import org.jetbrains.spek.api.Spek
@@ -27,7 +27,7 @@ object BGPTests : Spek({
         val neighbor = BGPNode(id = 2)
 
         // Make sure the scheduler is kept clean for the next tests
-        afterGroup { Engine.scheduler.reset() }
+        afterGroup { Simulator.scheduler.reset() }
 
         // Reset spies
         afterEachTest {
@@ -476,7 +476,7 @@ object BGPTests : Spek({
         val exportedRoute = BGPRoute.with(localPref = 10, asPath = pathOf(BGPNode(0), neighbor))
 
         // Make sure the scheduler is kept clean for the next tests
-        afterGroup { Engine.scheduler.reset() }
+        afterGroup { Simulator.scheduler.reset() }
 
         given("node never exported a route") {
 

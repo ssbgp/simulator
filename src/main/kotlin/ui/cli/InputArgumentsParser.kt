@@ -2,7 +2,7 @@ package ui.cli
 
 import bgp.BGPRoute
 import core.routing.NodeID
-import core.simulator.Engine
+import core.simulator.Simulator
 import org.apache.commons.cli.*
 import simulation.BGPAdvertisementInitializer
 import simulation.Initializer
@@ -171,7 +171,7 @@ class InputArgumentsParser {
         }
 
         if (commandLine.hasOption(VERSION)) {
-            println("SS-BGP Simulator: ${Engine.version()}")
+            println("SS-BGP Simulator: ${Simulator.version()}")
             exitProcess(0)
         }
 

@@ -18,7 +18,7 @@ import org.hamcrest.Matchers.`is` as Is
  */
 object NotificationsTests: Spek({
 
-    context("engine") {
+    context("the simulator") {
 
         on("simulating topology with only one link") {
 

@@ -51,7 +51,7 @@ sealed class Timer {
         private var isCanceled = false
 
         init {
-            Engine.scheduler.scheduleFromNow(TimerExpiredEvent(this), duration)
+            Simulator.scheduler.scheduleFromNow(TimerExpiredEvent(this), duration)
         }
 
         /**
