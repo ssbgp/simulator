@@ -35,10 +35,9 @@ interface Protocol<R: Route> {
     fun addInNeighbor(neighbor: Neighbor<R>)
 
     /**
-     * Have [node] advertise a destination and set [defaultRoute] as its default route to reach
-     * that destination.
+     * Sets the local [route] for [node].
      */
-    fun advertise(node: Node<R>, defaultRoute: R)
+    fun setLocalRoute(node: Node<R>, route: R)
 
     /**
      * Have the protocol process and incoming [message].

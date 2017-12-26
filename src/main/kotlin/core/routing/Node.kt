@@ -47,7 +47,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * according to its deployed protocol specifications.
      */
     override fun advertise(defaultRoute: R) {
-        protocol.advertise(this, defaultRoute)
+        protocol.setLocalRoute(this, defaultRoute)
     }
 
     /**

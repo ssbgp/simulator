@@ -64,14 +64,15 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
     }
 
     /**
-     * Makes [node] advertise a destination and sets [defaultRoute] as the default route to reach that destination.
-     * The default route is immediately exported if it becomes the selected route.
+     * Sets [route] as the the local route of [node]. The local route is handled as any other
+     * candidate route learned from a neighbor. Therefore, this action may lead to a newly
+     * exported route.
      *
-     * @param node         the node to advertise destination
-     * @param defaultRoute the default route to reach the destination
+     * @param node  the node to set local route for
+     * @param route the route to set as the local route
      */
-    override fun advertise(node: Node<BGPRoute>, defaultRoute: BGPRoute) {
-        process(node, node, defaultRoute)
+    override fun setLocalRoute(node: Node<BGPRoute>, route: BGPRoute) {
+        process(node, node, route)
     }
 
     /**

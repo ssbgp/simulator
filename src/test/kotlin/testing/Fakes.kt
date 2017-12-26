@@ -41,7 +41,7 @@ object FakeProtocol: Protocol<Route> {
         throw UnsupportedOperationException()
     }
 
-    override fun advertise(node: Node<Route>, defaultRoute: Route) {
+    override fun setLocalRoute(node: Node<Route>, route: Route) {
         throw UnsupportedOperationException()
     }
 
