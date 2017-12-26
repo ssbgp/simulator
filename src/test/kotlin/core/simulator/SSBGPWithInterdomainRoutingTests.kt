@@ -19,7 +19,7 @@ import org.hamcrest.Matchers.`is` as Is
 object SSBGPWithInterdomainRoutingTests : Spek({
 
     beforeEachTest {
-        Engine.resetToDefaults()
+        Simulator.resetToDefaults()
     }
 
     given("loop topology with customer to destination and peer+ around the cycle") {
@@ -42,7 +42,7 @@ object SSBGPWithInterdomainRoutingTests : Spek({
         val protocol = node.map { it.protocol as SSBGP }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.protocol.reset() }
         }
 
@@ -106,7 +106,7 @@ object SSBGPWithInterdomainRoutingTests : Spek({
         val protocol = node.map { it.protocol as SSBGP }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.protocol.reset() }
         }
 

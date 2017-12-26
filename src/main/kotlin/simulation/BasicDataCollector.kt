@@ -53,24 +53,24 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
      * Adds the collector as a listener for notifications the collector needs to listen to collect data.
      */
     override fun register() {
-        BasicNotifier.addStartListener(this)
-        BasicNotifier.addMessageSentListener(this)
+        Notifier.addStartListener(this)
+        Notifier.addMessageSentListener(this)
         BGPNotifier.addExportListener(this)
         BGPNotifier.addDetectListener(this)
-        BasicNotifier.addThresholdReachedListener(this)
-        BasicNotifier.addEndListener(this)
+        Notifier.addThresholdReachedListener(this)
+        Notifier.addEndListener(this)
     }
 
     /**
      * Removes the collector from all notifiers
      */
     override fun unregister() {
-        BasicNotifier.removeStartListener(this)
-        BasicNotifier.removeMessageSentListener(this)
+        Notifier.removeStartListener(this)
+        Notifier.removeMessageSentListener(this)
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeDetectListener(this)
-        BasicNotifier.removeThresholdReachedListener(this)
-        BasicNotifier.removeEndListener(this)
+        Notifier.removeThresholdReachedListener(this)
+        Notifier.removeEndListener(this)
     }
 
     /**
@@ -96,7 +96,7 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     /**
      * Invoked to notify the listener of a new start notification.
      */
-    override fun notify(notification: StartNotification) {
+    override fun onStart(notification: StartNotification) {
         data.delaySeed = notification.seed
         nodeCount = notification.topology.size
     }
@@ -104,7 +104,7 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     /**
      * Invoked to notify the listener of a new message sent notification.
      */
-    override fun notify(notification: MessageSentNotification) {
+    override fun onMessageSent(notification: MessageSentNotification) {
         data.messageCount++
         data.totalTerminationTime = notification.time
     }
@@ -112,28 +112,28 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     /**
      * Invoked to notify the listener of a new export notification.
      */
-    override fun notify(notification: ExportNotification) {
+    override fun onExport(notification: ExportNotification) {
         terminationTimes[notification.node.id] = notification.time
     }
 
     /**
      * Invoked to notify the listener of a new detect notification.
      */
-    override fun notify(notification: DetectNotification) {
+    override fun onDetect(notification: DetectNotification) {
         data.detectionCount++
     }
 
     /**
      * Invoked to notify the listener of a new threshold reached notification.
      */
-    override fun notify(notification: ThresholdReachedNotification) {
+    override fun onThresholdReached(notification: ThresholdReachedNotification) {
         data.terminated = false
     }
 
     /**
      * Invoked to notify the listener of a new end notification.
      */
-    override fun notify(notification: EndNotification) {
+    override fun onEnd(notification: EndNotification) {
 
         // Count the nodes that were left disconnected when the simulation ended
         data.disconnectedCount = notification.topology.nodes

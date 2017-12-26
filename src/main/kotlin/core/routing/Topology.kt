@@ -1,25 +1,25 @@
 package core.routing
 
 /**
+ * A Topology is an high-level abstraction of a network composed of nodes and their
+ * interconnections.
+ *
+ * The topology class is immutable. That is, nodes and links can not be added or removed from the
+ * topology. A topology must be built using a topology builder, @see [TopologyBuilder].
+ *
+ * Each node in a topology is uniquely identified by its ID. The topology provides access to its
+ * nodes from an ID through its [get] operator.
+ *
+ * @property size      the number of nodes in the topology
+ * @property linkCount the number of links in the topology
+ * @property nodes     collection containing all nodes in the topology in no particular order
+ * @property links     collection containing all links in the topology in no particular order
+ *
  * Created on 16-07-2017.
  *
  * @author David Fialho
- *
- * Topology is an high-level abstraction of a network composed of nodes and their interconnections.
- * This interface defines the interface that is common to all topologies.
- *
- * Notice the Topology interface does not define any methods to add/remove nodes or links. Topology implementations
- * should be immutable! That is, there should be no way to add or remove nodes from the topology and the same should
- * be true for links. A topology should be built using a topology builder @see TopologyBuilder.
- *
- * Each node in a topology is uniquely identified by its ID. Therefore, the topology interface provides methods to
- * access topology nodes using their IDs.
- *
- * This interface takes a generic type N that extends from Node. N is the type of nodes that the topology holds.
- *
- * @property size the number of nodes in the topology
  */
-class Topology<R: Route>(private val idToNode: Map<NodeID, Node<R>>) {
+class Topology<R : Route>(private val idToNode: Map<NodeID, Node<R>>) {
 
     /**
      * Number of nodes in the topology.
@@ -30,7 +30,7 @@ class Topology<R: Route>(private val idToNode: Map<NodeID, Node<R>>) {
      * Number of links in the topology.
      */
     val linkCount: Int
-        get() = idToNode.flatMap { it.value.inNeighbors }.count()
+        get() = idToNode.map { it.value.inNeighbors }.count()
 
     /**
      * Collection containing all nodes in the topology in no particular order.
@@ -54,20 +54,25 @@ class Topology<R: Route>(private val idToNode: Map<NodeID, Node<R>>) {
             return links
         }
 
-
     /**
-     * Returns the node associated with the given ID.
-
-     * @param id the ID of the node to get from the network.
-     * @return the node associated with the given ID or null if the topology does not contain a node with such an ID.
+     * Returns the node with [id] or null if this topology does not contain any node with [id].
      */
     operator fun get(id: Int): Node<R>? = idToNode[id]
 
     /**
-     * Resets the topology state.
+     * Resets the topology state. It resets the state of all nodes in the topology.
      */
     fun reset() {
         nodes.forEach { it.reset() }
     }
 
 }
+
+/**
+ * Data class to represent an uni-directional link in a topology.
+ *
+ * @property tail     the node at the tail of the link
+ * @property head     the node at the head of the link
+ * @property extender the extender used to map routes exported by the head node to the tail node
+ */
+data class Link<R : Route>(val tail: Node<R>, val head: Node<R>, val extender: Extender<R>)

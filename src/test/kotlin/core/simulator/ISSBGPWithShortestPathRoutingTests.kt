@@ -35,7 +35,7 @@ object ISSBGPWithShortestPathRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.protocol.reset() }
         }
 

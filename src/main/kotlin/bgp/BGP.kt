@@ -10,19 +10,7 @@ import core.simulator.Timer
  *
  * @author David Fialho
  */
-abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Protocol<BGPRoute> {
-
-    /**
-     * This data structure contains all neighbors that the protocol needs to send routes to when a new
-     * route is selected.
-     */
-    protected val neighbors = ArrayList<Neighbor<BGPRoute>>()
-
-    /**
-     * Collection of all the in-neighbors added to the protocol.
-     */
-    override val inNeighbors: Collection<Neighbor<BGPRoute>>
-        get() = neighbors
+abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute> {
 
     /**
      * Routing table containing the candidate routes.
@@ -54,24 +42,15 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
     private var lastExportedRoute = BGPRoute.invalid()
 
     /**
-     * Adds a new in-neighbor for the protocol to export selected routes to.
+     * Sets [route] as the the local route of [node]. The local route is handled as any other
+     * candidate route learned from a neighbor. Therefore, this action may lead to a newly
+     * exported route.
      *
-     * It does not check if the neighbor was already added to the protocol. Thus, the same neighbor can be added
-     * twice, which means that it will be notified twice every time a new route is selected.
+     * @param node  the node to set local route for
+     * @param route the route to set as the local route
      */
-    override fun addInNeighbor(neighbor: Neighbor<BGPRoute>) {
-        neighbors.add(neighbor)
-    }
-
-    /**
-     * Makes [node] advertise a destination and sets [defaultRoute] as the default route to reach that destination.
-     * The default route is immediately exported if it becomes the selected route.
-     *
-     * @param node         the node to advertise destination
-     * @param defaultRoute the default route to reach the destination
-     */
-    override fun advertise(node: Node<BGPRoute>, defaultRoute: BGPRoute) {
-        process(node, node, defaultRoute)
+    override fun setLocalRoute(node: Node<BGPRoute>, route: BGPRoute) {
+        process(node, node, route)
     }
 
     /**
@@ -81,11 +60,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      * @param message the message to be processed
      */
     override fun process(message: Message<BGPRoute>) {
-
-        val importedRoute = import(message.sender, message.route, message.extender)
-        BGPNotifier.notifyImport(ImportNotification(message.receiver, importedRoute, message.sender))
-
-        process(message.receiver, message.sender, importedRoute)
+        process(message.recipient, message.sender, message.route)
     }
 
     /**
@@ -102,7 +77,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         val previousSelectedRoute = routingTable.getSelectedRoute()
 
         val learnedRoute = learn(node, neighbor, importedRoute)
-        BGPNotifier.notifyLearn(LearnNotification(node, learnedRoute, neighbor))
+        BGPNotifier.notify(LearnNotification(node, learnedRoute, neighbor))
 
         val updated = routingTable.update(neighbor, learnedRoute)
 
@@ -112,24 +87,12 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         if (wasSelectedRouteUpdated) {
 
             val selectedRoute = routingTable.getSelectedRoute()
-            BGPNotifier.notifySelect(
+            BGPNotifier.notify(
                     SelectNotification(node, selectedRoute, previousSelectedRoute))
 
             export(node)
             wasSelectedRouteUpdated = false
         }
-    }
-
-    /**
-     * Implements the process of importing a route.
-     * Returns the result of extending the given route with the given extender.
-     *
-     * @param sender   the node the sent the route
-     * @param route    the route received by the node (route obtained directly from the message)
-     * @param extender the extender used to import the route (extender included in the message)
-     */
-    protected fun import(sender: Node<BGPRoute>, route: BGPRoute, extender: Extender<BGPRoute>): BGPRoute {
-        return extender.extend(route, sender)
     }
 
     /**
@@ -161,21 +124,21 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      */
     protected fun export(node: Node<BGPRoute>) {
 
-        if (!mraiTimer.expired) {
-            // The MRAI timer is still running: no route is exported while the MRAI timer is running
+        if (mraiTimer.isRunning) {
+            // No route is exported while the MRAI timer is running
             return
         }
 
         val selectedRoute = routingTable.getSelectedRoute()
 
         if (selectedRoute == lastExportedRoute) {
-            // Do not export if the selected route is equal to the last route exported by the node
+            // Do not export the same route consecutively
             return
         }
 
         // Export the route currently selected
-        node.send(selectedRoute)
-        BGPNotifier.notifyExport(ExportNotification(node, selectedRoute))
+        node.export(selectedRoute)
+        BGPNotifier.notify(ExportNotification(node, selectedRoute))
         lastExportedRoute = selectedRoute
 
         if (mrai > 0) {
@@ -183,8 +146,6 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
             mraiTimer = Timer.enabled(mrai) {
                 export(node)    // when the timer expires
             }
-
-            mraiTimer.start()
         }
     }
 

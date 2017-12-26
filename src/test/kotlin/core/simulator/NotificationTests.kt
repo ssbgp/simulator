@@ -18,7 +18,7 @@ import org.hamcrest.Matchers.`is` as Is
  */
 object NotificationsTests: Spek({
 
-    context("engine") {
+    context("the simulator") {
 
         on("simulating topology with only one link") {
 
@@ -55,10 +55,6 @@ object NotificationsTests: Spek({
                 assertThat(collector.messageReceivedNotifications.size, Is(1))
             }
 
-            it("issues import notification once") {
-                assertThat(collector.importNotifications.size, Is(1))
-            }
-
             it("issues learn notification twice") {
                 assertThat(collector.learnNotifications.size, Is(2))
             }
@@ -71,7 +67,7 @@ object NotificationsTests: Spek({
                 assertThat(collector.selectNotifications.size, Is(2))
             }
 
-            it("issues export notification 2 times") {
+            it("issues send notification 2 times") {
                 // Although node 1 has no in-neighbors, two export notifications are sent
                 // This is because the export notification indicates that a node exports a
                 // route not that it actually sent any route to any neighbor.
@@ -112,10 +108,6 @@ object NotificationsTests: Spek({
                 assertThat(collector.messageReceivedNotifications.size, Is(8))
             }
 
-            it("issues import notification 8 times") {
-                assertThat(collector.importNotifications.size, Is(8))
-            }
-
             it("issues learn notification 9 times") {
                 assertThat(collector.learnNotifications.size, Is(9))
             }
@@ -128,7 +120,7 @@ object NotificationsTests: Spek({
                 assertThat(collector.selectNotifications.size, Is(7))
             }
 
-            it("issues export notification 7 times") {
+            it("issues send notification 7 times") {
                 assertThat(collector.exportNotifications.size, Is(7))
             }
         }
