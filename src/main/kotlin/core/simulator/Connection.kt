@@ -27,7 +27,7 @@ class Connection<R: Route> {
     private var lastDeliverTime = 0
 
     /**
-     * Sends a [message]through this connection. It subjects the message to a random delay
+     * Sends a [message] through this connection. It subjects the message to a random delay
      * obtained from the delay generator [Simulator.messageDelayGenerator].
      *
      * !! It adds an event to the scheduler [Simulator.scheduler] !!

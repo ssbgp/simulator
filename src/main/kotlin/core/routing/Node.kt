@@ -1,6 +1,5 @@
 package core.routing
 
-import bgp.BGPRoute
 import core.simulator.Advertiser
 
 /**
@@ -63,7 +62,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * Have this node send a messages containing the given [route] to a [neighbor].
      */
     private fun send(route: R, neighbor: Neighbor<R>) {
-        val message = Message(this, neighbor.node, route, neighbor.extender)
+        val message = Message(this, neighbor.node, neighbor.extender.extend(route, this))
 
         neighbor.connection.send(message)
     }

@@ -8,21 +8,18 @@ package core.routing
  * by messages.
  *
  * As with any message, a routing message holds the [sender] and [recipient] of the message. Most
- * importantly, a message carries a [route], sent by the [sender] to the [recipient], and an
- * [extender], which models how the sent [route] will be learned at the [recipient].
+ * importantly, a message carries a [route], sent by the [sender] to the [recipient].
  *
  * @property sender    the node that sent the message
  * @property recipient the node to receive the message
  * @property route     the route sent by the sender
- * @property extender  the extender used to map [route] to the learned route at the [recipient]
  *
  * Created on 21-07-2017
  *
  * @author David Fialho
  */
-data class Message<R: Route>(
+data class Message<R : Route>(
         val sender: Node<R>,
         val recipient: Node<R>,
-        val route: R,
-        val extender: Extender<R>
+        val route: R
 )

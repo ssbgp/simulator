@@ -10,7 +10,6 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import testing.invalidRoute
 import testing.node
-import testing.someExtender
 
 /**
  * Created on 22-07-2017
@@ -22,7 +21,7 @@ object ExporterTests : Spek({
     /**
      * Returns a message, any message.
      */
-    fun message(): Message<Route> = Message(node(1), node(2), invalidRoute(), someExtender())
+    fun message(): Message<Route> = Message(node(1), node(2), invalidRoute())
 
     given("a new connection using a RandomDelayGenerator") {
 

@@ -10,7 +10,7 @@ import core.simulator.Timer
  *
  * @author David Fialho
  */
-abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Protocol<BGPRoute> {
+abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>) : Protocol<BGPRoute> {
 
     /**
      * Routing table containing the candidate routes.
@@ -60,8 +60,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      * @param message the message to be processed
      */
     override fun process(message: Message<BGPRoute>) {
-        val importedRoute = import(message.sender, message.route, message.extender)
-        process(message.recipient, message.sender, importedRoute)
+        process(message.recipient, message.sender, message.route)
     }
 
     /**
@@ -94,18 +93,6 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
             export(node)
             wasSelectedRouteUpdated = false
         }
-    }
-
-    /**
-     * Implements the process of importing a route.
-     * Returns the result of extending the given route with the given extender.
-     *
-     * @param sender   the node the sent the route
-     * @param route    the route received by the node (route obtained directly from the message)
-     * @param extender the extender used to import the route (extender included in the message)
-     */
-    protected fun import(sender: Node<BGPRoute>, route: BGPRoute, extender: Extender<BGPRoute>): BGPRoute {
-        return extender.extend(route, sender)
     }
 
     /**
