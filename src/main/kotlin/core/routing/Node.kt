@@ -30,8 +30,9 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
     /**
      * Collection containing the in-neighbors of this node.
      */
+    val mutableInNeighbors = ArrayList<Neighbor<R>>()
     val inNeighbors: Collection<Neighbor<R>>
-        get() = protocol.inNeighbors
+        get() = mutableInNeighbors
 
     /**
      * Adds a new in-neighbor to this node.
@@ -40,7 +41,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
      * @param extender the extender used to map routes from this node to the in-neighbor
      */
     fun addInNeighbor(neighbor: Node<R>, extender: Extender<R>) {
-        protocol.addInNeighbor(Neighbor(neighbor, extender))
+        mutableInNeighbors.add(Neighbor(neighbor, extender))
     }
 
     /**

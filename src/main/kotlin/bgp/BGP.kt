@@ -13,18 +13,6 @@ import core.simulator.Timer
 abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Protocol<BGPRoute> {
 
     /**
-     * This data structure contains all neighbors that the protocol needs to send routes to when a new
-     * route is selected.
-     */
-    protected val neighbors = ArrayList<Neighbor<BGPRoute>>()
-
-    /**
-     * Collection of all the in-neighbors added to the protocol.
-     */
-    override val inNeighbors: Collection<Neighbor<BGPRoute>>
-        get() = neighbors
-
-    /**
      * Routing table containing the candidate routes.
      * Uses a route selector to perform the route selection.
      * The route selector wraps the provided routing table if one is provided. Otherwise, it wraps a new routing table.
@@ -52,16 +40,6 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
      * This is used to ensure that a selected and exported is not exported again when the MRAI expires.
      */
     private var lastExportedRoute = BGPRoute.invalid()
-
-    /**
-     * Adds a new in-neighbor for the protocol to export selected routes to.
-     *
-     * It does not check if the neighbor was already added to the protocol. Thus, the same neighbor can be added
-     * twice, which means that it will be notified twice every time a new route is selected.
-     */
-    override fun addInNeighbor(neighbor: Neighbor<BGPRoute>) {
-        neighbors.add(neighbor)
-    }
 
     /**
      * Sets [route] as the the local route of [node]. The local route is handled as any other
