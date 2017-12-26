@@ -1,5 +1,6 @@
 package core.routing
 
+import bgp.BGPRoute
 import core.simulator.Advertiser
 
 /**
@@ -53,7 +54,7 @@ class Node<R : Route>(override val id: NodeID, val protocol: Protocol<R>) : Adve
     /**
      * Have this node send a message containing the given [route] to all of its in-neighbors.
      */
-    fun send(route: R) {
+    fun export(route: R) {
         inNeighbors.forEach { send(route, it) }
     }
 

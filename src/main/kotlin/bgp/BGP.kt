@@ -172,7 +172,7 @@ abstract class BaseBGP(val mrai: Time, routingTable: RoutingTable<BGPRoute>): Pr
         }
 
         // Export the route currently selected
-        node.send(selectedRoute)
+        node.export(selectedRoute)
         BGPNotifier.notify(ExportNotification(node, selectedRoute))
         lastExportedRoute = selectedRoute
 
