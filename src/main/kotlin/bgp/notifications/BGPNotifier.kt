@@ -38,7 +38,7 @@ object BGPNotifier{
      * Sends [notification] to all listeners listening to learn notifications.
      */
     fun notify(notification: LearnNotification) {
-        learnListeners.forEach { it.notify(notification) }
+        learnListeners.forEach { it.onLearn(notification) }
     }
 
     //endregion
@@ -65,7 +65,7 @@ object BGPNotifier{
      * Sends [notification] to all listeners listening to detect notifications.
      */
     fun notify(notification: DetectNotification) {
-        detectListeners.forEach { it.notify(notification) }
+        detectListeners.forEach { it.onDetect(notification) }
     }
 
     //endregion
@@ -92,7 +92,7 @@ object BGPNotifier{
      * Sends [notification] to all listeners listening to select notifications.
      */
     fun notify(notification: SelectNotification) {
-        selectListeners.forEach { it.notify(notification) }
+        selectListeners.forEach { it.onSelect(notification) }
     }
 
     //endregion
@@ -119,7 +119,7 @@ object BGPNotifier{
      * Sends [notification] to all listeners listening to export notifications.
      */
     fun notify(notification: ExportNotification) {
-        exportListeners.forEach { it.notify(notification) }
+        exportListeners.forEach { it.onExport(notification) }
     }
 
     //endregion

@@ -12,7 +12,7 @@ interface ExportListener {
     /**
      * Invoked when an export notification is issued.
      */
-    fun notify(notification: ExportNotification)
+    fun onExport(notification: ExportNotification)
 }
 
 /**
@@ -27,7 +27,7 @@ interface LearnListener {
     /**
      * Invoked when a learn notification is issued.
      */
-    fun notify(notification: LearnNotification)
+    fun onLearn(notification: LearnNotification)
 }
 
 /**
@@ -42,7 +42,7 @@ interface DetectListener {
     /**
      * Invoked when a detect notification is issued.
      */
-    fun notify(notification: DetectNotification)
+    fun onDetect(notification: DetectNotification)
 }
 
 /**
@@ -57,5 +57,5 @@ interface SelectListener {
     /**
      * Invoked when a select notification is issued.
      */
-    fun notify(notification: SelectNotification)
+    fun onSelect(notification: SelectNotification)
 }

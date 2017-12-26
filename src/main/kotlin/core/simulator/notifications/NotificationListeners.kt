@@ -28,7 +28,7 @@ interface StartListener : NotificationListener {
     /**
      * Invoked when a start notification is issued.
      */
-    fun notify(notification: StartNotification)
+    fun onStart(notification: StartNotification)
 }
 
 /**
@@ -43,7 +43,7 @@ interface EndListener {
     /**
      * Invoked when an end notification is issued.
      */
-    fun notify(notification: EndNotification)
+    fun onEnd(notification: EndNotification)
 }
 
 /**
@@ -58,7 +58,7 @@ interface ThresholdReachedListener {
     /**
      * Invoked when a threshold reached notification is issued.
      */
-    fun notify(notification: ThresholdReachedNotification)
+    fun onThresholdReached(notification: ThresholdReachedNotification)
 }
 
 /**
@@ -73,7 +73,7 @@ interface MessageSentListener : NotificationListener {
     /**
      * Invoked when a message sent notification is issued.
      */
-    fun notify(notification: MessageSentNotification)
+    fun onMessageSent(notification: MessageSentNotification)
 }
 
 /**
@@ -88,5 +88,5 @@ interface MessageReceivedListener : NotificationListener {
     /**
      * Invoked when a message received notification is issued.
      */
-    fun notify(notification: MessageReceivedNotification)
+    fun onMessageReceived(notification: MessageReceivedNotification)
 }

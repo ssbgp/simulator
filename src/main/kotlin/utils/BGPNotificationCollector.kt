@@ -43,22 +43,22 @@ class BGPNotificationCollector(val withOutput: Boolean): NotificationCollector()
 
     //region Notify methods
 
-    override fun notify(notification: LearnNotification) {
+    override fun onLearn(notification: LearnNotification) {
         learnNotifications.add(notification)
         print(notification)
     }
 
-    override fun notify(notification: DetectNotification) {
+    override fun onDetect(notification: DetectNotification) {
         detectNotifications.add(notification)
         print(notification)
     }
 
-    override fun notify(notification: SelectNotification) {
+    override fun onSelect(notification: SelectNotification) {
         selectNotifications.add(notification)
         print(notification)
     }
 
-    override fun notify(notification: ExportNotification) {
+    override fun onExport(notification: ExportNotification) {
         exportNotifications.add(notification)
         print(notification)
     }

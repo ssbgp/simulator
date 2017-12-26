@@ -34,23 +34,23 @@ open class NotificationCollector: StartListener, EndListener, ThresholdReachedLi
         Notifier.removeMessageReceivedListener(this)
     }
 
-    final override fun notify(notification: StartNotification) {
+    final override fun onStart(notification: StartNotification) {
         startNotifications.add(notification)
     }
 
-    final override fun notify(notification: EndNotification) {
+    final override fun onEnd(notification: EndNotification) {
         endNotifications.add(notification)
     }
 
-    final override fun notify(notification: ThresholdReachedNotification) {
+    final override fun onThresholdReached(notification: ThresholdReachedNotification) {
         thresholdReachedNotifications.add(notification)
     }
 
-    final override fun notify(notification: MessageSentNotification) {
+    final override fun onMessageSent(notification: MessageSentNotification) {
         messageSentNotifications.add(notification)
     }
 
-    final override fun notify(notification: MessageReceivedNotification) {
+    final override fun onMessageReceived(notification: MessageReceivedNotification) {
         messageReceivedNotifications.add(notification)
     }
 

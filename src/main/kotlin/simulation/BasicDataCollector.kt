@@ -96,7 +96,7 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     /**
      * Invoked to notify the listener of a new start notification.
      */
-    override fun notify(notification: StartNotification) {
+    override fun onStart(notification: StartNotification) {
         data.delaySeed = notification.seed
         nodeCount = notification.topology.size
     }
@@ -104,7 +104,7 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     /**
      * Invoked to notify the listener of a new message sent notification.
      */
-    override fun notify(notification: MessageSentNotification) {
+    override fun onMessageSent(notification: MessageSentNotification) {
         data.messageCount++
         data.totalTerminationTime = notification.time
     }
@@ -112,28 +112,28 @@ class BasicDataCollector(private val reporter: BasicReporter) : DataCollector,
     /**
      * Invoked to notify the listener of a new export notification.
      */
-    override fun notify(notification: ExportNotification) {
+    override fun onExport(notification: ExportNotification) {
         terminationTimes[notification.node.id] = notification.time
     }
 
     /**
      * Invoked to notify the listener of a new detect notification.
      */
-    override fun notify(notification: DetectNotification) {
+    override fun onDetect(notification: DetectNotification) {
         data.detectionCount++
     }
 
     /**
      * Invoked to notify the listener of a new threshold reached notification.
      */
-    override fun notify(notification: ThresholdReachedNotification) {
+    override fun onThresholdReached(notification: ThresholdReachedNotification) {
         data.terminated = false
     }
 
     /**
      * Invoked to notify the listener of a new end notification.
      */
-    override fun notify(notification: EndNotification) {
+    override fun onEnd(notification: EndNotification) {
 
         // Count the nodes that were left disconnected when the simulation ended
         data.disconnectedCount = notification.topology.nodes

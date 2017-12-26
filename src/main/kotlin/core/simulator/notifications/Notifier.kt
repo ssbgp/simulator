@@ -50,7 +50,7 @@ object Notifier {
      * Sends [notification] to all listeners listening to start notifications.
      */
     fun notify(notification: StartNotification) {
-        startListeners.forEach { it.notify(notification) }
+        startListeners.forEach { it.onStart(notification) }
     }
 
     //endregion
@@ -77,7 +77,7 @@ object Notifier {
      * Sends [notification] to all listeners listening to end notifications.
      */
     fun notify(notification: EndNotification) {
-        endListeners.forEach { it.notify(notification) }
+        endListeners.forEach { it.onEnd(notification) }
     }
 
     //endregion
@@ -104,7 +104,7 @@ object Notifier {
      * Sends [notification] to all listeners listening to threshold reached notifications.
      */
     fun notify(notification: ThresholdReachedNotification) {
-        thresholdReachedListeners.forEach { it.notify(notification) }
+        thresholdReachedListeners.forEach { it.onThresholdReached(notification) }
     }
 
     //endregion
@@ -131,7 +131,7 @@ object Notifier {
      * Sends [notification] to all listeners listening to message sent notifications.
      */
     fun notify(notification: MessageSentNotification) {
-        messageSentListeners.forEach { it.notify(notification) }
+        messageSentListeners.forEach { it.onMessageSent(notification) }
     }
 
     //endregion
@@ -162,7 +162,7 @@ object Notifier {
      * @param notification the message received notification to send to each registered listener.
      */
     fun notify(notification: MessageReceivedNotification) {
-        messageReceivedListeners.forEach { it.notify(notification) }
+        messageReceivedListeners.forEach { it.onMessageReceived(notification) }
     }
 
     //endregion

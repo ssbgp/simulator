@@ -63,7 +63,7 @@ class NodeDataCollector(private val reporter: NodeDataReporter) :
     /**
      * Invoked to notify the listener of a new start notification.
      */
-    override fun notify(notification: StartNotification) {
+    override fun onStart(notification: StartNotification) {
         // Ensure that all nodes start with a termination time of 0. This also ensures
         // that all nodes are included in the terminationTimes map Why is this necessary?
         // It may occur the some nodes never export a route. If that is the case, then
@@ -75,7 +75,7 @@ class NodeDataCollector(private val reporter: NodeDataReporter) :
     /**
      * Invoked to notify the listener of a new export notification.
      */
-    override fun notify(notification: ExportNotification) {
+    override fun onExport(notification: ExportNotification) {
         // Update termination time of the node that exported a new route
         data.terminationTimes[notification.node.id] = notification.time
     }
@@ -83,7 +83,7 @@ class NodeDataCollector(private val reporter: NodeDataReporter) :
     /**
      * Invoked to notify the listener of a new end notification.
      */
-    override fun notify(notification: EndNotification) {
+    override fun onEnd(notification: EndNotification) {
         for (node in notification.topology.nodes)
             data.selectedRoutes[node.id] = node.protocol.selectedRoute
     }
