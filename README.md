@@ -2,7 +2,7 @@
 
 An event-driven routing simulator for Self-Stable BGP (SS-BGP). It is also capable to run the well known Border Gateway Protocol (BGP).
 
-Next we provide a set of instructions on how to install and run the simulator. If you are a developer and want to contribute to project or build on it, read the developer manual available [here](/docs/developer-manual.md).
+Next we provide a set of instructions on how to install and run the simulator. If you are a developer and want to contribute to project or build on it, read the developer manual available [here](/doc/developers.md).
 
 ## Prerequisites
 
@@ -18,7 +18,9 @@ The simulator application is composed of a single, self-contained, JAR file. It 
 
         java -jar <path-to-jar-file> --version
 
-    If everything went ok, the message `SS-BGP Simulator: {version}`  should be present in the terminal prompt, where `{version}` corresponds to the version of the application that was downloaded. If any issues occur, check out the [Troubleshooting](Troubleshooting) section for solutions to common problems.
+    If everything went ok, the message `SS-BGP Simulator: {version}`  should be present in the 
+    terminal prompt, where `{version}` corresponds to the version of the application that was 
+    downloaded. If any issues occur, check out the [Troubleshooting](#troubleshooting) section for solutions to common problems.
 
 ## Basic Usage
 
