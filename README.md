@@ -4,7 +4,7 @@ An event-driven routing simulator for Self-Stable BGP (SS-BGP). It is also capab
 
 ## Prerequisites
 
-The simulator is a java application, thus it requires the Java Runtime Environment (JRE) to run (version 8 or above). See the instructions on how to install the JRE on [Linux](https://docs.oracle.com/javase/8/docs/technotes/guides/install/linux_jre.html#CFHBJIIG), [Windows](https://docs.oracle.com/javase/8/docs/technotes/guides/install/windows_jre_install.html#CHDEDHAJ), and [macOS](https://docs.oracle.com/javase/8/docs/technotes/guides/install/mac_jre.html).
+The simulator is an application that runs on the Java VM. To run it requires the Java Runtime Environment (JRE) (version 8 or later) to be installed. Download the JRE (version 8) for your own operating system from [here](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
 
 ## Installation
 
