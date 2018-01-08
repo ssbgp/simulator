@@ -1,6 +1,6 @@
 # Developer Manual
 
-This document is directed to developers which want to build on our simulator architecture. This document does not focus on features of the simulation tool, for that look at the [User Manual](). The main purpose of this document is to describe the simulation archicture by illustrating how each component works and how does it integrate with the rest of the system. The material on this document covers most classes in following *packages*:
+This document is directed to developers which want to build on our simulator architecture. This document does not focus on features of the simulation tool, for that look at the [User Manual](/README.md). The main purpose of this document is to describe the simulation architecture by illustrating how each component works and how does it integrate with the rest of the system. The material on this document covers most classes in following *packages*:
 
 - *`core.routing`*
 - *`core.simulator`*
@@ -33,17 +33,18 @@ to start diving directly into code. Instead, we suggest reading the next section
 
 ### Topology
 
-A network topology describes the arrangement of the nodes and links in a communication network. The [Topology]() class implements an high-level abstraction of such a topology. Each topology instance holds a set of nodes and links between them.
+A network topology describes the arrangement of the nodes and links in a communication network. The [Topology](/src/main/kotlin/core/routing/Topology.kt) class implements an high-level abstraction of such a topology. Each topology instance holds a set of nodes and links between them.
 
-The most important components of a topology are nodes. A node can represent any communication endpoint. Still, since this is a routing simulator, a node usually represents some kind of router able to communicate with other nodes (routers) through a common routing protocol. Nodes are implemented by the [Node]() class. This class has three properties:
+The most important components of a topology are nodes. A node can represent any communication endpoint. Still, since this is a routing simulator, a node usually represents some kind of router able to communicate with other nodes (routers) through a common routing protocol. Nodes are implemented by the [Node](/src/main/kotlin/core/routing/Node.kt) class. This class has three properties:
 
 1. An ID, used identify a node within a topology;
-1. An instance of [Protocol](), corresponding to the routing protocol deployed by the node;
+1. An instance of [Protocol](/src/main/kotlin/core/routing/Protocol.kt), corresponding to the routing 
+protocol deployed by the node;
 1. And a set containing all of its in-neighbors.
 
 A neighbor is another node in the topology, with which a node is able to communicate. That node's in-neighbors are all neighbors to which it sends routing messages. Out-neighbors are all neighbors from which a node receives routing messages.
 
-A topology is built using a [TopologyBuilder](). This class provides a set of methods to build a topology incrementally in a descriptive way. Here is an example on how to build the topology shown below.
+A topology is built using a [TopologyBuilder](/src/main/kotlin/core/routing/TopologyBuilder.kt). This class provides a set of methods to build a topology incrementally in a descriptive way. Here is an example on how to build the topology shown below.
 
 ![topology](topology-builder.png)
 
@@ -85,7 +86,7 @@ The simulator was designed with flexibility in mind. Although our focus was main
 
 Here, we try to explain the necessary concepts to implement a routing protocol to run under this simulation architecture. We will use our implementation of BGP as an example. This section serves also as part of the documentation for our implementation of BGP.
 
-Nodes participating in a routing protocol exchange pieces of routing information between each other, called routes, to provide connectivity to each to other. A route is composed of a set of attributes. The first step to implement a protocol is to define the attributes of its routes. A route is represented by a class, which implements the [Route]() interface. BGP routes have two attributes: the LOCAL-PREF, and the AS-PATH (BGP's specification defines other attributes, but they are not considered here). Therefore, BGP routes are implemented as follows.
+Nodes participating in a routing protocol exchange pieces of routing information between each other, called routes, to provide connectivity to each to other. A route is composed of a set of attributes. The first step to implement a protocol is to define the attributes of its routes. A route is represented by a class, which implements the [Route](/src/main/kotlin/core/routing/Route.kt) interface. BGP routes have two attributes: the LOCAL-PREF, and the AS-PATH (BGP's specification defines other attributes, but they are not considered here). Therefore, BGP routes are implemented as follows.
 
 ```kotlin
 class BGPRoute(val localPref: Int, val asPath: Path) : Route
@@ -115,12 +116,12 @@ class BGPRoute(val localPref: Int, val asPath: Path) : Route {
 }
 ```
 
-The first step is done. Still, there are some important details to take into consideration regarding [Route]() implementations. In [Effective Java](https://www.amazon.com/exec/obidos/ASIN/0321356683/ref=nosim/javapractices-20), Joshua Bloch makes this compelling recommendation :
+The first step is done. Still, there are some important details to take into consideration regarding [Route](/src/main/kotlin/core/routing/Route.kt) implementations. In [Effective Java](https://www.amazon.com/exec/obidos/ASIN/0321356683/ref=nosim/javapractices-20), Joshua Bloch makes this compelling recommendation :
 > Classes should be immutable unless there's a very good reason to make them mutable..."
 
 We saw no good reason to make routes mutable. That is why we assume route instances are always immutable. Providing a Route implementation that is mutable may lead to very unexpected behavior. Therefore, strive to ensure immutability for route classes.
 
-Having defined what a route is in the context of our routing protocol, the next step is to implement the [Protocol]() interface. This interface defines some important methods, which are supposed to be used according to the following recommendations:
+Having defined what a route is in the context of our routing protocol, the next step is to implement the [Protocol](/src/main/kotlin/core/routing/Protocol.kt) interface. This interface defines some important methods, which are supposed to be used according to the following recommendations:
 
 
 ```kotlin
@@ -133,7 +134,7 @@ The `setLocalRoute()` method is called to set a node's local route. Each node ca
 fun process(message: Message<R>)
 ```
 
-The `process()` method is the most important method for most Protocol implementations. It is called by a node when a new routing message arrives. The [`message`]() includes the sender node and the received route. The received route corresponds to the route obtained after extending the sent route, using the extender associated with the link through which the message travelled. See [Routing Policies](#routing-policies) for more details about extenders. Protocol implementations should use this method to handle the route processing logic. 
+The `process()` method is the most important method for most Protocol implementations. It is called by a node when a new routing message arrives. The [`message`](/src/main/kotlin/core/routing/Message.kt) includes the sender node and the received route. The received route corresponds to the route obtained after extending the sent route, using the extender associated with the link through which the message travelled. See [Routing Policies](#routing-policies) for more details about extenders. Protocol implementations should use this method to handle the route processing logic. 
 
 This is more of less how the `process()` of BGP is implemented.
 
@@ -170,7 +171,7 @@ Notice that we do not include any code here to store or select routes. Route sto
 
 #### Routing Table and Route Selector
 
-The storage and selection of routes are two different processes. Thus, following the separation of responsabilities model, these two processes are implemented by two different classes. The [RoutingTable]() handles route storage and the [RouteSelector]() handles the process of selecting the best route available.
+The storage and selection of routes are two different processes. Thus, following the separation of responsabilities model, these two processes are implemented by two different classes. The [RoutingTable](/src/main/kotlin/core/routing/RoutingTable.kt) handles route storage and the [RouteSelector](/src/main/kotlin/core/routing/TopologyBuilder.kt) handles the process of selecting the best route available.
 
 A routing table stores an entry for each neighbor. Each entry stores a candidate route and a set
 of attributes. Initially the table has no entries, which means it holds no valid candidate routes. To obtain the candidate route via some neighbor, use the `get` operator. By default, if no candidate route was set for a neighbor, it returns an invalid route.
@@ -190,7 +191,7 @@ val neighbor = Node(1, BGP())
 routingTable[neighbor] = BGPRoute.with(localPref = 1, asPath = emptyPath())
 ``` 
 
-The selection process is delegated to the [RouteSelector]() class. The route selector uses a `compare` function to define the order among routes. The way the selector works is similar to a cache, where the goal is to avoid having to look through the routing table. It is aware of the selected route at all times. Every time the routing table is updated, the selector checks to see if the new route is better than the currently selected route. If true, then it changes the selected to the new route. Otherwise, it checks if the new route was set for the currently selected neighbor. If true, then it is has to go through all routes in the routing table to select the best one. Otherwise, it keeps the current route. The code use is more or less equal to the following.
+The selection process is delegated to the [RouteSelector](/src/main/kotlin/core/routing/TopologyBuilder.kt) class. The route selector uses a `compare` function to define the order among routes. The way the selector works is similar to a cache, where the goal is to avoid having to look through the routing table. It is aware of the selected route at all times. Every time the routing table is updated, the selector checks to see if the new route is better than the currently selected route. If true, then it changes the selected to the new route. Otherwise, it checks if the new route was set for the currently selected neighbor. If true, then it is has to go through all routes in the routing table to select the best one. Otherwise, it keeps the current route. The code use is more or less equal to the following.
 
 ```kotlin
 fun update(neighbor: Node<R>, route: R) {
@@ -319,18 +320,18 @@ The simulator is driven by events. An event can be anything: a routing message t
    
 A simulation is initiated by adding some events to the scheduler and, then, running the event loop. The way events are usually added to the scheduler is by calling the `advertise()` method on one or more nodes from the simulated topology. This will trigger the `setLocalRoute()` method of the protocols deployed by those nodes. Usually, this should generate new events. However, this is completely dependent on the protocol implementation. For the case of BGP (and similar protocols), setting the local route of a node is equivalent to have that node originate a route for some destination and propagate it to its neighbors. Setting the local route for a single node is equivalent to simulating the advertisement of a destination in unicast. To simulate an anycast scenario, the only thing we have to do is set the local route for more than one node. 
 
-Events are any class that implements the [Event]() interface. The simulator already includes the two most basic events, but more events can be included to add different functionality. We will see that later on. The most common event is the [MessageEvent](). As the name might suggest, this event is related to the routing messages exchanged between nodes during the simulation. A message event is scheduled when a node sends a message and it occurs at the time the message arrives at the recipient node. The occurrence of a message event triggers the recipient's `receive()` method, which later triggers the `process()` method of the protocol deployed by that node. During this process, new events may be added to the simulation scheduler. For instance, BGP schedules new message events every time it selects a new route and wants to send it to neighbors.
+Events are any class that implements the [Event](/src/main/kotlin/core/simulator/Event.kt) interface. The simulator already includes the two most basic events, but more events can be included to add different functionality. We will see that later on. The most common event is the [MessageEvent](/src/main/kotlin/core/simulator/MessageEvent.kt). As the name might suggest, this event is related to the routing messages exchanged between nodes during the simulation. A message event is scheduled when a node sends a message and it occurs at the time the message arrives at the recipient node. The occurrence of a message event triggers the recipient's `receive()` method, which later triggers the `process()` method of the protocol deployed by that node. During this process, new events may be added to the simulation scheduler. For instance, BGP schedules new message events every time it selects a new route and wants to send it to neighbors.
 
-Messages are sent through a [Connection](), which abstracts a real unidirectional TCP like connection, where messages are surely delivered to the recipient in a first-in-first-out order (messages are not lost). Moreover, a connection also emulates the routing delays found on real networks by subjecting each message to a delay taken from [DelayGenerator](). The simulator already includes two delay generator implementations: [NoDelayGenerator]() and [RandomDelayGenerator](). The first is a dummy generator which introduces no delays to routing messages. Concretely, it always generates delay values of 0. The [RandomDelayGenerator]() uses a random uniform distribution to generate delay values within a specified interval.
+Messages are sent through a [Connection](/src/main/kotlin/core/simulator/Connection.kt), which abstracts a real unidirectional TCP like connection, where messages are surely delivered to the recipient in a first-in-first-out order (messages are not lost). Moreover, a connection also emulates the routing delays found on real networks by subjecting each message to a delay taken from [DelayGenerator](/src/main/kotlin/core/simulator/DelayGenerator.kt). The simulator already includes two delay generator implementations: [NoDelayGenerator](/src/main/kotlin/core/simulator/NoDelayGenerator.kt) and [RandomDelayGenerator](/src/main/kotlin/core/simulator/Event.kt). The first is a dummy generator which introduces no delays to routing messages. Concretely, it always generates delay values of 0. The [RandomDelayGenerator](/src/main/kotlin/core/simulator/RandomDelayGenerator.kt) uses a random uniform distribution to generate delay values within a specified interval.
 
-Another very important event is the [AdvertiseEvent](). Each advertise event is associated with a node *`n`* and route *`r`*. When such an event occurs, the `advertise()` method of *`n`* is called with *`r`* as the local route. As mentioned before, simulations are initiated by calling that method for some of the nodes in the topology. Therefore, advertise events can be used to initialize simulations. Furthermore, since they are events, we can use them to set local routes for different nodes at different times. For BGP, this would mean having different routes being originated at different nodes at different times. Advertise events are, usually, scheduled before the simulation loop starts.
+Another very important event is the [AdvertiseEvent](/src/main/kotlin/core/simulator/AdvertiseEvent.kt). Each advertise event is associated with a node *`n`* and route *`r`*. When such an event occurs, the `advertise()` method of *`n`* is called with *`r`* as the local route. As mentioned before, simulations are initiated by calling that method for some of the nodes in the topology. Therefore, advertise events can be used to initialize simulations. Furthermore, since they are events, we can use them to set local routes for different nodes at different times. For BGP, this would mean having different routes being originated at different nodes at different times. Advertise events are, usually, scheduled before the simulation loop starts.
 
 
 ##### Example of a custom event: Timer
 
-The functionality of the simulator can be expanded through events. The [Timer]() utility class is one example of that. The [Timer]() class implements a timer for the simulator. Each timer is associated with an *`action`*, which is executed when the timer expires. This class is used to implement the MRAI timer used by the BGP protocol.
+The functionality of the simulator can be expanded through events. The [Timer](/src/main/kotlin/core/simulator/Timer.kt) utility class is one example of that. The Timer class implements a timer for the simulator. Each timer is associated with an *`action`*, which is executed when the timer expires. This class is used to implement the MRAI timer used by the BGP protocol.
 
-The way the [Timer]() class works is simple. When a timer is created, it schedules a [TimerExpiredEvent]() to occur *`x`* units of time after the current simulation time, where *`x`* corresponds to the duration of the timer. When the event expires, it triggers the timer's *`action`*.
+The way the [Timer](/src/main/kotlin/core/simulator/Timer.kt) class works is simple. When a timer is created, it schedules a [TimerExpiredEvent](/src/main/kotlin/core/simulator/TimerExpiredEvent.kt) to occur *`x`* units of time after the current simulation time, where *`x`* corresponds to the duration of the timer. When the event expires, it triggers the timer's *`action`*.
 
 ### Notification system
 
@@ -338,13 +339,13 @@ During the execution of a simulation the simulator issues notifications that can
 
 Originally, the simulator provides the following notifications:
 
-- [StartNotification]() - Issued before the simulation starts
-- [EndNotification]() - Issued after the simulation ends
-- [ThresholdReachedNotification]() - Issued when the simulation threshold is reached before the simulation ended
-- [MessageSentNotification]() - Issued every time a new message is sent by a node
-- [MessageReceivedNotification]() - Issued every time a new message arrives at a node
+- [StartNotification](/src/main/kotlin/core/simulator/notifications/StartNotitfication.kt) - Issued before the simulation starts
+- [EndNotification](/src/main/kotlin/core/simulator/notifications/EndNotification.kt) - Issued after the simulation ends
+- [ThresholdReachedNotification](/src/main/kotlin/core/simulator/notifications/ThresholdReachedNotification.kt) - Issued when the simulation threshold is reached before the simulation ended
+- [MessageSentNotification](/src/main/kotlin/core/simulator/notifications/MessageSentNotification.kt) - Issued every time a new message is sent by a node
+- [MessageReceivedNotification](/src/main/kotlin/core/simulator/notifications/MessageReceivedNotification.kt) - Issued every time a new message arrives at a node
 
-To better understand how notifications can be used to interact with the simulation, we're going to implement a notification listener, which counts the total number of messages sent during the simulation. Since we want to count the number of sent messages, we will want to listen to [MessageSentNotification]()s. Therefore, we need to implement the [MessageSentListener]().
+To better understand how notifications can be used to interact with the simulation, we're going to implement a notification listener, which counts the total number of messages sent during the simulation. Since we want to count the number of sent messages, we will want to listen to [MessageSentNotification](/src/main/kotlin/core/simulator/notifications/MessageSentNotification.kt)s. Therefore, we need to implement the [MessageSentListener](/src/main/kotlin/core/simulator/notifications/MessageSentListener.kt).
 
 ```Kotlin
 class CountMessages : MessageSentListener {
@@ -358,7 +359,7 @@ class CountMessages : MessageSentListener {
 
 The `onMessageSent()` method is called every time a MessageSentNotification is issued. Thus, we only need to keep incrementing the `messageSentCount` counter every time `onMessageSent()`. When the simulation ends, that counter holds the total number of messages sent during the simulation.
 
-Notifications not only indicate that some event occurred. They also include the time at which that event occurred and information relevant to the context where they are issued. For instance, a [StartNotification]() includes the seed used for the delay generator and the topology under simulation. While a [MessageSentNotification]() carries the sent message which triggered the notification. To illustrate this, we will expand our previous example by having it print the route carried by each message.
+Notifications not only indicate that some event occurred. They also include the time at which that event occurred and information relevant to the context where they are issued. For instance, a [StartNotification](/src/main/kotlin/core/simulator/notifications/StartNotitfication.kt) includes the seed used for the delay generator and the topology under simulation. While a [MessageSentNotification](/src/main/kotlin/core/simulator/notifications/MessageSentNotification.kt) carries the sent message which triggered the notification. To illustrate this, we will expand our previous example by having it print the route carried by each message.
 
 ```Kotlin
 class CountMessages : MessageSentListener {
@@ -371,7 +372,7 @@ class CountMessages : MessageSentListener {
 }
 ```
 
-Notifications are issued by the [Notifier](). For our listener to receive notifications it needs to register itself with this notifier. This is done using the notifier's `add` method. 
+Notifications are issued by the [Notifier](/src/main/kotlin/core/simulator/notifications/Notifier.kt). For our listener to receive notifications it needs to register itself with this notifier. This is done using the notifier's `add` method. 
 
 ```Kotlin
 Notifier.addMessageSentListener(this)
@@ -387,9 +388,10 @@ We have seen that notification are very useful to track the progress of a simula
 
 1. The first thing to do is defining the set of notifications that we want our protocol to issue. In the case of BGP, we decided to issue the following notifications.
 
-    - [LearnNotification]() - Issued when a node exports a route
-    - [SelectNotification]() - Issued when a node selects a new route
-    - [ExportNotification]() - Issued when a node exports a route
+    - [LearnNotification](/src/main/kotlin/bgp/notifications/LearnNotification.kt) - Issued when a
+     node exports a route
+    - [SelectNotification](/src/main/kotlin/bgp/notifications/SelectNotification.kt) - Issued when a node selects a new route
+    - [ExportNotification](/src/main/kotlin/bgp/notifications/ExportNotification.kt) - Issued when a node exports a route
     
     Here is the code for the notification classes.
     
@@ -413,7 +415,7 @@ We have seen that notification are very useful to track the progress of a simula
     
     ```
 
-2. Then, we create one listener for each notification. Notice that each interface extends the [NotificationListener]() interface.
+2. Then, we create one listener for each notification. Notice that each interface extends the [NotificationListener](/src/main/kotlin/bgp/notifications/NotificationListener.kt) interface.
 
     ```kotlin
     interface LearnListener : NotificationListener {
@@ -429,7 +431,7 @@ We have seen that notification are very useful to track the progress of a simula
     }
     ```
     
-3. With both this things done, we have to create a new notifier. To do this, we copy and paste the original [Notifier]() and adjust its implementation for the our new notifications.
+3. With both this things done, we have to create a new notifier. To do this, we copy and paste the original [Notifier](/src/main/kotlin/bgp/notifications/Notifier.kt) and adjust its implementation for the our new notifications.
 
     ```kotlin
     object BGPNotifier{
