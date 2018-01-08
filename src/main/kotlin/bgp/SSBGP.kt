@@ -37,7 +37,7 @@ abstract class BaseSSBGP(mrai: Time = 0, routingTable: RoutingTable<BGPRoute>): 
         val alternativeRoute = routingTable.getSelectedRoute()
         if (isRecurrent(node, route, alternativeRoute, prevSelectedRoute)) {
             disableNeighbor(sender)
-            BGPNotifier.notifyDetect(DetectNotification(node, route, alternativeRoute, sender))
+            BGPNotifier.notify(DetectNotification(node, route, alternativeRoute, sender))
         }
     }
 

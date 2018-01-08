@@ -3,7 +3,7 @@ package simulation
 import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
-import core.simulator.Engine
+import core.simulator.Simulator
 import core.simulator.Time
 import java.io.IOException
 
@@ -44,7 +44,7 @@ class SimpleAdvertisementExecution<R: Route>: Execution<R> {
         dataCollectors.clear()
 
         val data = dataCollectors.collect {
-            Engine.simulate(topology, advertisements, threshold)
+            Simulator.simulate(topology, advertisements, threshold)
         }
 
         data.report()

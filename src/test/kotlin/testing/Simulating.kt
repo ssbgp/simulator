@@ -4,7 +4,7 @@ import bgp.BGPRoute
 import core.routing.Topology
 import core.simulator.Advertisement
 import core.simulator.Advertiser
-import core.simulator.Engine
+import core.simulator.Simulator
 import core.simulator.Time
 
 /**
@@ -14,5 +14,5 @@ import core.simulator.Time
  */
 
 fun simulate(topology: Topology<BGPRoute>, advertiser: Advertiser<BGPRoute>, threshold: Time = Int.MAX_VALUE): Boolean {
-    return Engine.simulate(topology, Advertisement(advertiser, BGPRoute.self()), threshold)
+    return Simulator.simulate(topology, Advertisement(advertiser, BGPRoute.self()), threshold)
 }

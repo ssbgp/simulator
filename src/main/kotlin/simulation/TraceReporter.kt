@@ -1,7 +1,7 @@
 package simulation
 
 import bgp.notifications.*
-import core.simulator.notifications.BasicNotifier
+import core.simulator.notifications.Notifier
 import core.simulator.notifications.StartListener
 import core.simulator.notifications.StartNotification
 import io.pretty
@@ -41,7 +41,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      * Adds the collector as a listener for notifications the collector needs to listen to collect data.
      */
     override fun register() {
-        BasicNotifier.addStartListener(this)
+        Notifier.addStartListener(this)
         BGPNotifier.addLearnListener(this)
         BGPNotifier.addExportListener(this)
         BGPNotifier.addSelectListener(this)
@@ -52,7 +52,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
      * Removes the collector from all notifiers
      */
     override fun unregister() {
-        BasicNotifier.removeStartListener(this)
+        Notifier.removeStartListener(this)
         BGPNotifier.removeLearnListener(this)
         BGPNotifier.removeExportListener(this)
         BGPNotifier.removeSelectListener(this)
@@ -89,7 +89,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     /**
      * Invoked to notify the listener of a new start notification.
      */
-    override fun notify(notification: StartNotification) {
+    override fun onStart(notification: StartNotification) {
         // Keeping track of the number of simulations is important to ensure that the tracing output from a new
         // simulation does not overwrite the previous one
         simulationNumber++
@@ -117,7 +117,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     /**
      * Invoked to notify the listener of a new learn notification.
      */
-    override fun notify(notification: LearnNotification) {
+    override fun onLearn(notification: LearnNotification) {
         simulationWriter?.apply {
             notification.apply {
                 write("${align(time)}| LEARN  | ${align(node.pretty(), nodeColumnSize)} | ${route.pretty()} " +
@@ -129,7 +129,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     /**
      * Invoked to notify the listener of a new export notification.
      */
-    override fun notify(notification: ExportNotification) {
+    override fun onExport(notification: ExportNotification) {
         simulationWriter?.apply {
             notification.apply {
                 write("${align(time)}| EXPORT | ${align(node.pretty(), nodeColumnSize)} | ${route.pretty()}\n")
@@ -140,7 +140,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     /**
      * Invoked to notify the listener of a new learn notification.
      */
-    override fun notify(notification: SelectNotification) {
+    override fun onSelect(notification: SelectNotification) {
         simulationWriter?.apply {
             notification.apply {
                 write("${align(time)}| SELECT | ${align(node.pretty(), nodeColumnSize)} | " +
@@ -152,7 +152,7 @@ class TraceReporter(outputFile: File): DataCollector, StartListener,
     /**
      * Invoked to notify the listener of a new detect notification.
      */
-    override fun notify(notification: DetectNotification) {
+    override fun onDetect(notification: DetectNotification) {
         simulationWriter?.apply {
             notification.apply {
                 write("${align(time)}| DETECT | ${align(node.pretty(), nodeColumnSize)} |\n")

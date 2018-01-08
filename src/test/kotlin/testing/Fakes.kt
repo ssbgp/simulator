@@ -31,17 +31,10 @@ fun fakeCompare(route1: Route, route2: Route): Int {
 
 object FakeProtocol: Protocol<Route> {
 
-    override val inNeighbors: Collection<Neighbor<Route>>
-        get() = throw UnsupportedOperationException()
-
     override val selectedRoute: Route
         get() = throw UnsupportedOperationException()
 
-    override fun addInNeighbor(neighbor: Neighbor<Route>) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun advertise(node: Node<Route>, defaultRoute: Route) {
+    override fun setLocalRoute(node: Node<Route>, route: Route) {
         throw UnsupportedOperationException()
     }
 

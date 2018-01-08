@@ -10,7 +10,6 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import testing.invalidRoute
 import testing.node
-import testing.someExtender
 
 /**
  * Created on 22-07-2017
@@ -20,39 +19,34 @@ import testing.someExtender
 object ExporterTests : Spek({
 
     /**
-     * Returns a message.
+     * Returns a message, any message.
      */
-    fun message(): Message<Route> {
-        return Message(node(1), node(2), invalidRoute(), someExtender())
-    }
+    fun message(): Message<Route> = Message(node(1), node(2), invalidRoute())
 
-    given("an exporter using a random delay generator") {
-
-        // Change message delay generator to random generator
-        Engine.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
+    given("a new connection using a RandomDelayGenerator") {
 
         afterGroup {
-            Engine.resetToDefaults()
+            Simulator.resetToDefaults()
         }
 
-        val exporter = Exporter<Route>()
+        val connection = Connection<Route>()
+        Simulator.messageDelayGenerator = RandomDelayGenerator.with(min = 1, max = 10, seed = 10L)
 
         on("exporting 100 messages") {
 
+            val times = ArrayList<Int>()
+
+            for (i in 1..100) {
+                times.add(connection.send(message()))
+            }
+
             it("keeps the deliver time of each message higher than the previous one") {
 
-                var previousDeliverTime = 0
-                var deliverTime = exporter.export(message())
-
                 for (i in 1..99) {
-                    assertThat(deliverTime, greaterThan(previousDeliverTime))
-
-                    previousDeliverTime = deliverTime
-                    deliverTime = exporter.export(message())
+                    assertThat(times[i], greaterThan(times[i - 1]))
                 }
             }
         }
     }
 
 })
-

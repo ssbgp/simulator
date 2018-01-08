@@ -24,6 +24,16 @@ fun SpecBody.`when`(description: String, body: ActionBody.() -> Unit) {
     action("when $description", body = body)
 }
 
+/**
+ * Creates a [group][SpecBody.group].
+ *
+ * This spec body is used to indicate that the state of the unit of state is kept between actions. The action is
+ * performed over the unit's last state. It does not enforce this, it just indicates it.
+ */
+fun SpecBody.thenOn(description: String, body: ActionBody.() -> Unit) {
+    action("then on $description", body = body)
+}
+
 //endregion
 
 //region Test methods

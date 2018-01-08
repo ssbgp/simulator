@@ -1,49 +1,51 @@
 package core.routing
 
 /**
+ * A RoutingTable is a data structure that associates neighbors to routes.
+ *
+ * A routing table stores an entry for each neighbor. Each entry stores a candidate route and a set
+ * of attributes. Currently, the only attribute supported is a flag indicating whether or not the
+ * corresponding neighbor was enabled or not.
+ *
+ * A routing table can hold a single type of route given by [R]. Given that different route
+ * implementations have different definitions for an invalid route, the routing table requires a
+ * [invalidRoute] to use as invalid route. The [invalidRoute] is assigned to a neighbor when the
+ * table does not hold any candidate route for that neighbor.
+ *
+ * By default, all neighbors are associated with the [invalidRoute] and are enabled.
+ *
+ * The routing table does not perform any selection operations over its routes. For that see
+ * [RouteSelector].
+ *
+ * @property invalidRoute the route to use as invalid route
+ * @property size         the number of route entries stored in this routing table
+ *
  * Created on 21-07-2017
  *
  * @author David Fialho
- *
- * The routing table stores a candidate route for each defined out-neighbor.
- * For each neighbor it holds a flag indicating if the neighbor is enabled or not. If the neighbor is set as disabled
- * the route associated with that neighbor should not ever be selected.
- *
- * It does not perform any route selection! For that use the RouteSelector.
  */
-class RoutingTable<R: Route>
-private constructor(val invalidRoute: R, private val routes: MutableMap<Node<R>, EntryData<R>> = HashMap()) {
-
-    /**
-     * Returns the number of entries in the table.
-     */
-    val size: Int get() = routes.size
-
-    /**
-     * Contains the data stored in each entry.
-     */
-    data class EntryData<R>(var route: R, var enabled: Boolean = true)
-
-    /**
-     * Represents an entry in the routing table.
-     */
-    data class Entry<R: Route>(val neighbor: Node<R>, val route: R, val enabled: Boolean = true)
+class RoutingTable<R: Route> private constructor(
+        val invalidRoute: R,
+        private val routes: MutableMap<Node<R>, MutableEntry<R>> = HashMap()
+) {
 
     companion object Factory {
 
         /**
-         * Returns a routing table with no entries.
+         * Returns a routing table without any entries. The route [invalid] will be used as the
+         * invalid route.
          */
         fun <R: Route> empty(invalid: R) = RoutingTable(invalid)
 
         /**
-         * Returns a routing table containing the specified entries.
+         * Returns a routing table containing the specified [entries]. The route [invalid] will be
+         * used as the invalid route.
          */
         fun <R: Route> of(invalid: R, vararg entries: Entry<R>): RoutingTable<R> {
 
-            val routes = HashMap<Node<R>, EntryData<R>>(entries.size)
+            val routes = HashMap<Node<R>, MutableEntry<R>>(entries.size)
             for ((neighbor, route, enabled) in entries) {
-                routes.put(neighbor, EntryData(route, enabled))
+                routes.put(neighbor, MutableEntry(route, enabled))
             }
 
             return RoutingTable(invalid, routes)
@@ -52,45 +54,62 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<Node<R>,
     }
 
     /**
-     * Returns the candidate route via a neighbor.
+     * Returns the number of entries in the table.
+     */
+    val size: Int get() = routes.size
+
+    /**
+     * Entries that are actually stored. Entries need to mutable for the table to update its
+     * attributes individually.
+     */
+    data class MutableEntry<R>(var route: R, var enabled: Boolean = true)
+
+    /**
+     * Represents an entry in the routing table.
+     */
+    data class Entry<R: Route>(val neighbor: Node<R>, val route: R, val enabled: Boolean = true)
+
+    /**
+     * Returns the candidate route stored for [neighbor].
      */
     operator fun get(neighbor: Node<R>): R {
         return routes[neighbor]?.route ?: invalidRoute
     }
 
     /**
-     * Sets the candidate route via a neighbor.
-     * If the given node is not defined as a neighbor, then the table is not modified.
+     * Sets the candidate route for [neighbor].
      */
     operator fun set(neighbor: Node<R>, route: R) {
 
         val entry = routes[neighbor]
 
         if (entry == null) {
-            routes[neighbor] = EntryData(route)
+            // It is a new neighbor - create a new entry
+            routes[neighbor] = MutableEntry(route)
         } else {
+            // Update the existing entry
             entry.route = route
         }
 
     }
 
     /**
-     * Clears all entries from the table.
+     * Clears all entries from the table. All neighbors are enabled and assigned the [invalidRoute].
      */
     fun clear() {
         routes.clear()
     }
 
     /**
-     * Sets the enable/disable flag for the given neighbor.
+     * Sets the enable/disable flag for [neighbor], according to [enabled].
      *
-     * @return the route via the specified neighbor or invalid route if the table contains no entry for that neighbor
+     * @return the candidate route for [neighbor]
      */
     fun setEnabled(neighbor: Node<R>, enabled: Boolean): R {
         val entry = routes[neighbor]
 
         return if (entry == null) {
-            routes[neighbor] = EntryData(invalidRoute, enabled = false)
+            routes[neighbor] = MutableEntry(invalidRoute, enabled = false)
             invalidRoute
 
         } else {
@@ -100,15 +119,14 @@ private constructor(val invalidRoute: R, private val routes: MutableMap<Node<R>,
     }
 
     /**
-     * Checks if a neighbor is enabled or not. If the table contains no entry for the specified neighbor it indicates
-     * the neighbor is enabled.
+     * Checks whether or not [neighbor] is enabled. By default, a neighbor is enabled.
      */
     fun isEnabled(neighbor: Node<R>): Boolean {
         return routes[neighbor]?.enabled ?: return true
     }
 
     /**
-     * Provides way to iterate over each entry in the table.
+     * Applies [operation] to each entry in this routing table.
      */
     inline internal fun forEach(operation: (Node<R>, R, Boolean) -> Unit) {
         for ((neighbor, entry) in routes) {

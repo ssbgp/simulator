@@ -6,7 +6,7 @@ import core.routing.Protocol
 import core.routing.RoutingTable
 import core.routing.pathOf
 import core.simulator.Time
-import core.simulator.Engine
+import core.simulator.Simulator
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is` as Is
 import org.jetbrains.spek.api.Spek
@@ -31,7 +31,7 @@ object SSBGPTests : Spek({
         val neighbor = BGPNode(id = 2)
 
         // Make sure the scheduler is kept clean for the next tests
-        afterGroup { Engine.scheduler.reset() }
+        afterGroup { Simulator.scheduler.reset() }
 
         given("a node with empty protocol state and with MRAI timer disabled") {
 
@@ -269,7 +269,7 @@ object SSBGPTests : Spek({
         val neighbor3 = BGPNode(id = 3)
 
         // Make sure the scheduler is kept clean for the next tests
-        afterGroup { Engine.scheduler.reset() }
+        afterGroup { Simulator.scheduler.reset() }
 
         given("node selects route (10, [0, 3]) via node 3 and with alternative route (5, [0, 2]) via node 2") {
 

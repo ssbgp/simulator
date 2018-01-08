@@ -1,38 +1,32 @@
 package core.routing
 
 /**
- * This is the basic interface for a protocol implementation.
+ * Base interface for any protocol implementation.
+ *
+ * All protocol implementations must implement this interface.
+ *
+ * @property selectedRoute route selected by this protocol
+ *
+ * Created on 19-07-17
+ *
+ * @author David Fialho
  */
 interface Protocol<R: Route> {
 
     /**
-     * Collection of all the in-neighbors added to the protocol.
-     */
-    val inNeighbors: Collection<Neighbor<R>>
-
-    /**
-     * The route selected by the protocol.
+     * The route selected by the protocol. This route may change during a simulation execution.
      */
     val selectedRoute: R
 
     /**
-     * Adds a new in-neighbor for the protocol to consider.
+     * Sets the local [route] for [node].
      */
-    fun addInNeighbor(neighbor: Neighbor<R>)
+    fun setLocalRoute(node: Node<R>, route: R)
 
     /**
-     * Makes [node] advertise a destination and sets [defaultRoute] as the default route to reach that destination.
+     * Have the protocol process and incoming [message].
      *
-     * @param node         the node to advertise destination
-     * @param defaultRoute the default route to reach the destination
-     */
-    fun advertise(node: Node<R>, defaultRoute: R)
-
-    /**
-     * Processes an incoming routing message.
-     *
-     * This method is invoked by the node using this protocol when it receives a new routing message that must be
-     * processed.
+     * The receiving node calls this method when it receives a message.
      */
     fun process(message: Message<R>)
 

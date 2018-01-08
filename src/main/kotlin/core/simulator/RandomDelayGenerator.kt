@@ -7,17 +7,15 @@ import java.util.*
  *
  * @author David Fialho
  *
- * Generates delays randomly in a specified interval.
- *
- * @param min  the minimum delay value the generator will generate
- * @param max  the maximum delay value the generator will generate
- * @param seed the seed used to generate the random delays
+ * The [RandomDelayGenerator] generates random delays within an interval between [min] and [max]
+ * (inclusive), according to an uniform distribution.
  */
 class RandomDelayGenerator
 private constructor(override val min: Time, override val max: Time, seed: Long): DelayGenerator {
 
     /**
-     * Initial seed used for the generator. When reset() is called this seed is reused.
+     * Seed used to generate the sequence of delays.
+     * When reset() is called this seed is reused.
      */
     override var seed = seed
         private set
@@ -25,12 +23,12 @@ private constructor(override val min: Time, override val max: Time, seed: Long):
     companion object Factories {
 
         /**
-         * Returns a RandomDelayGenerator with the specified configurations.
+         * Returns a [RandomDelayGenerator] which generates delays between [min] and [max]
+         * (inclusive). The value of [max] must be higher than or equal to [min]. Delays are
+         * generated from [seed]. If no [seed] is specified, then the current time in
+         * milliseconds is used.
          *
-         * @param min  the minimum delay value the generator will generate. Must be higher than 0
-         * @param max  the maximum delay value the generator will generate. Must be higher than or equal to 'min'
-         * @param seed the seed used to generate the random delays. If none is provided it uses the system current time
-         * @throws IllegalArgumentException if 'max' is lower than 'min' or if 'min' is lower than 0.
+         * @throws IllegalArgumentException if [max] is lower than [min] or [min] is lower than 0
          */
         @Throws(IllegalStateException::class)
         fun with(min: Time, max: Time, seed: Long = System.currentTimeMillis()): RandomDelayGenerator {
@@ -48,16 +46,24 @@ private constructor(override val min: Time, override val max: Time, seed: Long):
     }
 
     /**
-     * Random value generator used to generate the delays
+     * Random number generator used to generate the delays
      */
     private var random = Random(seed)
 
+    /**
+     * Generates the next delay value and returns it.
+     */
     override fun nextDelay(): Time = random.nextInt(max - min + 1) + min
 
+
+    /**
+     * Resets the delay generator. As a result, after calling [reset] the generator will generate
+     * the same sequence of delays it generated after being created.
+     */
     override fun reset() = random.setSeed(seed)
 
     /**
-     * Generates a new seed for the delay generator and sets the new seed as the generator's seed.
+     * Generates a new seed. From this point on, delays will be generated from the new seed.
      */
     override fun generateNewSeed() {
         seed = random.nextInt().toLong()

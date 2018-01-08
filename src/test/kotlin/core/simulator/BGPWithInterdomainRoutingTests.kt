@@ -31,7 +31,7 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.reset() }
         }
 
@@ -92,7 +92,7 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.reset() }
         }
 
@@ -140,7 +140,7 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.reset() }
         }
 
@@ -154,7 +154,7 @@ object BGPWithInterdomainRoutingTests : Spek({
                     Advertisement(node[1], peerplusRoute(), time = 100)
             )
 
-            val terminated = Engine.simulate(topology, advertisements, threshold = 1000)
+            val terminated = Simulator.simulate(topology, advertisements, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -196,7 +196,7 @@ object BGPWithInterdomainRoutingTests : Spek({
                     Advertisement(node[1], customerRoute(), time = 100)
             )
 
-            val terminated = Engine.simulate(topology, advertisements, threshold = 1000)
+            val terminated = Simulator.simulate(topology, advertisements, threshold = 1000)
 
             it("terminated") {
                 assertThat(terminated, Is(true))
@@ -249,7 +249,7 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.reset() }
         }
 
@@ -274,7 +274,7 @@ object BGPWithInterdomainRoutingTests : Spek({
                     Advertisement(node[3], customerRoute())
             )
 
-            val terminated = Engine.simulate(topology, advertisements, threshold = 1000)
+            val terminated = Simulator.simulate(topology, advertisements, threshold = 1000)
 
             it("does not terminate") {
                 assertThat(terminated, Is(false))
@@ -289,7 +289,7 @@ object BGPWithInterdomainRoutingTests : Spek({
                     Advertisement(node[3], customerRoute(), time = 200)
             )
 
-            val terminated = Engine.simulate(topology, advertisements, threshold = 1000)
+            val terminated = Simulator.simulate(topology, advertisements, threshold = 1000)
 
             it("does not terminate") {
                 assertThat(terminated, Is(true))
@@ -333,7 +333,7 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.reset() }
         }
 
@@ -381,7 +381,7 @@ object BGPWithInterdomainRoutingTests : Spek({
         }
 
         afterEachTest {
-            Engine.scheduler.reset()
+            Simulator.scheduler.reset()
             topology.nodes.forEach { it.reset() }
         }
 

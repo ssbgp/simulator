@@ -3,7 +3,7 @@ package ui.cli
 import core.routing.Route
 import core.routing.Topology
 import core.simulator.Advertisement
-import core.simulator.Engine
+import core.simulator.Simulator
 import io.ParseException
 import simulation.InitializationException
 import simulation.Metadata
@@ -27,7 +27,7 @@ object CLIApplication: Application {
 
         try {
             val initializer = InputArgumentsParser().parse(args)
-            val metadata = Metadata(version = Engine.version())
+            val metadata = Metadata(version = Simulator.version())
             val (runner, execution) = initializer.initialize(this, metadata)
             runner.run(execution, metadata)
 

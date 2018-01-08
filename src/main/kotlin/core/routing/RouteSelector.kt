@@ -1,58 +1,38 @@
 package core.routing
 
 /**
+ * A RouteSelector is responsible for selecting the most preferred route in a routing [table],
+ * according to a [compare] function.
+ *
+ * The [compare] function should take two routes and return an integer value to indicate their
+ * order:
+ *   - a positive integer value indicates the first route has an higher preference than the second
+ *   - a zero indicates the two routes have the exact same preference
+ *   - a negative integer value indicates the first route has an lower preference than the second
+ *
+ * The way it works is similar to a cache. It keeps track of the selected route and neighbor until
+ * these become invalid. Instead of updating the routing table directly, you use the [update]
+ * method, which triggers the route selection operation and updates the routing table as well. This
+ * allows the selector to adjust the selected route and neighbor in the most efficient way
+ * possible. Warning: DO NOT update the routing table outside of the selector, since doing this
+ * will hide routes from the selector, which will probably lead to unexpected behavior.
+ *
+ * @property table the underlying routing table that actually stores the routes
+ *
+ * @constructor Creates a new selector around the given [table]. It should not be used directly.
+ * Use the factory methods instead.
+ * @param forceReselect if true, then the selector inspects all routes in the table and selects
+ * the most preferred route. Otherwise, the selector starts off with no selected route.
+ *
  * Created on 21-07-2017
  *
  * @author David Fialho
- *
- * A route selector is responsible for selecting the best route in a routing table. It works similar to a cache: to
- * update the routing table the update() method of the selector should be used. This allows the selector to adjust
- * the selected route/neighbor in the most efficient way possible.
- *
- * DO NOT update the routing table outside of the selector. Doing so will prevent the selector from working correctly
- * since it is not informed of the changes performed to the table.
- *
- * The constructor takes the routing table holding the routes, a forceSelect flag, and a compare method. If the force
- * reselect flag is set to true it will force the selector to reselect the route/neighbor based on the initial routes of
- * the given table. By default, the flag is set to true. This flag should be set to false if and only if you are
- * sure the table contains only invalid routes. The compare method should take to routes and compare their
- * preferences. It should as a common compare method which returns a positive value if the left route has higher
- * preference than the right route, 0 if they have the same preference and a negative value if the left route has a
- * lower preference than the right route.
- *
- * @param table         the table to select routes from
- * @param forceReselect if set to true the selector will perform a reselect operation in the initializer
- * @param compare       the method used by the selector to compare the routes
  */
-class RouteSelector<R: Route> private constructor
-(val table: RoutingTable<R>, private val compare: (R, R) -> Int, forceReselect: Boolean = true) {
-
-    companion object Factory {
-
-        /**
-         * Returns a RouteSelector wrapping a newly created routing table.
-         *
-         * @param invalid the invalid route
-         * @param compare the compare method used to compare route preferences
-         */
-        fun <R: Route> wrapNewTable(invalid: R, compare: (R, R) -> Int): RouteSelector<R> {
-            return RouteSelector(
-                    table = RoutingTable.empty(invalid),
-                    compare = compare,
-                    forceReselect = false)
-        }
-
-        /**
-         * Returns a RouteSelector wrapping an existing routing table.
-         *
-         * @param table   the table to be wrapped by the selector
-         * @param compare the compare method used to compare route preferences
-         */
-        fun <R: Route> wrap(table: RoutingTable<R>, compare: (R, R) -> Int): RouteSelector<R> {
-            return RouteSelector(table, compare)
-        }
-
-    }
+class RouteSelector<R : Route> private constructor(
+        val table: RoutingTable<R>,
+        private val compare: (R, R) -> Int,
+        forceReselect: Boolean = true
+) {
 
     // Stores the currently selected route
     private var selectedRoute: R = table.invalidRoute
@@ -71,21 +51,49 @@ class RouteSelector<R: Route> private constructor
         }
     }
 
+    companion object Factory {
+
+        /**
+         * Returns a [RouteSelector] based on newly created routing table. This is the
+         * recommended way to create a selector from a new table.
+         *
+         * @param invalid the route to set as invalid route by the new routing table
+         * @param compare the function to compare routes with
+         */
+        fun <R : Route> wrapNewTable(invalid: R, compare: (R, R) -> Int): RouteSelector<R> {
+            return RouteSelector(RoutingTable.empty(invalid), compare, forceReselect = false)
+        }
+
+        /**
+         * Returns a [RouteSelector] wrapping an existing routing [table]. Upon initialization the
+         * selector goes through all routes stored in [table] and selects the best route
+         * according to [compare].
+         *
+         * @param table   the table to be wrapped by the selector
+         * @param compare the compare method used to compare route preferences
+         */
+        fun <R : Route> wrap(table: RoutingTable<R>, compare: (R, R) -> Int): RouteSelector<R> {
+            return RouteSelector(table, compare)
+        }
+
+    }
+
     /**
      * Returns the currently selected route
      */
+    // TODO @refactor - use a value property instead of the get method
     fun getSelectedRoute(): R = selectedRoute
 
     /**
      * Returns the currently selected neighbor.
      */
+    // TODO @refactor - use a value property instead of the get method
     fun getSelectedNeighbor(): Node<R>? = selectedNeighbor
 
     /**
-     * This method should always be used to update the routing table when a selector is being used.
+     * Updates the candidate route for [neighbor] to [route].
      *
-     * Updates the routing table, setting the given route as the candidate route via the given neighbor.
-     * The selected route/neighbor may also be updated if the given route/neighbor forces a reselection.
+     * This operation may trigger an update to the selected route and neighbor.
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
@@ -108,8 +116,11 @@ class RouteSelector<R: Route> private constructor
     }
 
     /**
-     * Disables a neighbor. Routes learned from a disabled neighbor are still stored in the routing table, but the
-     * selector will never select a candidate route associated with that neighbor.
+     * Disables [neighbor]. Disabling a neighbor makes that neighbor and its respective candidate
+     * route non-eligible for selection, even if that route is the best route available. That is,
+     * the selector will never select a route from a disabled neighbor.
+     *
+     * This operation may trigger an update to the selected route and neighbor.
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
@@ -130,7 +141,9 @@ class RouteSelector<R: Route> private constructor
     }
 
     /**
-     * Enables a neighbor that was disabled. If the neighbor was not disabled than nothing changes.
+     * Enables [neighbor] if [neighbor] was disabled. Enabling a disabled neighbor may trigger
+     * an update to the selected route and neighbor. Enabling an already enabled neighbor has no
+     * effect.
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
@@ -138,11 +151,10 @@ class RouteSelector<R: Route> private constructor
 
         table.setEnabled(neighbor, true)
 
-        // Checking if the neighbor was really removed from the disabled set prevents making a table lookup
-        // if the node was not disabled
+        // Checking if the neighbor was really removed from the disabled set avoids making
+        // a table lookup if the node was not disabled
 
         if (mutableDisabledNeighbors.remove(neighbor)) {
-
 
             val route = table[neighbor]
 
@@ -160,6 +172,7 @@ class RouteSelector<R: Route> private constructor
      *
      * @return true if the selected route/neighbor was updated or false if otherwise
      */
+    // TODO @refactor - remove this method because it is not used in production
     fun enableAll(): Boolean {
 
         var selectedRouteAmongDisabled = table.invalidRoute
@@ -187,16 +200,15 @@ class RouteSelector<R: Route> private constructor
     }
 
     /**
-     * Forces the selector to reselect the route/neighbor based on the current candidates routes available in the
-     * routing table.
+     * Forces the selector to re-evaluate all candidate route and re-select best route among them.
      */
     fun reselect() {
 
         selectedRoute = table.invalidRoute
         selectedNeighbor = null
 
-        table.forEach { neighbor, route, enabled -> if (enabled && compare(route,
-                selectedRoute) > 0) {
+        table.forEach { neighbor, route, enabled ->
+            if (enabled && compare(route, selectedRoute) > 0) {
                 selectedRoute = route
                 selectedNeighbor = neighbor
             }
@@ -204,7 +216,8 @@ class RouteSelector<R: Route> private constructor
     }
 
     /**
-     * Clears the wrapped routing table.
+     * Clears all routes from the underlying routing table. The selector automatically updates
+     * its selected route to the invalid route.
      */
     fun clear() {
         selectedRoute = table.invalidRoute

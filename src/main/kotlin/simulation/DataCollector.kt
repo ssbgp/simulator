@@ -8,7 +8,7 @@ package simulation
  * A data collector is responsible for collecting data during an execution.
  *
  * Any method can be used to collect that. One of the most important methods is by using the notifications issued by
- * the engine during the simulation. To do this look into the notifier classes tagged with the Notifier interfaced.
+ * the simulator during the simulation. To do this look into the notifier classes tagged with the Notifier interfaced.
  */
 interface DataCollector {
 

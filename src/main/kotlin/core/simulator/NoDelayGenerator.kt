@@ -5,20 +5,17 @@ package core.simulator
  *
  * @author David Fialho
  *
- * Generates constant delay values of zero! The method nextDelay() always returns 0.
+ * The [NoDelayGenerator] generates delay values of 0. That is, [nextDelay] always return 0.
  */
-object ZeroDelayGenerator : DelayGenerator {
+object NoDelayGenerator : DelayGenerator {
 
     override val seed = 0L
-
     override val min: Time = 0
-
     override val max: Time = 0
 
     override fun nextDelay(): Time = 0
 
     override fun reset() = Unit
-
     override fun generateNewSeed() = Unit
 
 }

@@ -19,38 +19,38 @@ open class NotificationCollector: StartListener, EndListener, ThresholdReachedLi
     val messageReceivedNotifications = ArrayList<MessageReceivedNotification>()
 
     open fun register() {
-        BasicNotifier.addStartListener(this)
-        BasicNotifier.addEndListener(this)
-        BasicNotifier.addThresholdReachedListener(this)
-        BasicNotifier.addMessageSentListener(this)
-        BasicNotifier.addMessageReceivedListener(this)
+        Notifier.addStartListener(this)
+        Notifier.addEndListener(this)
+        Notifier.addThresholdReachedListener(this)
+        Notifier.addMessageSentListener(this)
+        Notifier.addMessageReceivedListener(this)
     }
 
     open fun unregister() {
-        BasicNotifier.removeStartListener(this)
-        BasicNotifier.removeEndListener(this)
-        BasicNotifier.removeThresholdReachedListener(this)
-        BasicNotifier.removeMessageSentListener(this)
-        BasicNotifier.removeMessageReceivedListener(this)
+        Notifier.removeStartListener(this)
+        Notifier.removeEndListener(this)
+        Notifier.removeThresholdReachedListener(this)
+        Notifier.removeMessageSentListener(this)
+        Notifier.removeMessageReceivedListener(this)
     }
 
-    final override fun notify(notification: StartNotification) {
+    final override fun onStart(notification: StartNotification) {
         startNotifications.add(notification)
     }
 
-    final override fun notify(notification: EndNotification) {
+    final override fun onEnd(notification: EndNotification) {
         endNotifications.add(notification)
     }
 
-    final override fun notify(notification: ThresholdReachedNotification) {
+    final override fun onThresholdReached(notification: ThresholdReachedNotification) {
         thresholdReachedNotifications.add(notification)
     }
 
-    final override fun notify(notification: MessageSentNotification) {
+    final override fun onMessageSent(notification: MessageSentNotification) {
         messageSentNotifications.add(notification)
     }
 
-    final override fun notify(notification: MessageReceivedNotification) {
+    final override fun onMessageReceived(notification: MessageReceivedNotification) {
         messageReceivedNotifications.add(notification)
     }
 
