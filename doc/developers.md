@@ -8,7 +8,7 @@ This document is directed to developers which want to build on our simulator arc
 
 ## Setup
 
-The simulator is implemented using [Kotlin](https://kotlinlang.org/), a programming language that compiles to the JVM. Therefore, you'll need the Java Development Kit (JDK). Get [oracle's JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) or [OpenJDK](http://openjdk.java.net/install/).
+The simulator is implemented using [Kotlin](https://kotlinlang.org/), a programming language that compiles to the JVM. To develop using kotlin you need the Java Development Kit (JDK) version 8 or later. You can download the JDK (version 8) for your operating system from [here](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 
 After having the JDK correctly installed, follow this steps to start developing.
 
