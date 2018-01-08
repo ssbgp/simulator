@@ -188,5 +188,4 @@ The first two columns of the table include the simulation number and the ID of t
 
 ## Authors
 
-- David Fialho - Simulator development, SS-BGP protocol development
-- João Luís Sobrinho - SS-BGP protocol development
+- David Fialho, fialho.david@protonmail.com
