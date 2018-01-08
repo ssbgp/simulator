@@ -2,6 +2,8 @@
 
 An event-driven routing simulator for Self-Stable BGP (SS-BGP). It is also capable to run the well known Border Gateway Protocol (BGP).
 
+Next we provide a set of instructions on how to install and run the simulator. If you are a developer and want to contribute to project or build on it, read the developer manual available [here](/docs/developer-manual.md).
+
 ## Prerequisites
 
 The simulator is an application that runs on the Java VM. To run it requires the Java Runtime Environment (JRE) (version 8 or later) to be installed. Download the JRE (version 8) for your own operating system from [here](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
