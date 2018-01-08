@@ -160,9 +160,6 @@ This command will execute 10 simulation runs. Each one will use the 15000000 as 
 
 *Suggestion: consider adjusting the threshold value accordingly to the minimum and maximum delay values.*
 
-### How to simulate with stubs?
-In progress...
-
 ### How to obtain more information about each node?
 
 By default, the simulator outputs global information about the protocol. To obtain more detailed information about each node, the `-rn/--reportnodes` option is available. Use it as follows.
